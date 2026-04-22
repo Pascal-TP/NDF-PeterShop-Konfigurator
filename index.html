@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PeterShop Konfigurator</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <section class="hero">
+    <div class="hero-grid">
+      <div>
+        <h1>Konfigurator Fußbodenheizung</h1>
+        <p>Geführter Konfigurator – Berechnung erfolgt erst auf der letzten Seite.</p>
+      </div>
+      <img src="logo.png" class="hero-logo" />
+    </div>
+  </section>
+
+  <div class="layout">
+
+    <!-- SCHRITTE -->
+    <aside class="steps">
+      <h2>Schritte</h2>
+      <div class="step-list">
+        <div class="step-item active" data-step="0">1 Projektart</div>
+        <div class="step-item" data-step="1">2 System</div>
+        <div class="step-item" data-step="2">3 Aufbau</div>
+        <div class="step-item" data-step="3">4 Thermostat</div>
+        <div class="step-item" data-step="4">5 Dämmung</div>
+        <div class="step-item" data-step="5">6 Räume</div>
+        <div class="step-item" data-step="6">7 Start</div>
+      </div>
+    </aside>
+
+    <!-- INHALT -->
+    <main class="content-card">
+
+      <!-- STEP 1 -->
+      <section class="step-panel active" data-step-panel="0">
+        <h2>Projektart</h2>
+
+        <div class="choice-row" id="projectTypeChoices">
+          <div class="choice-card active" data-type="neubau">Neubau</div>
+          <div class="choice-card" data-type="sanierung">Sanierung</div>
+        </div>
+
+        <div id="brandBlock">
+          <h3>Marke</h3>
+          <div class="choice-row" id="brandChoices">
+            <div class="choice-card active" data-brand="handelsmarke">Handelsmarke</div>
+            <div class="choice-card" data-brand="uponor">Uponor</div>
+            <div class="choice-card" data-brand="roth">Roth</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="step-panel" data-step-panel="1">
+        <h2>Systemdaten</h2>
+
+        <div class="form-grid">
+          <div class="field">
+            <label>Gebäudeart</label>
+            <select id="gebaeudeart">
+              <option>Einfamilienhaus</option>
+              <option>Mehrfamilienhaus</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Wärmeerzeuger</label>
+            <select id="waermeerzeuger">
+              <option>Wärmepumpe</option>
+              <option>Brennwert</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Stockwerke</label>
+            <input id="stockwerke" type="number" value="1" min="1" />
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="step-panel" data-step-panel="2">
+        <h2>Aufbau</h2>
+
+        <div class="form-grid">
+          <div class="field">
+            <label>Dämmung (mm)</label>
+            <input id="daemmungStaerke" type="number" value="30" />
+          </div>
+
+          <div class="field">
+            <label>Estrich (mm)</label>
+            <input id="estrichStaerke" type="number" value="45" />
+          </div>
+        </div>
+
+        <div class="schema-box">
+          Grafik folgt später
+        </div>
+      </section>
+
+      <!-- STEP 4 -->
+      <section class="step-panel" data-step-panel="3">
+        <h2>Thermostat</h2>
+
+        <div class="choice-row" id="thermostatChoices">
+          <div class="choice-card active" data-thermostat="analog">Analog</div>
+          <div class="choice-card" data-thermostat="lcd">LCD</div>
+          <div class="choice-card" data-thermostat="smart">Smart</div>
+        </div>
+      </section>
+
+      <!-- STEP 5 -->
+      <section class="step-panel" data-step-panel="4">
+        <h2>Zusatzdämmung</h2>
+
+        <div class="form-grid">
+          <div class="field">
+            <label>Dämmung</label>
+            <select id="zusatzdaemmung">
+              <option>keine</option>
+              <option>EPS</option>
+              <option>XPS</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 6 -->
+      <section class="step-panel" data-step-panel="5">
+        <h2>Etagen & Räume</h2>
+
+        <div id="floorsContainer"></div>
+        <button id="addFloorBtn">Etage hinzufügen</button>
+      </section>
+
+      <!-- STEP 7 -->
+      <section class="step-panel" data-step-panel="6">
+        <h2>Start</h2>
+        <button id="startCalculationBtn">Berechnung starten</button>
+      </section>
+
+      <!-- NAV -->
+      <div class="btn-row">
+        <button id="prevBtn">Zurück</button>
+        <button id="nextBtn">Weiter</button>
+      </div>
+
+    </main>
+
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
