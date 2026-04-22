@@ -408,3 +408,9 @@ button:disabled {
   transform: translateY(-1px);
   transition: 0.2s ease;
 }
+
+.schema-image {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}

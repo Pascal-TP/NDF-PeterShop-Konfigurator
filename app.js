@@ -189,8 +189,8 @@ function renderFloors() {
 
 function updateLayerPreview() {
   const layers = [
-    ['Dämmungsdicke', getRadioValue('insulationThickness')],
-    ['Zusatzdämmung-Dicke', getRadioValue('extraInsulationThickness')]
+    ['B: Systemdämmung', getRadioValue('insulationThickness')],
+    ['C: Zusatzdämmung', getRadioValue('extraInsulationThickness')]
   ];
 
   document.getElementById('layerList').innerHTML = layers
