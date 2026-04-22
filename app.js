@@ -232,25 +232,20 @@ function updateSummary() {
   nextBtn.disabled = !canProceedToNextStep();
 }
 
-finalCheck.innerHTML = `
-  <div><strong>Projekt:</strong><br>${summaryProjectType.textContent}${state.projectType === 'neubau' ? ' / ' + summaryBrand.textContent : ''}</div><br>
-
-  <div><strong>Wärmeerzeuger:</strong><br>${summaryHeatSource.textContent}</div><br>
-
-  <div><strong>PLZ:</strong><br>${summaryPlz.textContent}</div><br>
-
-  <div><strong>System:</strong><br>${getRadioValue('system')}, ${getRadioValue('wlg')}, ${getRadioValue('insulationThickness')}</div><br>
-
-  <div><strong>Rohr:</strong><br>${getRadioValue('pipeType')} / ${getRadioValue('pipeSize')}</div><br>
-
-  <div><strong>Thermostat:</strong><br>${state.thermostat}</div><br>
-
-  <div><strong>Verteilertechnik:</strong><br>${getRadioValue('connectionSet')}, ${getRadioValue('cabinetType')}, ${getRadioValue('cabinetMounting')}</div><br>
-
-  <div><strong>Zusatzdämmung:</strong><br>${getRadioValue('extraInsulation')} / ${getRadioValue('extraInsulationWlg')} / ${getRadioValue('extraInsulationThickness')}</div><br>
-
-  <div><strong>Etagen / Räume:</strong><br>${state.floors.length} / ${roomsCount}</div>
-`;
+function updateFinalCheck() {
+  const roomsCount = state.floors.reduce((sum, floor) => sum + floor.rooms.length, 0);
+  finalCheck.innerHTML = `
+    <div><strong>Projekt:</strong> ${summaryProjectType.textContent}${state.projectType === 'neubau' ? ' / ' + summaryBrand.textContent : ''}</div>
+    <div><strong>Wärmeerzeuger:</strong> ${summaryHeatSource.textContent}</div>
+    <div><strong>PLZ:</strong> ${summaryPlz.textContent}</div>
+    <div><strong>System:</strong> ${getRadioValue('system')}, ${getRadioValue('wlg')}, ${getRadioValue('insulationThickness')}</div>
+    <div><strong>Rohr:</strong> ${getRadioValue('pipeType')} / ${getRadioValue('pipeSize')}</div>
+    <div><strong>Thermostat:</strong> ${state.thermostat}</div>
+    <div><strong>Verteilertechnik:</strong> ${getRadioValue('connectionSet')}, ${getRadioValue('cabinetType')}, ${getRadioValue('cabinetMounting')}</div>
+    <div><strong>Zusatzdämmung:</strong> ${getRadioValue('extraInsulation')} / ${getRadioValue('extraInsulationWlg')} / ${getRadioValue('extraInsulationThickness')}</div>
+    <div><strong>Etagen / Räume:</strong> ${state.floors.length} / ${roomsCount}</div>
+  `;
+}
 
 document.querySelectorAll('#projectTypeChoices .choice-card').forEach((card) => {
   card.addEventListener('click', () => {
