@@ -392,3 +392,19 @@ button:disabled {
 #finalCheck div:last-child {
   margin-bottom: 0;
 }
+
+.step-item.clickable {
+  cursor: pointer;
+}
+
+.step-item.locked {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.step-item.clickable:hover {
+  border-color: #9eb8d0;
+  background: #eef4f8;
+  transform: translateY(-1px);
+  transition: 0.2s ease;
+}

@@ -4,8 +4,12 @@ const state = {
   brand: 'handelsmarke',
   heatSource: '',
   thermostat: 'Analog',
-  floors: []
+  floors: [],
+  maxUnlockedStep: 0,
 };
+
+state.maxUnlockedStep = 0;
+showStep(0);
 
 const totalSteps = 9;
 const floorsContainer = document.getElementById('floorsContainer');
@@ -41,10 +45,14 @@ function createRoom() {
 }
 
 function showStep(step) {
-  state.currentStep = Math.max(0, Math.min(totalSteps - 1, step));
+  const allowedStep = Math.max(0, Math.min(state.maxUnlockedStep, totalSteps - 1));
+  state.currentStep = Math.max(0, Math.min(step, allowedStep));
 
   document.querySelectorAll('.step-item').forEach((item) => {
-    item.classList.toggle('active', Number(item.dataset.step) === state.currentStep);
+    const itemStep = Number(item.dataset.step);
+    item.classList.toggle('active', itemStep === state.currentStep);
+    item.classList.toggle('clickable', itemStep <= state.maxUnlockedStep);
+    item.classList.toggle('locked', itemStep > state.maxUnlockedStep);
   });
 
   document.querySelectorAll('.step-panel').forEach((panel) => {
@@ -289,13 +297,25 @@ document.getElementById('plz').addEventListener('input', (e) => {
 });
 
 document.querySelectorAll('.step-item').forEach((item) => {
-  item.addEventListener('click', () => showStep(Number(item.dataset.step)));
+  item.addEventListener('click', () => {
+    const targetStep = Number(item.dataset.step);
+    if (targetStep <= state.maxUnlockedStep) {
+      showStep(targetStep);
+    }
+  });
 });
 
 prevBtn.addEventListener('click', () => showStep(state.currentStep - 1));
+
 nextBtn.addEventListener('click', () => {
   if (!canProceedToNextStep()) return;
-  showStep(state.currentStep + 1);
+
+  const nextStep = state.currentStep + 1;
+  if (nextStep > state.maxUnlockedStep) {
+    state.maxUnlockedStep = nextStep;
+  }
+
+  showStep(nextStep);
 });
 
 document.getElementById('addFloorBtn').addEventListener('click', () => {
