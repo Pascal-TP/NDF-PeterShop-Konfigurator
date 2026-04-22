@@ -7,159 +7,233 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-
-<div class="app">
-
-  <!-- HEADER -->
-  <section class="hero">
-    <div class="hero-grid">
-      <div>
-        <h1>Konfigurator Fußbodenheizung</h1>
-        <p>Geführter Konfigurator – Berechnung erfolgt erst auf der letzten Seite.</p>
+  <div class="app">
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <h1>Konfigurator Fußbodenheizung</h1>
+          <p>Geführte Eingabemaske für den PeterShop-Konfigurator. Die Berechnung startet erst im letzten Schritt.</p>
+        </div>
+        <img src="logo.png" alt="Logo" class="hero-logo" onerror="this.style.opacity='0.5'; this.alt='Bitte später logo.png ergänzen';" />
       </div>
-      <img src="logo.png" class="hero-logo" />
+    </section>
+
+    <div class="layout">
+      <aside class="steps">
+        <h2>Schritte</h2>
+        <div class="step-list">
+          <div class="step-item active" data-step="0"><span class="step-number">1</span><span>Projektart</span></div>
+          <div class="step-item" data-step="1"><span class="step-number">2</span><span>Wärmeerzeuger</span></div>
+          <div class="step-item" data-step="2"><span class="step-number">3</span><span>Standort</span></div>
+          <div class="step-item" data-step="3"><span class="step-number">4</span><span>System</span></div>
+          <div class="step-item" data-step="4"><span class="step-number">5</span><span>Thermostat</span></div>
+          <div class="step-item" data-step="5"><span class="step-number">6</span><span>Verteilertechnik</span></div>
+          <div class="step-item" data-step="6"><span class="step-number">7</span><span>Zusatzdämmung</span></div>
+          <div class="step-item" data-step="7"><span class="step-number">8</span><span>Räume</span></div>
+          <div class="step-item" data-step="8"><span class="step-number">9</span><span>Berechnung</span></div>
+        </div>
+      </aside>
+
+      <main class="content-card">
+        <section class="step-panel active" data-step-panel="0">
+          <h2 class="section-title">1. Projektart</h2>
+          <p class="section-subtitle">Bitte zuerst die Projektart wählen. Nur bei Neubau erscheint danach die Markenauswahl.</p>
+          <div class="choice-row" id="projectTypeChoices">
+            <div class="choice-card" data-type="neubau"><strong>Neubau</strong><span>Neues Bauvorhaben mit zusätzlicher Auswahl der Marke.</span></div>
+            <div class="choice-card" data-type="sanierung"><strong>Sanierung</strong><span>Bestandsgebäude ohne weitere Markenauswahl.</span></div>
+          </div>
+          <div id="brandBlock" class="sub-block hidden">
+            <h3>Marke für Neubau</h3>
+            <div class="choice-row" id="brandChoices">
+              <div class="choice-card active" data-brand="handelsmarke"><strong>Handelsmarke</strong><span>Vorauswahl für Neubau.</span></div>
+              <div class="choice-card" data-brand="uponor"><strong>Uponor</strong><span>Neubau-System mit Uponor-Komponenten.</span></div>
+              <div class="choice-card" data-brand="roth"><strong>Roth</strong><span>Neubau-System mit Roth-Komponenten.</span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="step-panel" data-step-panel="1">
+          <h2 class="section-title">2. Wärmeerzeuger</h2>
+          <p class="section-subtitle">Hier gibt es bewusst keine Vorauswahl. Der Nutzer muss aktiv auswählen, bevor es weitergeht.</p>
+          <div class="choice-row" id="heatSourceChoices">
+            <div class="choice-card" data-heat-source="Wärmepumpe"><strong>Wärmepumpe</strong></div>
+            <div class="choice-card" data-heat-source="Brennwert"><strong>Brennwert</strong></div>
+            <div class="choice-card" data-heat-source="Fernwärme"><strong>Fernwärme</strong></div>
+            <div class="choice-card" data-heat-source="Hybrid"><strong>Hybrid</strong></div>
+          </div>
+        </section>
+
+        <section class="step-panel" data-step-panel="2">
+          <h2 class="section-title">3. Standort</h2>
+          <p class="section-subtitle">Bitte nur die Postleitzahl eintragen.</p>
+          <div class="form-grid single">
+            <div class="field">
+              <label for="plz">PLZ</label>
+              <input id="plz" type="text" inputmode="numeric" maxlength="5" placeholder="z. B. 24568" />
+            </div>
+          </div>
+        </section>
+
+        <section class="step-panel" data-step-panel="3">
+          <h2 class="section-title">4. System</h2>
+          <p class="section-subtitle">Alle Werte werden aus festen Vorgaben gewählt.</p>
+          <div class="stack-grid">
+            <div class="sub-block"><h3>System</h3><div class="radio-list">
+              <label class="radio-option"><input type="radio" name="system" value="Tacker" checked /><span>Tacker</span></label>
+              <label class="radio-option"><input type="radio" name="system" value="Noppe" /><span>Noppe</span></label>
+              <label class="radio-option"><input type="radio" name="system" value="Klett" /><span>Klett</span></label>
+              <label class="radio-option"><input type="radio" name="system" value="Trockenbau" /><span>Trockenbau</span></label>
+              <label class="radio-option"><input type="radio" name="system" value="Dünnschicht" /><span>Dünnschicht</span></label>
+              <label class="radio-option"><input type="radio" name="system" value="XPS Trockenbau" /><span>XPS Trockenbau</span></label>
+            </div></div>
+            <div class="sub-block"><h3>Wärmeleitgruppe</h3><div class="radio-list">
+              <label class="radio-option"><input type="radio" name="wlg" value="035" checked /><span>035</span></label>
+              <label class="radio-option"><input type="radio" name="wlg" value="040" /><span>040</span></label>
+              <label class="radio-option"><input type="radio" name="wlg" value="045" /><span>045</span></label>
+            </div></div>
+            <div class="sub-block"><h3>Dämmungsdicke</h3><div class="radio-list">
+              <label class="radio-option"><input type="radio" name="insulationThickness" value="20-2 mm" checked /><span>20-2 mm</span></label>
+              <label class="radio-option"><input type="radio" name="insulationThickness" value="25-2 mm" /><span>25-2 mm</span></label>
+              <label class="radio-option"><input type="radio" name="insulationThickness" value="30-3 mm" /><span>30-3 mm</span></label>
+              <label class="radio-option"><input type="radio" name="insulationThickness" value="35-3 mm" /><span>35-3 mm</span></label>
+              <label class="radio-option"><input type="radio" name="insulationThickness" value="40-3 mm" /><span>40-3 mm</span></label>
+            </div></div>
+            <div class="sub-block"><h3>Heizrohr</h3><div class="radio-list">
+              <label class="radio-option"><input type="radio" name="pipeType" value="PE-RT" checked /><span>PE-RT</span></label>
+              <label class="radio-option"><input type="radio" name="pipeType" value="PE-Xc" /><span>PE-Xc</span></label>
+              <label class="radio-option"><input type="radio" name="pipeType" value="PE-Xa" /><span>PE-Xa</span></label>
+              <label class="radio-option"><input type="radio" name="pipeType" value="Alu-Verbund" /><span>Alu-Verbund</span></label>
+            </div></div>
+            <div class="sub-block"><h3>Heizrohr-Größe</h3><div class="radio-list">
+              <label class="radio-option"><input type="radio" name="pipeSize" value="14 x 2,0 mm" checked /><span>14 x 2,0 mm</span></label>
+              <label class="radio-option"><input type="radio" name="pipeSize" value="16 x 2,0 mm" /><span>16 x 2,0 mm</span></label>
+              <label class="radio-option"><input type="radio" name="pipeSize" value="17 x 2,0 mm" /><span>17 x 2,0 mm</span></label>
+              <label class="radio-option"><input type="radio" name="pipeSize" value="20 x 2,0 mm" /><span>20 x 2,0 mm</span></label>
+            </div></div>
+          </div>
+        </section>
+
+        <section class="step-panel" data-step-panel="4">
+          <h2 class="section-title">5. Thermostat</h2>
+          <p class="section-subtitle">Bitte den gewünschten Thermostat wählen.</p>
+          <div class="choice-row" id="thermostatChoices">
+            <div class="choice-card active" data-thermostat="Analog"><strong>Analog</strong><span>Klassisches Raumthermostat.</span></div>
+            <div class="choice-card" data-thermostat="LCD"><strong>LCD</strong><span>Digitales Display.</span></div>
+          </div>
+        </section>
+
+        <section class="step-panel" data-step-panel="5">
+          <h2 class="section-title">6. Verteilertechnik</h2>
+          <p class="section-subtitle">Die Auswahl entspricht den festen Vorgaben aus deinem Screenshot.</p>
+          <div class="stack-grid">
+            <div class="sub-block"><h3>Verteileranschluss-Set</h3><div class="radio-list">
+              <label class="radio-option"><input type="radio" name="connectionSet" value="Durchgang" checked /><span>Durchgang</span></label>
+              <label class="radio-option"><input type="radio" name="connectionSet" value="Durchgang mit Thermometer" /><span>Durchgang mit Thermometer</span></label>
+              <label class="radio-option"><input type="radio" name="connectionSet" value="Eck" /><span>Eck</span></label>
+              <label class="radio-option"><input type="radio" name="connectionSet" value="WMZ horizontal" /><span>WMZ horizontal</span></label>
+              <label class="radio-option"><input type="radio" name="connectionSet" value="WMZ vertikal" /><span>WMZ vertikal</span></label>
+            </div></div>
+            <div class="sub-block"><h3>Verteilerschrank</h3><div class="radio-list">
+              <label class="radio-option"><input type="radio" name="cabinetType" value="Objekt" checked /><span>Objekt</span></label>
+              <label class="radio-option"><input type="radio" name="cabinetType" value="Premium" /><span>Premium</span></label>
+            </div></div>
+            <div class="sub-block"><h3>Verteilerschrank-Art</h3><div class="radio-list">
+              <label class="radio-option"><input type="radio" name="cabinetMounting" value="Aufputz" checked /><span>Aufputz</span></label>
+              <label class="radio-option"><input type="radio" name="cabinetMounting" value="Unterputz" /><span>Unterputz</span></label>
+            </div></div>
+          </div>
+        </section>
+
+        <section class="step-panel" data-step-panel="6">
+          <h2 class="section-title">7. Zusatzdämmung</h2>
+          <p class="section-subtitle">Hier wird später unten auch der grafische Aufbau dargestellt.</p>
+          <div class="stack-grid">
+            <div class="sub-block"><h3>Zusatzdämmung</h3><div class="radio-list">
+              <label class="radio-option"><input type="radio" name="extraInsulation" value="PUR" checked /><span>PUR</span></label>
+              <label class="radio-option"><input type="radio" name="extraInsulation" value="EPS DEO" /><span>EPS DEO</span></label>
+            </div></div>
+            <div class="sub-block"><h3>Zusatzdämmung-Wärmeleitgruppe</h3><div class="radio-list">
+              <label class="radio-option"><input type="radio" name="extraInsulationWlg" value="025" checked /><span>025</span></label>
+            </div></div>
+            <div class="sub-block"><h3>Zusatzdämmung-Dicke</h3><div class="radio-list">
+              <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="20 mm" checked /><span>20 mm</span></label>
+              <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="30 mm" /><span>30 mm</span></label>
+              <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="40 mm" /><span>40 mm</span></label>
+              <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="50 mm" /><span>50 mm</span></label>
+              <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="52 mm" /><span>52 mm</span></label>
+              <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="60 mm" /><span>60 mm</span></label>
+            </div></div>
+          </div>
+          <div class="schema-box schema-box-large">
+            <div class="schema-placeholder" id="graphicPlaceholder">Platzhalter für die spätere Grafik „Aufbau im Schema“</div>
+            <div class="layer-list" id="layerList"></div>
+          </div>
+        </section>
+
+        <section class="step-panel" data-step-panel="7">
+          <h2 class="section-title">8. Räume</h2>
+          <p class="section-subtitle">Etagen und Räume können über das Plus ergänzt werden. Jeder Raum erhält Namen, Funktion, Verlegeabstand und Fläche.</p>
+          <div id="floorsContainer"></div>
+          <div class="btn-group" style="margin-top: 14px;"><button type="button" class="secondary" id="addFloorBtn">+ Etage hinzufügen</button></div>
+        </section>
+
+        <section class="step-panel" data-step-panel="8">
+          <h2 class="section-title">9. Berechnung starten</h2>
+          <p class="section-subtitle">Erst mit diesem Button wird später die Berechnungslogik ausgelöst.</p>
+          <div class="summary-box"><strong>Prüfung</strong><div id="finalCheck" class="muted">Die aktuelle Auswahl wird hier zusammengefasst.</div></div>
+          <div class="summary-box calc-box"><strong>Berechnung</strong><div class="muted">Die Berechnungslogik wird im nächsten Schritt ergänzt.</div><div class="btn-group" style="margin-top: 12px;"><button type="button" id="startCalculationBtn">Berechnung starten</button></div></div>
+        </section>
+
+        <div class="btn-row">
+          <div class="btn-group"><button type="button" class="secondary" id="prevBtn">Zurück</button></div>
+          <div class="btn-group"><button type="button" id="nextBtn">Weiter</button></div>
+        </div>
+      </main>
+
+      <aside class="summary">
+        <h2>Aktuelle Auswahl</h2>
+        <div class="summary-box"><strong>Projektart</strong><span id="summaryProjectType">Noch nicht gewählt</span></div>
+        <div class="summary-box hidden" id="summaryBrandBox"><strong>Marke</strong><span id="summaryBrand">Handelsmarke</span></div>
+        <div class="summary-box"><strong>Wärmeerzeuger</strong><span id="summaryHeatSource">Noch nicht gewählt</span></div>
+        <div class="summary-box"><strong>Standort</strong><span id="summaryPlz">PLZ offen</span></div>
+        <div class="summary-box"><strong>System</strong><div class="tag" id="summarySystem">Tacker</div><div class="tag" id="summaryWlg">035</div><div class="tag" id="summaryInsulationThickness">20-2 mm</div><div class="tag" id="summaryPipeType">PE-RT</div><div class="tag" id="summaryPipeSize">14 x 2,0 mm</div></div>
+        <div class="summary-box"><strong>Thermostat</strong><div class="tag" id="summaryThermostat">Analog</div></div>
+        <div class="summary-box"><strong>Verteilertechnik</strong><div class="tag" id="summaryConnectionSet">Durchgang</div><div class="tag" id="summaryCabinetType">Objekt</div><div class="tag" id="summaryCabinetMounting">Aufputz</div></div>
+        <div class="summary-box"><strong>Zusatzdämmung</strong><div class="tag" id="summaryExtraInsulation">PUR</div><div class="tag" id="summaryExtraInsulationWlg">025</div><div class="tag" id="summaryExtraInsulationThickness">20 mm</div></div>
+        <div class="summary-box"><strong>Räume</strong><div id="summaryRooms" class="muted">Noch keine Räume angelegt.</div></div>
+      </aside>
     </div>
-  </section>
-
-  <div class="layout">
-
-    <!-- SCHRITTE -->
-    <aside class="steps">
-      <h2>Schritte</h2>
-      <div class="step-list">
-        <div class="step-item active" data-step="0">1 Projektart</div>
-        <div class="step-item" data-step="1">2 System</div>
-        <div class="step-item" data-step="2">3 Aufbau</div>
-        <div class="step-item" data-step="3">4 Thermostat</div>
-        <div class="step-item" data-step="4">5 Dämmung</div>
-        <div class="step-item" data-step="5">6 Räume</div>
-        <div class="step-item" data-step="6">7 Start</div>
-      </div>
-    </aside>
-
-    <!-- INHALT -->
-    <main class="content-card">
-
-      <!-- STEP 1 -->
-      <section class="step-panel active" data-step-panel="0">
-        <h2>Projektart</h2>
-
-        <div class="choice-row" id="projectTypeChoices">
-          <div class="choice-card active" data-type="neubau">Neubau</div>
-          <div class="choice-card" data-type="sanierung">Sanierung</div>
-        </div>
-
-        <div id="brandBlock">
-          <h3>Marke</h3>
-          <div class="choice-row" id="brandChoices">
-            <div class="choice-card active" data-brand="handelsmarke">Handelsmarke</div>
-            <div class="choice-card" data-brand="uponor">Uponor</div>
-            <div class="choice-card" data-brand="roth">Roth</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- STEP 2 -->
-      <section class="step-panel" data-step-panel="1">
-        <h2>Systemdaten</h2>
-
-        <div class="form-grid">
-          <div class="field">
-            <label>Gebäudeart</label>
-            <select id="gebaeudeart">
-              <option>Einfamilienhaus</option>
-              <option>Mehrfamilienhaus</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Wärmeerzeuger</label>
-            <select id="waermeerzeuger">
-              <option>Wärmepumpe</option>
-              <option>Brennwert</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Stockwerke</label>
-            <input id="stockwerke" type="number" value="1" min="1" />
-          </div>
-        </div>
-      </section>
-
-      <!-- STEP 3 -->
-      <section class="step-panel" data-step-panel="2">
-        <h2>Aufbau</h2>
-
-        <div class="form-grid">
-          <div class="field">
-            <label>Dämmung (mm)</label>
-            <input id="daemmungStaerke" type="number" value="30" />
-          </div>
-
-          <div class="field">
-            <label>Estrich (mm)</label>
-            <input id="estrichStaerke" type="number" value="45" />
-          </div>
-        </div>
-
-        <div class="schema-box">
-          Grafik folgt später
-        </div>
-      </section>
-
-      <!-- STEP 4 -->
-      <section class="step-panel" data-step-panel="3">
-        <h2>Thermostat</h2>
-
-        <div class="choice-row" id="thermostatChoices">
-          <div class="choice-card active" data-thermostat="analog">Analog</div>
-          <div class="choice-card" data-thermostat="lcd">LCD</div>
-          <div class="choice-card" data-thermostat="smart">Smart</div>
-        </div>
-      </section>
-
-      <!-- STEP 5 -->
-      <section class="step-panel" data-step-panel="4">
-        <h2>Zusatzdämmung</h2>
-
-        <div class="form-grid">
-          <div class="field">
-            <label>Dämmung</label>
-            <select id="zusatzdaemmung">
-              <option>keine</option>
-              <option>EPS</option>
-              <option>XPS</option>
-            </select>
-          </div>
-        </div>
-      </section>
-
-      <!-- STEP 6 -->
-      <section class="step-panel" data-step-panel="5">
-        <h2>Etagen & Räume</h2>
-
-        <div id="floorsContainer"></div>
-        <button id="addFloorBtn">Etage hinzufügen</button>
-      </section>
-
-      <!-- STEP 7 -->
-      <section class="step-panel" data-step-panel="6">
-        <h2>Start</h2>
-        <button id="startCalculationBtn">Berechnung starten</button>
-      </section>
-
-      <!-- NAV -->
-      <div class="btn-row">
-        <button id="prevBtn">Zurück</button>
-        <button id="nextBtn">Weiter</button>
-      </div>
-
-    </main>
-
   </div>
-</div>
 
-<script src="app.js"></script>
+  <template id="floorTemplate">
+    <div class="floor-card">
+      <div class="floor-head">
+        <h4 class="floor-title">Etage 1</h4>
+        <div class="inline-actions">
+          <button type="button" class="secondary add-room-btn">+ Raum</button>
+          <button type="button" class="danger remove-floor-btn">Etage entfernen</button>
+        </div>
+      </div>
+      <div class="form-grid single-gap"><div class="field"><label>Bezeichnung der Etage</label><input type="text" class="floor-name" placeholder="z. B. Erdgeschoss" /></div></div>
+      <div class="rooms-container"></div>
+    </div>
+  </template>
+
+  <template id="roomTemplate">
+    <div class="room-card">
+      <div class="room-head">
+        <h5 class="room-title">Raum 1</h5>
+        <button type="button" class="danger remove-room-btn">Raum entfernen</button>
+      </div>
+      <div class="form-grid three">
+        <div class="field"><label>Raumbezeichnung</label><input type="text" class="room-name" placeholder="z. B. Wohnzimmer" /></div>
+        <div class="field"><label>Funktion</label><select class="room-function"><option>Wohnraum</option><option>Bad</option><option>unbeheizter Raum</option></select></div>
+        <div class="field"><label>Verlegeabstand</label><select class="room-spacing"><option>VA 100</option><option>VA 150</option><option>VA 200</option></select></div>
+        <div class="field"><label>Fläche in m²</label><input type="number" class="room-area" min="0" step="0.1" placeholder="z. B. 24" /></div>
+      </div>
+    </div>
+  </template>
+
+  <script src="app.js"></script>
 </body>
 </html>
