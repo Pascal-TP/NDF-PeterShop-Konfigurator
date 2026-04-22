@@ -414,3 +414,24 @@ button:disabled {
   height: auto;
   display: block;
 }
+
+.schema-box {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* EINHEITLICHER Abstand für alles */
+}
+
+.schema-placeholder {
+  margin: 0; /* entfernt extra Abstand */
+}
+
+.layer-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* gleicher Abstand wie oben */
+}
+
+.layer-item {
+  margin: 0; /* wichtig! entfernt alte Abstände */
+}
