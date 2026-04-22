@@ -189,13 +189,7 @@ function renderFloors() {
 
 function updateLayerPreview() {
   const layers = [
-    ['System', getRadioValue('system')],
-    ['Wärmeleitgruppe', getRadioValue('wlg')],
     ['Dämmungsdicke', getRadioValue('insulationThickness')],
-    ['Heizrohr', getRadioValue('pipeType')],
-    ['Heizrohr-Größe', getRadioValue('pipeSize')],
-    ['Zusatzdämmung', getRadioValue('extraInsulation')],
-    ['Zusatzdämmung-WLG', getRadioValue('extraInsulationWlg')],
     ['Zusatzdämmung-Dicke', getRadioValue('extraInsulationThickness')]
   ];
 
