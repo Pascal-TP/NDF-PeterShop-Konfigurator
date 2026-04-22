@@ -8,9 +8,6 @@ const state = {
   maxUnlockedStep: 0,
 };
 
-state.maxUnlockedStep = 0;
-showStep(0);
-
 const totalSteps = 9;
 const floorsContainer = document.getElementById('floorsContainer');
 const floorTemplate = document.getElementById('floorTemplate');
