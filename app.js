@@ -4,6 +4,7 @@ const state = {
   brand: 'handelsmarke',
   heatSource: '',
   thermostat: 'Analog',
+  extraInsulationEnabled: 'ja',
   floors: [],
   maxUnlockedStep: 0,
   services: []
@@ -24,6 +25,7 @@ const finalCheck = document.getElementById('finalCheck');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const serviceCheckboxes = document.querySelectorAll('input[name="service"]');
+const extraInsulationOptions = document.getElementById('extraInsulationOptions');
 
 function getRadioValue(name) {
   const checked = document.querySelector(`input[name="${name}"]:checked`);
@@ -112,6 +114,35 @@ function renderThermostat() {
   document.getElementById('summaryThermostat').textContent = state.thermostat;
 }
 
+function renderExtraInsulationToggle() {
+  document.querySelectorAll('#extraInsulationToggleChoices .choice-card').forEach((card) => {
+    card.classList.toggle('active', card.dataset.extraInsulationToggle === state.extraInsulationEnabled);
+  });
+
+  const disabled = state.extraInsulationEnabled === 'nein';
+  extraInsulationOptions.classList.toggle('disabled-block', disabled);
+
+  extraInsulationOptions.querySelectorAll('input').forEach((input) => {
+    input.disabled = disabled;
+  });
+
+  if (disabled) {
+    document.getElementById('summaryExtraInsulation').textContent = 'Keine';
+    document.getElementById('summaryExtraInsulationWlg').textContent = '-';
+    document.getElementById('summaryExtraInsulationThickness').textContent = '-';
+  } else {
+    if (state.extraInsulationEnabled === 'nein') {
+      document.getElementById('summaryExtraInsulation').textContent = 'Keine';
+      document.getElementById('summaryExtraInsulationWlg').textContent = '-';
+      document.getElementById('summaryExtraInsulationThickness').textContent = '-';
+    } else {
+      document.getElementById('summaryExtraInsulation').textContent = getRadioValue('extraInsulation');
+      document.getElementById('summaryExtraInsulationWlg').textContent = getRadioValue('extraInsulationWlg');
+      document.getElementById('summaryExtraInsulationThickness').textContent = getRadioValue('extraInsulationThickness');
+    }
+  }
+}
+
 function renderFloors() {
   floorsContainer.innerHTML = '';
 
@@ -193,9 +224,14 @@ function renderFloors() {
 }
 
 function updateLayerPreview() {
+  const extraInsulationText =
+    state.extraInsulationEnabled === 'nein'
+      ? 'keine'
+      : getRadioValue('extraInsulationThickness');
+
   const layers = [
     ['B: Systemdämmung', getRadioValue('insulationThickness')],
-    ['C: Zusatzdämmung', getRadioValue('extraInsulationThickness')]
+    ['C: Zusatzdämmung', extraInsulationText]
   ];
 
   document.getElementById('layerList').innerHTML = layers
@@ -252,7 +288,7 @@ function updateFinalCheck() {
     <div><strong>Rohr:</strong> ${getRadioValue('pipeType')} / ${getRadioValue('pipeSize')}</div>
     <div><strong>Thermostat:</strong> ${state.thermostat}</div>
     <div><strong>Verteilertechnik:</strong> ${getRadioValue('connectionSet')}, ${getRadioValue('cabinetType')}, ${getRadioValue('cabinetMounting')}</div>
-    <div><strong>Zusatzdämmung:</strong> ${getRadioValue('extraInsulation')} / ${getRadioValue('extraInsulationWlg')} / ${getRadioValue('extraInsulationThickness')}</div>
+    <div><strong>Zusatzdämmung:</strong> ${state.extraInsulationEnabled === 'nein' ? 'Keine' : `${getRadioValue('extraInsulation')} / ${getRadioValue('extraInsulationWlg')} / ${getRadioValue('extraInsulationThickness')}`}</div>
     <div><strong>Etagen / Räume:</strong> ${state.floors.length} / ${roomsCount}</div>
     <div><strong>Dienstleistungen:</strong> ${servicesText}</div>
   `;
@@ -286,6 +322,14 @@ document.querySelectorAll('#thermostatChoices .choice-card').forEach((card) => {
   card.addEventListener('click', () => {
     state.thermostat = card.dataset.thermostat;
     renderThermostat();
+    updateSummary();
+  });
+});
+
+document.querySelectorAll('#extraInsulationToggleChoices .choice-card').forEach((card) => {
+  card.addEventListener('click', () => {
+    state.extraInsulationEnabled = card.dataset.extraInsulationToggle;
+    renderExtraInsulationToggle();
     updateSummary();
   });
 });
@@ -340,6 +384,7 @@ renderProjectType();
 renderBrand();
 renderHeatSource();
 renderThermostat();
+renderExtraInsulationToggle();
 renderFloors();
 updateSummary();
 showStep(0);

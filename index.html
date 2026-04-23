@@ -231,41 +231,61 @@
         <section class="step-panel" data-step-panel="7">
           <h2 class="section-title">7. Zusatzdämmung</h2>
           <p class="section-subtitle">Hier wird später unten auch der grafische Aufbau dargestellt.</p>
+
           <div class="stack-grid">
             <div class="sub-block">
-              <h3>Zusatzdämmung</h3>
-              <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="extraInsulation" value="PUR"
-                    checked /><span>PUR</span></label>
-                <label class="radio-option"><input type="radio" name="extraInsulation" value="EPS DEO" /><span>EPS
-                    DEO</span></label>
+              <h3>Zusatzdämmung vorhanden?</h3>
+              <div class="choice-row" id="extraInsulationToggleChoices">
+                <div class="choice-card active" data-extra-insulation-toggle="ja">
+                  <strong>Ja</strong>
+                </div>
+                <div class="choice-card" data-extra-insulation-toggle="nein">
+                  <strong>Nein</strong>
+                </div>
               </div>
             </div>
-            <div class="sub-block">
-              <h3>Zusatzdämmung-Wärmeleitgruppe</h3>
-              <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="extraInsulationWlg" value="025"
-                    checked /><span>025</span></label>
-              </div>
-            </div>
-            <div class="sub-block">
-              <h3>Zusatzdämmung-Dicke</h3>
-              <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="20 mm"
-                    checked /><span>20 mm</span></label>
-                <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="30 mm" /><span>30
-                    mm</span></label>
-                <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="40 mm" /><span>40
-                    mm</span></label>
-                <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="50 mm" /><span>50
-                    mm</span></label>
-                <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="52 mm" /><span>52
-                    mm</span></label>
-                <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="60 mm" /><span>60
-                    mm</span></label>
+
+            <div id="extraInsulationOptions">
+              <div class="stack-grid">
+                <div class="sub-block">
+                  <h3>Zusatzdämmung</h3>
+                  <div class="radio-list">
+                    <label class="radio-option"><input type="radio" name="extraInsulation" value="PUR"
+                        checked /><span>PUR</span></label>
+                    <label class="radio-option"><input type="radio" name="extraInsulation" value="EPS DEO" /><span>EPS
+                        DEO</span></label>
+                  </div>
+                </div>
+
+                <div class="sub-block">
+                  <h3>Zusatzdämmung-Wärmeleitgruppe</h3>
+                  <div class="radio-list">
+                    <label class="radio-option"><input type="radio" name="extraInsulationWlg" value="025"
+                        checked /><span>025</span></label>
+                  </div>
+                </div>
+
+                <div class="sub-block">
+                  <h3>Zusatzdämmung-Dicke</h3>
+                  <div class="radio-list">
+                    <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="20 mm"
+                        checked /><span>20 mm</span></label>
+                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                        value="30 mm" /><span>30 mm</span></label>
+                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                        value="40 mm" /><span>40 mm</span></label>
+                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                        value="50 mm" /><span>50 mm</span></label>
+                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                        value="52 mm" /><span>52 mm</span></label>
+                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                        value="60 mm" /><span>60 mm</span></label>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
+
           <div class="schema-box schema-box-large">
             <div class="schema-placeholder">
               <img src="Aufbauschema.png" alt="Aufbau im Schema" class="schema-image">
@@ -304,16 +324,6 @@
                   <span>Heizlastberechnung nach DIN EN 12831</span></label>
                 <label class="check-option"><input type="checkbox" name="service" value="Änderung Berechnung" />
                   <span>Änderung in der Berechnung im Nachgang</span></label>
-              </div>
-            </div>
-
-            <div class="sub-block">
-              <h3>Entfernung & Zuschläge</h3>
-              <div class="check-list">
-                <label class="check-option"><input type="checkbox" name="service" value="Entfernungspauschale" />
-                  <span>Entfernungspauschale</span></label>
-                <label class="check-option"><input type="checkbox" name="service" value="Inselzuschlag" />
-                  <span>Inselzuschlag</span></label>
               </div>
             </div>
           </div>

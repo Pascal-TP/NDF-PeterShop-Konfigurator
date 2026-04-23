@@ -479,3 +479,8 @@ button:disabled {
   margin-bottom: 8px;
   line-height: 1.5;
 }
+
+.disabled-block {
+  opacity: 0.45;
+  pointer-events: none;
+}
