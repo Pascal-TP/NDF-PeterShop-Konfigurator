@@ -54,6 +54,7 @@ const wlgBlock = document.getElementById('wlgBlock');
 const insulationThicknessBlock = document.getElementById('insulationThicknessBlock');
 const pipeTypeBlock = document.getElementById('pipeTypeBlock');
 const pipeSizeBlock = document.getElementById('pipeSizeBlock');
+const systemBlock = document.getElementById('systemBlock');
 
 
 function getRadioValue(name) {
@@ -128,26 +129,21 @@ function renderSystemBlocksByProjectType() {
   const isNeubau = state.projectType === 'neubau';
   const isSanierung = state.projectType === 'sanierung';
 
-  // Neubau: Fräsen ausblenden
+  // System nur bei Neubau sichtbar
+  systemBlock.classList.toggle('hidden', isSanierung);
+
+  // Fräsen nur bei Sanierung sichtbar
   millingBlock.classList.toggle('hidden', isNeubau);
 
-  // Sanierung: nur Fräsen, Estrich und Trockenbau sichtbar
-  estrichBlock.classList.toggle('hidden', false);
-  dryConstructionBlock.classList.toggle('hidden', false);
+  // Diese beiden immer sichtbar
+  estrichBlock.classList.remove('hidden');
+  dryConstructionBlock.classList.remove('hidden');
 
+  // Nur bei Neubau sichtbar
   wlgBlock.classList.toggle('hidden', isSanierung);
   insulationThicknessBlock.classList.toggle('hidden', isSanierung);
   pipeTypeBlock.classList.toggle('hidden', isSanierung);
   pipeSizeBlock.classList.toggle('hidden', isSanierung);
-
-  // System-Kachel selbst bleibt sichtbar,
-  // aber bei Sanierung werden nur die 3 Standard-Systeme gezeigt, damit keine Folgeblöcke sichtbar sind
-  if (isSanierung) {
-    wlgBlock.classList.add('hidden');
-    insulationThicknessBlock.classList.add('hidden');
-    pipeTypeBlock.classList.add('hidden');
-    pipeSizeBlock.classList.add('hidden');
-  }
 }
 
 function renderBrand() {
