@@ -255,6 +255,23 @@ function getDryConstructionEntries() {
     .map((checkbox) => checkbox.value);
 }
 
+function syncEstrichAdditivesRules() {
+  const additiveCheckboxes = Array.from(estrichAdditiveCheckboxes);
+
+  const exclusiveCheckboxes = additiveCheckboxes.slice(1);
+  const selectedExclusive = exclusiveCheckboxes.find((checkbox) => checkbox.checked);
+
+  exclusiveCheckboxes.forEach((checkbox) => {
+    if (selectedExclusive && checkbox !== selectedExclusive) {
+      checkbox.disabled = true;
+      checkbox.closest('.check-option')?.classList.add('disabled-option');
+    } else {
+      checkbox.disabled = false;
+      checkbox.closest('.check-option')?.classList.remove('disabled-option');
+    }
+  });
+}
+
 function renderFloors() {
   floorsContainer.innerHTML = '';
 
@@ -419,6 +436,7 @@ function updateSummary() {
       ? `Trockenbau: ${dryConstructionEntries.join(', ')}`
       : 'Kein Trockenbau gewählt.';
 
+  syncEstrichAdditivesRules();
   syncMillingSystemRules();
 
   const roomTexts = [];
@@ -562,7 +580,10 @@ estrichRangeCheckboxes.forEach((field) => {
 });
 
 estrichAdditiveCheckboxes.forEach((field) => {
-  field.addEventListener('change', updateSummary);
+  field.addEventListener('change', () => {
+    syncEstrichAdditivesRules();
+    updateSummary();
+  });
 });
 
 dryConstructionCheckboxes.forEach((field) => {
@@ -622,5 +643,6 @@ renderThermostat();
 renderExtraInsulationToggle();
 renderDistributionMode();
 renderFloors();
+syncEstrichAdditivesRules();
 updateSummary();
 showStep(0);
