@@ -496,3 +496,12 @@ button:disabled {
   border-color: var(--border);
   background: #fafafa;
 }
+
+#thermostatOptions {
+  margin-top: 16px;
+}
+
+.choice-card.full-width {
+  flex: 1 1 100%;
+  background: #f3f6f9;
+}
