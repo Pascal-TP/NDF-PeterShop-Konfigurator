@@ -435,3 +435,47 @@ button:disabled {
 .layer-item {
   margin: 0; /* wichtig! entfernt alte Abstände */
 }
+
+.start-box p {
+  margin: 0 0 10px 0;
+  line-height: 1.5;
+}
+
+.start-box p:last-child {
+  margin-bottom: 0;
+}
+
+.check-list {
+  display: grid;
+  gap: 10px;
+}
+
+.check-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-weight: 500;
+  color: #444;
+}
+
+.check-option input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-height: auto;
+  margin-top: 2px;
+}
+
+.notes-box p {
+  margin: 0 0 10px 0;
+  line-height: 1.5;
+}
+
+.notes-box ul {
+  margin: 8px 0 0 18px;
+  padding: 0;
+}
+
+.notes-box li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+}

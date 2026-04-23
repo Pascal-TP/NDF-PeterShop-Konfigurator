@@ -6,9 +6,10 @@ const state = {
   thermostat: 'Analog',
   floors: [],
   maxUnlockedStep: 0,
+  services: []
 };
 
-const totalSteps = 9;
+const totalSteps = 11;
 const floorsContainer = document.getElementById('floorsContainer');
 const floorTemplate = document.getElementById('floorTemplate');
 const roomTemplate = document.getElementById('roomTemplate');
@@ -22,6 +23,7 @@ const summaryRooms = document.getElementById('summaryRooms');
 const finalCheck = document.getElementById('finalCheck');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
+const serviceCheckboxes = document.querySelectorAll('input[name="service"]');
 
 function getRadioValue(name) {
   const checked = document.querySelector(`input[name="${name}"]:checked`);
@@ -63,12 +65,15 @@ function showStep(step) {
 
 function canProceedToNextStep() {
   if (state.currentStep === 0) {
-    return state.projectType !== '';
+    return true;
   }
   if (state.currentStep === 1) {
-    return state.heatSource !== '';
+    return state.projectType !== '';
   }
   if (state.currentStep === 2) {
+    return state.heatSource !== '';
+  }
+  if (state.currentStep === 3) {
     return /^\d{5}$/.test(document.getElementById('plz').value.trim());
   }
   return true;
@@ -226,6 +231,10 @@ function updateSummary() {
     ? roomTexts.map((text) => `<div class="tag" style="display:block; margin:0 0 8px 0; border-radius:10px;">${text}</div>`).join('')
     : 'Noch keine Räume angelegt.';
 
+  state.services = Array.from(serviceCheckboxes)
+    .filter((checkbox) => checkbox.checked)
+    .map((checkbox) => checkbox.value);
+
   updateLayerPreview();
   updateFinalCheck();
   nextBtn.disabled = !canProceedToNextStep();
@@ -233,6 +242,8 @@ function updateSummary() {
 
 function updateFinalCheck() {
   const roomsCount = state.floors.reduce((sum, floor) => sum + floor.rooms.length, 0);
+  const servicesText = state.services.length ? state.services.join(', ') : 'Keine zusätzlichen Dienstleistungen gewählt';
+
   finalCheck.innerHTML = `
     <div><strong>Projekt:</strong> ${summaryProjectType.textContent}${state.projectType === 'neubau' ? ' / ' + summaryBrand.textContent : ''}</div>
     <div><strong>Wärmeerzeuger:</strong> ${summaryHeatSource.textContent}</div>
@@ -243,6 +254,7 @@ function updateFinalCheck() {
     <div><strong>Verteilertechnik:</strong> ${getRadioValue('connectionSet')}, ${getRadioValue('cabinetType')}, ${getRadioValue('cabinetMounting')}</div>
     <div><strong>Zusatzdämmung:</strong> ${getRadioValue('extraInsulation')} / ${getRadioValue('extraInsulationWlg')} / ${getRadioValue('extraInsulationThickness')}</div>
     <div><strong>Etagen / Räume:</strong> ${state.floors.length} / ${roomsCount}</div>
+    <div><strong>Dienstleistungen:</strong> ${servicesText}</div>
   `;
 }
 
@@ -280,6 +292,10 @@ document.querySelectorAll('#thermostatChoices .choice-card').forEach((card) => {
 
 document.querySelectorAll('input[type="radio"]').forEach((radio) => {
   radio.addEventListener('change', updateSummary);
+});
+
+serviceCheckboxes.forEach((checkbox) => {
+  checkbox.addEventListener('change', updateSummary);
 });
 
 document.getElementById('plz').addEventListener('input', (e) => {
