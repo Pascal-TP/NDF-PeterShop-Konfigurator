@@ -56,6 +56,9 @@ const pipeTypeBlock = document.getElementById('pipeTypeBlock');
 const pipeSizeBlock = document.getElementById('pipeSizeBlock');
 const systemBlock = document.getElementById('systemBlock');
 const systemSanierungBlock = document.getElementById('systemSanierungBlock');
+const systemInfoTacker = document.getElementById('systemInfoTacker');
+const systemInfoNoppe = document.getElementById('systemInfoNoppe');
+const systemInfoKlett = document.getElementById('systemInfoKlett');
 
 
 function getRadioValue(name) {
@@ -162,10 +165,11 @@ function renderBrand() {
 
   summaryBrand.textContent =
     state.brand === 'uponor' ? 'Uponor' :
-    state.brand === 'roth' ? 'Roth' :
-    'Handelsmarke';
+      state.brand === 'roth' ? 'Roth' :
+        'Handelsmarke';
 
   syncSystemOptionsByBrand();
+  updateSystemInfoTextsByBrand();
 }
 
 function syncSystemOptionsByBrand() {
@@ -194,6 +198,32 @@ function syncSystemOptionsByBrand() {
       firstAllowed.checked = true;
     }
   }
+}
+
+function updateSystemInfoTextsByBrand() {
+  const texts = {
+    handelsmarke: {
+      Tacker: 'Hier kommt der Text für Handelsmarke Tacker hin.',
+      Noppe: 'Hier kommt der Text für Handelsmarke Noppe hin.',
+      Klett: 'Hier kommt der Text für Handelsmarke Klett hin.'
+    },
+    uponor: {
+      Tacker: 'Hier kommt der Text für Uponor Tacker hin.',
+      Noppe: 'Hier kommt der Text für Uponor Noppe hin.',
+      Klett: 'Hier kommt der Text für Uponor Klett hin.'
+    },
+    roth: {
+      Tacker: 'Hier kommt der Text für Roth Tacker hin.',
+      Noppe: 'Hier kommt der Text für Roth Noppe hin.',
+      Klett: 'Hier kommt der Text für Roth Klett hin.'
+    }
+  };
+
+  const brandTexts = texts[state.brand] || texts.handelsmarke;
+
+  systemInfoTacker.textContent = brandTexts.Tacker;
+  systemInfoNoppe.textContent = brandTexts.Noppe;
+  systemInfoKlett.textContent = brandTexts.Klett;
 }
 
 function renderHeatSource() {
@@ -735,6 +765,7 @@ state.floors = [createFloor()];
 renderProjectType();
 renderSystemBlocksByProjectType();
 renderBrand();
+updateSystemInfoTextsByBrand();
 renderHeatSource();
 renderThermostat();
 renderThermostatToggle();
