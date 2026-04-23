@@ -621,3 +621,7 @@ Ganz unten ergänzen */
     max-width: 260px;
   }
 }
+
+.info-tooltip {
+  white-space: pre-line;
+}

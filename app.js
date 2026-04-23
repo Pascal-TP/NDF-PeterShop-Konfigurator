@@ -203,19 +203,70 @@ function syncSystemOptionsByBrand() {
 function updateSystemInfoTextsByBrand() {
   const texts = {
     handelsmarke: {
-      Tacker: 'Hier kommt der Text für Handelsmarke Tacker hin.',
-      Noppe: 'Hier kommt der Text für Handelsmarke Noppe hin.',
-      Klett: 'Hier kommt der Text für Handelsmarke Klett hin.'
+      Tacker: `...als Tackersystem liefern und montieren...
+- Tackerplatte (diverse Wärmeleitgruppen)
+- Heizrohr PE-RT 17x2 mm
+- Tackernadeln für Heizrohr 14-17 mm
+- PE-Randdämmstreifen 10/150 | Comfort - selbstklebend | mit Folienlasche | 50 lfm
+- Klebeband extrem reißfest | 50 mm breit | Rolle = 66 m
+- Klemmverschraubung 16/17x2,0 mm - einzeln
+- Rohrverbinder (Kupplung) 16x16/17x17 mm, mit zwei gleichen Presshülsen
+- Winkelspangen, Kunststoff schwarz, Rohrführung zum Umlenken der Heizrohre im Verteilerbereich, für Rohre 14-18 mm
+- Dehnfugenschutzrohr zum Isolieren der Vor-/Rückläufe
+- Dehnfugenschutzrohr geschlitzt für Rohr bis 20 mm im Bereich der Dehnfugen | ca. 300 mm lang
+- Estrichnessstellenmarkierung
+- nicht enthalten: Montage der Verteiler, Schränke, Klemmleisten, Stellantriebe, Raumthermostate
+- Baustelleneinrichtung, Müllentsorgung, Bauleitung, Heizflächenauslegung und Abdrücken der Fußbodenheizung mit Luft sind im Preis enthalten`,
+      Noppe: 'zurzeit nicht verfügbar',
+      Klett: 'zurzeit nicht verfügbar'
     },
     uponor: {
-      Tacker: 'Hier kommt der Text für Uponor Tacker hin.',
-      Noppe: 'Hier kommt der Text für Uponor Noppe hin.',
-      Klett: 'Hier kommt der Text für Uponor Klett hin.'
+      Tacker: `...als Tackersystem liefern und montieren...
+- Uponor Tackerrolle (diverse Wärmeleitgruppen)
+- Uponor ComfortPipe Rohr PE-Xa 16x1,8 mm
+- Tackernadeln für Heizrohr 14-17 mm | Hausmarke
+- PE-Randdämmstreifen 10/150 | Comfort - selbstklebend | mit Folienlasche | 50 lfm | Hausmarke
+- Klebeband extrem reißfest | 50 mm breit | Rolle = 66 m | Hausmarke
+- Klemmverschraubung 16x2,0 mm 3/4” PEX- einzeln | Uponor
+- Rohrverbinder (Kupplung m.Ringen) 16x16 mm | Uponor
+- Winkelspangen, Kunststoff schwarz, Rohrführung zum Umlenken der Heizrohre im Verteilerbereich, für Rohre 14-18 mm
+- Dehnfugenschutzrohr zum Isolieren der Vor-/Rückläufe
+- Dehnfugenschutzrohr geschlitzt für Rohr bis 20 mm im Bereich der Dehnfugen | ca. 300 mm lang | Hausmarke
+- Estrichmessstellenmarkierung | Hausmarke
+- Montageleistung Tacker-Systemrohr (nicht enthalten: Montage der Verteiler, Schränke, Klemmleisten, Stellantriebe, Raumthermostate
+- Baustelleneinrichtung, Müllentsorgung, Bauleitung, Heizflächenauslegung und Abdrücken der Fußbodenheizung mit Luft sind im Preis enthalten`,
+      Noppe: 'zurzeit nicht verfügbar',
+      Klett: `...als Klettsystem liefern und montieren...
+- Uponor Verbundrolle EPS DES WLG 040 30-2 mm
+- Uponor ComfortPipe Plus PE-Xa 16x2 mm
+- PE-Randdämmstreifen 10/150 | Comfort - selbstklebend | mit Folienlasche | 50 lfm | Hausmarke
+- Klebeband extrem reißfest | 50 mm breit | Rolle = 66 m | Hausmarke
+- Klemmverschraubung 16x2,0 mm 3/4” PEX- einzeln | Uponor
+- Rohrverbinder (Kupplung m.Ringen) 16x16 mm | Uponor
+- Winkelspangen, Kunststoff schwarz, Rohrführung zum Umlenken der
+- Klettvlies zum Isolieren der Vor-/Rückläufe
+- Dehnfugenschutzrohr geschlitzt für Rohr bis 20 mm im Bereich der Dehnfugen | ca. 300 mm lang | Hausmarke
+- Estrichmessstellenmarkierung | Hausmarke
+- Montageleistung Klett-Systemrohr (nicht enthalten: Montage der Verteiler, Schränke, Klemmleisten, Stellantriebe, Raumthermostate
+- Baustelleneinrichtung, Müllentsorgung, Bauleitung, Heizflächenauslegung und Abdrücken der Fußbodenheizung mit Luft sind im Preis enthalten`
     },
     roth: {
-      Tacker: 'Hier kommt der Text für Roth Tacker hin.',
-      Noppe: 'Hier kommt der Text für Roth Noppe hin.',
-      Klett: 'Hier kommt der Text für Roth Klett hin.'
+      Tacker: `als Tackersystem liefern und montieren
+- Roth System-Verbundfaltplatte (diverse Wärmeleitgruppen)
+- Roth Heizrohr PERTEX S5 17 mm
+- Tackernadeln für Heizrohr 14-17 mm | Hausmarke
+- concept | Roth-Randdämmstreifen 10/160 | selbstklebend | 25 m / Rolle (4 Rollen /Sack)
+- Klebeband extrem reißfest | 50 mm breit | Rolle = 66 m | Hausmarke
+- Klemmverschraubung Universal 17 mm | Roth
+- Kupplung PressCheck 17 mm
+- Winkelspangen, Kunststoff schwarz, Rohrführung zum Umlenken der Heizrohre im Verteilerbereich, für Rohre 14-18 mm
+- Dehnfugenschutzrohr zum Isolieren der Vor-/Rückläufe
+- Dehnfugenschutzrohr geschlitzt für Rohr bis 20 mm im Bereich der Dehnfugen | ca. 300 mm lang | Hausmarke
+- Estrichmessstellenmarkierung | Hausmarke
+- Montageleistung Tacker-Systemrohr (nicht enthalten: Montage der Verteiler, Schränke, Klemmleisten, Stellantriebe, Raumthermostate
+- Baustelleneinrichtung, Müllentsorgung, Bauleitung, Heizflächenauslegung und Abdrücken der Fußbodenheizung mit Luft sind im Preis enthalten`,
+      Noppe: 'zurzeit nicht verfügbar',
+      Klett: 'zurzeit nicht verfügbar'
     }
   };
 
