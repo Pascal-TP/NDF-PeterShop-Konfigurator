@@ -59,6 +59,7 @@ const systemSanierungBlock = document.getElementById('systemSanierungBlock');
 const systemInfoTacker = document.getElementById('systemInfoTacker');
 const systemInfoNoppe = document.getElementById('systemInfoNoppe');
 const systemInfoKlett = document.getElementById('systemInfoKlett');
+const systemInfoKlett3mm = document.getElementById('systemInfoKlett3mm');
 
 
 function getRadioValue(name) {
@@ -173,7 +174,8 @@ function renderBrand() {
 }
 
 function syncSystemOptionsByBrand() {
-  const systemRadios = document.querySelectorAll('input[name="system"]');
+  const systemRadios = document.querySelectorAll('#systemBlock input[name="system"]');
+  const sanierungSystemRadio = document.querySelector('#systemSanierungBlock input[name="system"]');
 
   let allowedSystems = [];
 
@@ -191,11 +193,22 @@ function syncSystemOptionsByBrand() {
     optionLabel?.classList.toggle('disabled-radio-option', !isAllowed);
   });
 
+  // Sanierungs-System "Klett 3mm" immer freigeben
+  if (sanierungSystemRadio) {
+    const sanierungLabel = sanierungSystemRadio.closest('.radio-option');
+    sanierungSystemRadio.disabled = false;
+    sanierungLabel?.classList.remove('disabled-radio-option');
+  }
+
   const checkedSystem = document.querySelector('input[name="system"]:checked');
   if (!checkedSystem || checkedSystem.disabled) {
-    const firstAllowed = Array.from(systemRadios).find((radio) => !radio.disabled);
-    if (firstAllowed) {
-      firstAllowed.checked = true;
+    if (state.projectType === 'sanierung' && sanierungSystemRadio) {
+      sanierungSystemRadio.checked = true;
+    } else {
+      const firstAllowed = Array.from(systemRadios).find((radio) => !radio.disabled);
+      if (firstAllowed) {
+        firstAllowed.checked = true;
+      }
     }
   }
 }
@@ -275,6 +288,21 @@ function updateSystemInfoTextsByBrand() {
   systemInfoTacker.textContent = brandTexts.Tacker;
   systemInfoNoppe.textContent = brandTexts.Noppe;
   systemInfoKlett.textContent = brandTexts.Klett;
+  if (systemInfoKlett3mm) {
+    systemInfoKlett3mm.textContent = `...als Klettsystem liefern und montieren...
+- Klett-Panel 3 mm
+- Klett-Heizrohr RT 17x2,0
+- Estrichmessstellenmarkierung
+- PE-Randdämmstreifen 10/150 | Comfort - selbstklebend | mit
+- Klemmverschraubung 16/17x2,0 mm 3/4” PEX - einzeln
+- Klebeband extrem reißfest | 50 mm breit | Rolle = 66 m
+- Rohrverbinder (Kupplung mit Ringen)
+- Winkelspangen für Heizrohre 14-18 mm | Farbe schwarz
+- Dehnfugenschutzrohr geschlitzt für Rohr bis 20 mm im Bereich der Dehnfugen | ca. 300 mm lang
+- Dehnfugenschutzrohr zum Isolieren der Vor-/Rückläufe
+- nicht enthalten: Montage der Verteiler, Schränke, Klemmleisten, Stellantriebe, Raumthermostate
+- Baustelleneinrichtung, Müllentsorgung, Bauleitung, Heizflächenauslegung und Abdrücken der Fußbodenheizung mit Luft sind im Preis enthalten`;
+  }
 }
 
 function renderHeatSource() {
