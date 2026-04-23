@@ -592,7 +592,7 @@ Ganz unten ergänzen */
   top: 50%;
   transform: translateY(-50%);
   min-width: 260px;
-  max-width: 340px;
+  max-width: 550px;
   padding: 10px 12px;
   border-radius: 10px;
   background: #0b2a4a;
