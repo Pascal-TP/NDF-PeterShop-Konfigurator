@@ -135,117 +135,156 @@
                     checked /><span>Tacker</span></label>
                 <label class="radio-option"><input type="radio" name="system" value="Noppe" /><span>Noppe</span></label>
                 <label class="radio-option"><input type="radio" name="system" value="Klett" /><span>Klett</span></label>
-                <label class="radio-option"><input type="radio" name="system"
-                    value="Fräsen" /><span>Fräsen</span></label>
+              </div>
+              <div class="sub-block">
+                <h3>Frässystem</h3>
+
+                <p class="sub-block-note">
+                  Das Frässystem hat einen Verlegeabstand von 10cm und es wird ein Alu-Verbundrohr 16x2 mm eingesetzt.
+                  Bitte beachten Sie auch, dass auf dem versiegelten Boden eine Ausgleichsmasse für einen
+                  neuen Bodenbelag aufgebracht werden muss.
+                </p>
+
+                <div class="check-list">
+                  <label class="check-option">
+                    <input type="checkbox" name="millingSystem" value="Fräsen" />
+                    <span>Fräsen</span>
+                  </label>
+
+                  <label class="check-option">
+                    <input type="checkbox" name="millingSystem" value="Baustelleneinrichtung"
+                      id="millingSetupCheckbox" />
+                    <span>Baustelleneinrichtung</span>
+                  </label>
+
+                  <label class="check-option">
+                    <input type="checkbox" name="millingSystem" value="Entsorgungspauschale" />
+                    <span>Entsorgungspauschale</span>
+                  </label>
+
+                  <label class="check-option">
+                    <input type="checkbox" name="millingSystem" value="Versiegelungspauschale" />
+                    <span>Versiegelungspauschale</span>
+                  </label>
+
+                  <label class="check-option">
+                    <input type="checkbox" name="millingSystem" value="Mehrpreis Etagenzuschuss"
+                      id="floorSurchargeCheckbox" />
+                    <span>Mehrpreis Etagenzuschuss</span>
+                  </label>
+                </div>
+              </div>
+              <div class="sub-block">
+                <h3>Estrich</h3>
+                <p class="sub-block-note">
+                  Zement Heizestrich CT-C25-F4, s=65-70 mm mit mindestens 45 mm Rohrüberdeckung, gemäß der
+                  DIN 18560 Teil 1+2 und der DIN EN 13813, einschichtig Herstellen und mit der Ebenheit nach
+                  DIN 18202 Tabelle 3 Zeile 3, liefern und einbauen
+                </p>
+
+                <div class="check-list">
+                  <label class="check-option"><input type="checkbox" name="estrichRange"
+                      value="Flächen von 10 bis 69 m²" /> <span>Flächen von 10 bis 69 m²</span></label>
+                  <label class="check-option"><input type="checkbox" name="estrichRange"
+                      value="Flächen von 70 bis 109 m²" /> <span>Flächen von 70 bis 109 m²</span></label>
+                  <label class="check-option"><input type="checkbox" name="estrichRange"
+                      value="Flächen von 110 bis 119 m²" /> <span>Flächen von 110 bis 119 m²</span></label>
+                  <label class="check-option"><input type="checkbox" name="estrichRange"
+                      value="Flächen von 120 bis 129 m²" /> <span>Flächen von 120 bis 129 m²</span></label>
+                  <label class="check-option"><input type="checkbox" name="estrichRange"
+                      value="Flächen von 130 bis 139 m²" /> <span>Flächen von 130 bis 139 m²</span></label>
+                  <label class="check-option"><input type="checkbox" name="estrichRange"
+                      value="Flächen von 140 bis 149 m²" /> <span>Flächen von 140 bis 149 m²</span></label>
+                  <label class="check-option"><input type="checkbox" name="estrichRange" value="Flächen ab 150 m²" />
+                    <span>Flächen ab 150 m²</span></label>
+                </div>
+
+                <h3 style="margin-top: 18px;">Zusatzmittel</h3>
+                <div class="check-list">
+                  <label class="check-option"><input type="checkbox" name="estrichAdditive"
+                      value="Einbringung Polyprophylenfasern" /> <span>Einbringung Polyprophylenfasern</span></label>
+                  <label class="check-option"><input type="checkbox" name="estrichAdditive"
+                      value="Zulage Schnellbinder 18-20 Tage" /> <span>Zulage Schnellbinder 18-20 Tage</span></label>
+                  <label class="check-option"><input type="checkbox" name="estrichAdditive"
+                      value="Zulage Schnellbinder 10-14 Tage" /> <span>Zulage Schnellbinder 10-14 Tage</span></label>
+                  <label class="check-option"><input type="checkbox" name="estrichAdditive"
+                      value="Zulage Schnellbinder 5- 7 Tage" /> <span>Zulage Schnellbinder 5- 7 Tage</span></label>
+                  <label class="check-option"><input type="checkbox" name="estrichAdditive"
+                      value="Retanol XTREME 3 - 7 Tage" /> <span>Retanol XTREME 3 - 7 Tage</span></label>
+                </div>
+              </div>
+
+              <div class="sub-block">
+                <h3>Trockenbau</h3>
+                <div class="check-list">
+                  <label class="check-option"><input type="checkbox" name="dryConstruction" value="Aufbau 50mm" />
+                    <span>Aufbau 50mm</span></label>
+                  <label class="check-option"><input type="checkbox" name="dryConstruction"
+                      value="Aufbau 20/30mm +3mm Deckschicht" /> <span>Aufbau 20/30mm +3mm Deckschicht</span></label>
+                  <label class="check-option"><input type="checkbox" name="dryConstruction" value="Aufbau 25mm (XPS)" />
+                    <span>Aufbau 25mm (XPS)</span></label>
+                </div>
+              </div>
+
+              <div class="sub-block">
+                <h3>Wärmeleitgruppe</h3>
+                <div class="radio-list">
+                  <label class="radio-option"><input type="radio" name="wlg" value="035"
+                      checked /><span>035</span></label>
+                  <label class="radio-option"><input type="radio" name="wlg" value="040" /><span>040</span></label>
+                  <label class="radio-option"><input type="radio" name="wlg" value="045" /><span>045</span></label>
+                </div>
+              </div>
+
+              <div class="sub-block">
+                <h3>Dämmungsdicke</h3>
+                <div class="radio-list">
+                  <label class="radio-option"><input type="radio" name="insulationThickness" value="20-2 mm"
+                      checked /><span>20-2 mm</span></label>
+                  <label class="radio-option"><input type="radio" name="insulationThickness"
+                      value="25-2 mm" /><span>25-2
+                      mm</span></label>
+                  <label class="radio-option"><input type="radio" name="insulationThickness"
+                      value="30-3 mm" /><span>30-3
+                      mm</span></label>
+                  <label class="radio-option"><input type="radio" name="insulationThickness"
+                      value="35-3 mm" /><span>35-3
+                      mm</span></label>
+                  <label class="radio-option"><input type="radio" name="insulationThickness"
+                      value="40-3 mm" /><span>40-3
+                      mm</span></label>
+                </div>
+              </div>
+
+              <div class="sub-block">
+                <h3>Heizrohr</h3>
+                <div class="radio-list">
+                  <label class="radio-option"><input type="radio" name="pipeType" value="PE-RT"
+                      checked /><span>PE-RT</span></label>
+                  <label class="radio-option"><input type="radio" name="pipeType"
+                      value="PE-Xc" /><span>PE-Xc</span></label>
+                  <label class="radio-option"><input type="radio" name="pipeType"
+                      value="PE-Xa" /><span>PE-Xa</span></label>
+                  <label class="radio-option"><input type="radio" name="pipeType"
+                      value="Alu-Verbund" /><span>Alu-Verbund</span></label>
+                </div>
+              </div>
+
+              <div class="sub-block">
+                <h3>Heizrohr-Größe</h3>
+                <div class="radio-list">
+                  <label class="radio-option"><input type="radio" name="pipeSize" value="14 x 2,0 mm" checked /><span>14
+                      x
+                      2,0 mm</span></label>
+                  <label class="radio-option"><input type="radio" name="pipeSize" value="16 x 2,0 mm" /><span>16 x 2,0
+                      mm</span></label>
+                  <label class="radio-option"><input type="radio" name="pipeSize" value="17 x 2,0 mm" /><span>17 x 2,0
+                      mm</span></label>
+                  <label class="radio-option"><input type="radio" name="pipeSize" value="20 x 2,0 mm" /><span>20 x 2,0
+                      mm</span></label>
+                </div>
               </div>
             </div>
-
-            <div class="sub-block">
-              <h3>Estrich</h3>
-              <p class="sub-block-note">
-                Zement Heizestrich CT-C25-F4, s=65-70 mm mit mindestens 45 mm Rohrüberdeckung, gemäß der
-                DIN 18560 Teil 1+2 und der DIN EN 13813, einschichtig Herstellen und mit der Ebenheit nach
-                DIN 18202 Tabelle 3 Zeile 3, liefern und einbauen
-              </p>
-
-              <div class="check-list">
-                <label class="check-option"><input type="checkbox" name="estrichRange"
-                    value="Flächen von 10 bis 69 m²" /> <span>Flächen von 10 bis 69 m²</span></label>
-                <label class="check-option"><input type="checkbox" name="estrichRange"
-                    value="Flächen von 70 bis 109 m²" /> <span>Flächen von 70 bis 109 m²</span></label>
-                <label class="check-option"><input type="checkbox" name="estrichRange"
-                    value="Flächen von 110 bis 119 m²" /> <span>Flächen von 110 bis 119 m²</span></label>
-                <label class="check-option"><input type="checkbox" name="estrichRange"
-                    value="Flächen von 120 bis 129 m²" /> <span>Flächen von 120 bis 129 m²</span></label>
-                <label class="check-option"><input type="checkbox" name="estrichRange"
-                    value="Flächen von 130 bis 139 m²" /> <span>Flächen von 130 bis 139 m²</span></label>
-                <label class="check-option"><input type="checkbox" name="estrichRange"
-                    value="Flächen von 140 bis 149 m²" /> <span>Flächen von 140 bis 149 m²</span></label>
-                <label class="check-option"><input type="checkbox" name="estrichRange" value="Flächen ab 150 m²" />
-                  <span>Flächen ab 150 m²</span></label>
-              </div>
-
-              <h3 style="margin-top: 18px;">Zusatzmittel</h3>
-              <div class="check-list">
-                <label class="check-option"><input type="checkbox" name="estrichAdditive"
-                    value="Einbringung Polyprophylenfasern" /> <span>Einbringung Polyprophylenfasern</span></label>
-                <label class="check-option"><input type="checkbox" name="estrichAdditive"
-                    value="Zulage Schnellbinder 18-20 Tage" /> <span>Zulage Schnellbinder 18-20 Tage</span></label>
-                <label class="check-option"><input type="checkbox" name="estrichAdditive"
-                    value="Zulage Schnellbinder 10-14 Tage" /> <span>Zulage Schnellbinder 10-14 Tage</span></label>
-                <label class="check-option"><input type="checkbox" name="estrichAdditive"
-                    value="Zulage Schnellbinder 5- 7 Tage" /> <span>Zulage Schnellbinder 5- 7 Tage</span></label>
-                <label class="check-option"><input type="checkbox" name="estrichAdditive"
-                    value="Retanol XTREME 3 - 7 Tage" /> <span>Retanol XTREME 3 - 7 Tage</span></label>
-              </div>
-            </div>
-
-            <div class="sub-block">
-              <h3>Trockenbau</h3>
-              <div class="check-list">
-                <label class="check-option"><input type="checkbox" name="dryConstruction" value="Aufbau 50mm" />
-                  <span>Aufbau 50mm</span></label>
-                <label class="check-option"><input type="checkbox" name="dryConstruction"
-                    value="Aufbau 20/30mm +3mm Deckschicht" /> <span>Aufbau 20/30mm +3mm Deckschicht</span></label>
-                <label class="check-option"><input type="checkbox" name="dryConstruction" value="Aufbau 25mm (XPS)" />
-                  <span>Aufbau 25mm (XPS)</span></label>
-              </div>
-            </div>
-
-            <div class="sub-block">
-              <h3>Wärmeleitgruppe</h3>
-              <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="wlg" value="035"
-                    checked /><span>035</span></label>
-                <label class="radio-option"><input type="radio" name="wlg" value="040" /><span>040</span></label>
-                <label class="radio-option"><input type="radio" name="wlg" value="045" /><span>045</span></label>
-              </div>
-            </div>
-
-            <div class="sub-block">
-              <h3>Dämmungsdicke</h3>
-              <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="insulationThickness" value="20-2 mm"
-                    checked /><span>20-2 mm</span></label>
-                <label class="radio-option"><input type="radio" name="insulationThickness" value="25-2 mm" /><span>25-2
-                    mm</span></label>
-                <label class="radio-option"><input type="radio" name="insulationThickness" value="30-3 mm" /><span>30-3
-                    mm</span></label>
-                <label class="radio-option"><input type="radio" name="insulationThickness" value="35-3 mm" /><span>35-3
-                    mm</span></label>
-                <label class="radio-option"><input type="radio" name="insulationThickness" value="40-3 mm" /><span>40-3
-                    mm</span></label>
-              </div>
-            </div>
-
-            <div class="sub-block">
-              <h3>Heizrohr</h3>
-              <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="pipeType" value="PE-RT"
-                    checked /><span>PE-RT</span></label>
-                <label class="radio-option"><input type="radio" name="pipeType"
-                    value="PE-Xc" /><span>PE-Xc</span></label>
-                <label class="radio-option"><input type="radio" name="pipeType"
-                    value="PE-Xa" /><span>PE-Xa</span></label>
-                <label class="radio-option"><input type="radio" name="pipeType"
-                    value="Alu-Verbund" /><span>Alu-Verbund</span></label>
-              </div>
-            </div>
-
-            <div class="sub-block">
-              <h3>Heizrohr-Größe</h3>
-              <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="pipeSize" value="14 x 2,0 mm" checked /><span>14 x
-                    2,0 mm</span></label>
-                <label class="radio-option"><input type="radio" name="pipeSize" value="16 x 2,0 mm" /><span>16 x 2,0
-                    mm</span></label>
-                <label class="radio-option"><input type="radio" name="pipeSize" value="17 x 2,0 mm" /><span>17 x 2,0
-                    mm</span></label>
-                <label class="radio-option"><input type="radio" name="pipeSize" value="20 x 2,0 mm" /><span>20 x 2,0
-                    mm</span></label>
-              </div>
-            </div>
-          </div>
         </section>
 
         <section class="step-panel" data-step-panel="5">

@@ -44,6 +44,9 @@ const summaryDryConstruction = document.getElementById('summaryDryConstruction')
 const estrichRangeCheckboxes = document.querySelectorAll('input[name="estrichRange"]');
 const estrichAdditiveCheckboxes = document.querySelectorAll('input[name="estrichAdditive"]');
 const dryConstructionCheckboxes = document.querySelectorAll('input[name="dryConstruction"]');
+const millingSystemCheckboxes = document.querySelectorAll('input[name="millingSystem"]');
+const millingSetupCheckbox = document.getElementById('millingSetupCheckbox');
+const floorSurchargeCheckbox = document.getElementById('floorSurchargeCheckbox');
 
 
 function getRadioValue(name) {
@@ -332,6 +335,27 @@ function renderFloors() {
   });
 }
 
+function syncMillingSystemRules() {
+  const millingCheckbox = Array.from(millingSystemCheckboxes)
+    .find(cb => cb.value === 'Fräsen');
+
+  // Regel 1: Fräsen → Baustelleneinrichtung Pflicht
+  if (millingCheckbox && millingCheckbox.checked) {
+    millingSetupCheckbox.checked = true;
+    millingSetupCheckbox.disabled = true;
+  } else {
+    millingSetupCheckbox.disabled = false;
+  }
+
+  // Regel 2: mehr als 1 Etage → Etagenzuschuss Pflicht
+  if (state.floors.length > 1) {
+    floorSurchargeCheckbox.checked = true;
+    floorSurchargeCheckbox.disabled = true;
+  } else {
+    floorSurchargeCheckbox.disabled = false;
+  }
+}
+
 function updateLayerPreview() {
   const extraInsulationText =
     state.extraInsulationEnabled === 'nein'
@@ -394,6 +418,8 @@ function updateSummary() {
     dryConstructionEntries.length
       ? `Trockenbau: ${dryConstructionEntries.join(', ')}`
       : 'Kein Trockenbau gewählt.';
+
+  syncMillingSystemRules();
 
   const roomTexts = [];
   state.floors.forEach((floor, floorIndex) => {
@@ -540,6 +566,10 @@ estrichAdditiveCheckboxes.forEach((field) => {
 });
 
 dryConstructionCheckboxes.forEach((field) => {
+  field.addEventListener('change', updateSummary);
+});
+
+millingSystemCheckboxes.forEach((field) => {
   field.addEventListener('change', updateSummary);
 });
 
