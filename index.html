@@ -126,6 +126,7 @@
         <section class="step-panel" data-step-panel="4">
           <h2 class="section-title">4. System</h2>
           <p class="section-subtitle">Treffen Sie hier Ihre Systemauswahl.</p>
+
           <div class="stack-grid">
             <div class="sub-block">
               <h3>System</h3>
@@ -138,481 +139,495 @@
                     value="Fräsen" /><span>Fräsen</span></label>
               </div>
             </div>
+
+            <div class="sub-block">
+              <h3>Estrich</h3>
+              <p class="sub-block-note">
+                Zement Heizestrich CT-C25-F4, s=65-70 mm mit mindestens 45 mm Rohrüberdeckung, gemäß der
+                DIN 18560 Teil 1+2 und der DIN EN 13813, einschichtig Herstellen und mit der Ebenheit nach
+                DIN 18202 Tabelle 3 Zeile 3, liefern und einbauen
+              </p>
+
+              <div class="check-list">
+                <label class="check-option"><input type="checkbox" name="estrichRange"
+                    value="Flächen von 10 bis 69 m²" /> <span>Flächen von 10 bis 69 m²</span></label>
+                <label class="check-option"><input type="checkbox" name="estrichRange"
+                    value="Flächen von 70 bis 109 m²" /> <span>Flächen von 70 bis 109 m²</span></label>
+                <label class="check-option"><input type="checkbox" name="estrichRange"
+                    value="Flächen von 110 bis 119 m²" /> <span>Flächen von 110 bis 119 m²</span></label>
+                <label class="check-option"><input type="checkbox" name="estrichRange"
+                    value="Flächen von 120 bis 129 m²" /> <span>Flächen von 120 bis 129 m²</span></label>
+                <label class="check-option"><input type="checkbox" name="estrichRange"
+                    value="Flächen von 130 bis 139 m²" /> <span>Flächen von 130 bis 139 m²</span></label>
+                <label class="check-option"><input type="checkbox" name="estrichRange"
+                    value="Flächen von 140 bis 149 m²" /> <span>Flächen von 140 bis 149 m²</span></label>
+                <label class="check-option"><input type="checkbox" name="estrichRange" value="Flächen ab 150 m²" />
+                  <span>Flächen ab 150 m²</span></label>
+              </div>
+
+              <h3 style="margin-top: 18px;">Zusatzmittel</h3>
+              <div class="check-list">
+                <label class="check-option"><input type="checkbox" name="estrichAdditive"
+                    value="Einbringung Polyprophylenfasern" /> <span>Einbringung Polyprophylenfasern</span></label>
+                <label class="check-option"><input type="checkbox" name="estrichAdditive"
+                    value="Zulage Schnellbinder 18-20 Tage" /> <span>Zulage Schnellbinder 18-20 Tage</span></label>
+                <label class="check-option"><input type="checkbox" name="estrichAdditive"
+                    value="Zulage Schnellbinder 10-14 Tage" /> <span>Zulage Schnellbinder 10-14 Tage</span></label>
+                <label class="check-option"><input type="checkbox" name="estrichAdditive"
+                    value="Zulage Schnellbinder 5- 7 Tage" /> <span>Zulage Schnellbinder 5- 7 Tage</span></label>
+                <label class="check-option"><input type="checkbox" name="estrichAdditive"
+                    value="Retanol XTREME 3 - 7 Tage" /> <span>Retanol XTREME 3 - 7 Tage</span></label>
+              </div>
+            </div>
+
+            <div class="sub-block">
+              <h3>Trockenbau</h3>
+              <div class="check-list">
+                <label class="check-option"><input type="checkbox" name="dryConstruction" value="Aufbau 50mm" />
+                  <span>Aufbau 50mm</span></label>
+                <label class="check-option"><input type="checkbox" name="dryConstruction"
+                    value="Aufbau 20/30mm +3mm Deckschicht" /> <span>Aufbau 20/30mm +3mm Deckschicht</span></label>
+                <label class="check-option"><input type="checkbox" name="dryConstruction" value="Aufbau 25mm (XPS)" />
+                  <span>Aufbau 25mm (XPS)</span></label>
+              </div>
+            </div>
+
+            <div class="sub-block">
+              <h3>Wärmeleitgruppe</h3>
+              <div class="radio-list">
+                <label class="radio-option"><input type="radio" name="wlg" value="035"
+                    checked /><span>035</span></label>
+                <label class="radio-option"><input type="radio" name="wlg" value="040" /><span>040</span></label>
+                <label class="radio-option"><input type="radio" name="wlg" value="045" /><span>045</span></label>
+              </div>
+            </div>
+
+            <div class="sub-block">
+              <h3>Dämmungsdicke</h3>
+              <div class="radio-list">
+                <label class="radio-option"><input type="radio" name="insulationThickness" value="20-2 mm"
+                    checked /><span>20-2 mm</span></label>
+                <label class="radio-option"><input type="radio" name="insulationThickness" value="25-2 mm" /><span>25-2
+                    mm</span></label>
+                <label class="radio-option"><input type="radio" name="insulationThickness" value="30-3 mm" /><span>30-3
+                    mm</span></label>
+                <label class="radio-option"><input type="radio" name="insulationThickness" value="35-3 mm" /><span>35-3
+                    mm</span></label>
+                <label class="radio-option"><input type="radio" name="insulationThickness" value="40-3 mm" /><span>40-3
+                    mm</span></label>
+              </div>
+            </div>
+
+            <div class="sub-block">
+              <h3>Heizrohr</h3>
+              <div class="radio-list">
+                <label class="radio-option"><input type="radio" name="pipeType" value="PE-RT"
+                    checked /><span>PE-RT</span></label>
+                <label class="radio-option"><input type="radio" name="pipeType"
+                    value="PE-Xc" /><span>PE-Xc</span></label>
+                <label class="radio-option"><input type="radio" name="pipeType"
+                    value="PE-Xa" /><span>PE-Xa</span></label>
+                <label class="radio-option"><input type="radio" name="pipeType"
+                    value="Alu-Verbund" /><span>Alu-Verbund</span></label>
+              </div>
+            </div>
+
+            <div class="sub-block">
+              <h3>Heizrohr-Größe</h3>
+              <div class="radio-list">
+                <label class="radio-option"><input type="radio" name="pipeSize" value="14 x 2,0 mm" checked /><span>14 x
+                    2,0 mm</span></label>
+                <label class="radio-option"><input type="radio" name="pipeSize" value="16 x 2,0 mm" /><span>16 x 2,0
+                    mm</span></label>
+                <label class="radio-option"><input type="radio" name="pipeSize" value="17 x 2,0 mm" /><span>17 x 2,0
+                    mm</span></label>
+                <label class="radio-option"><input type="radio" name="pipeSize" value="20 x 2,0 mm" /><span>20 x 2,0
+                    mm</span></label>
+              </div>
+            </div>
           </div>
+        </section>
+
+        <section class="step-panel" data-step-panel="5">
+          <h2 class="section-title">5. Thermostat</h2>
+          <p class="section-subtitle">Bitte wählen, ob und welches Thermostat vorgesehen ist.</p>
+
           <div class="sub-block">
-            <h3>Estrich</h3>
-            <p class="sub-block-note">
-              Zement Heizestrich CT-C25-F4, s=65-70 mm mit mindestens 45 mm Rohrüberdeckung, gemäß der
-              DIN 18560 Teil 1+2 und der DIN EN 13813, einschichtig Herstellen und mit der Ebenheit nach
-              DIN 18202 Tabelle 3 Zeile 3, liefern und einbauen
-            </p>
-
-            <div class="check-list">
-              <label class="check-option"><input type="checkbox" name="estrichRange" value="Flächen von 10 bis 69 m²" />
-                <span>Flächen von 10 bis 69 m²</span></label>
-              <label class="check-option"><input type="checkbox" name="estrichRange"
-                  value="Flächen von 70 bis 109 m²" /> <span>Flächen von 70 bis 109 m²</span></label>
-              <label class="check-option"><input type="checkbox" name="estrichRange"
-                  value="Flächen von 110 bis 119 m²" /> <span>Flächen von 110 bis 119 m²</span></label>
-              <label class="check-option"><input type="checkbox" name="estrichRange"
-                  value="Flächen von 120 bis 129 m²" /> <span>Flächen von 120 bis 129 m²</span></label>
-              <label class="check-option"><input type="checkbox" name="estrichRange"
-                  value="Flächen von 130 bis 139 m²" /> <span>Flächen von 130 bis 139 m²</span></label>
-              <label class="check-option"><input type="checkbox" name="estrichRange"
-                  value="Flächen von 140 bis 149 m²" /> <span>Flächen von 140 bis 149 m²</span></label>
-              <label class="check-option"><input type="checkbox" name="estrichRange" value="Flächen ab 150 m²" />
-                <span>Flächen ab 150 m²</span></label>
-            </div>
-
-            <h3 style="margin-top: 18px;">Zusatzmittel</h3>
-            <div class="check-list">
-              <label class="check-option"><input type="checkbox" name="estrichAdditive"
-                  value="Einbringung Polyprophylenfasern" /> <span>Einbringung Polyprophylenfasern</span></label>
-              <label class="check-option"><input type="checkbox" name="estrichAdditive"
-                  value="Zulage Schnellbinder 18-20 Tage" /> <span>Zulage Schnellbinder 18-20 Tage</span></label>
-              <label class="check-option"><input type="checkbox" name="estrichAdditive"
-                  value="Zulage Schnellbinder 10-14 Tage" /> <span>Zulage Schnellbinder 10-14 Tage</span></label>
-              <label class="check-option"><input type="checkbox" name="estrichAdditive"
-                  value="Zulage Schnellbinder 5- 7 Tage" /> <span>Zulage Schnellbinder 5- 7 Tage</span></label>
-              <label class="check-option"><input type="checkbox" name="estrichAdditive"
-                  value="Retanol XTREME 3 - 7 Tage" /> <span>Retanol XTREME 3 - 7 Tage</span></label>
-            </div>
-          </div>
-          <div class="sub-block">
-            <h3>Trockenbau</h3>
-            <div class="check-list">
-              <label class="check-option"><input type="checkbox" name="dryConstruction" value="Aufbau 50mm" />
-                <span>Aufbau 50mm</span></label>
-              <label class="check-option"><input type="checkbox" name="dryConstruction"
-                  value="Aufbau 20/30mm +3mm Deckschicht" /> <span>Aufbau 20/30mm +3mm Deckschicht</span></label>
-              <label class="check-option"><input type="checkbox" name="dryConstruction" value="Aufbau 25mm (XPS)" />
-                <span>Aufbau 25mm (XPS)</span></label>
-            </div>
-          </div>
-          <div class="sub-block">
-            <h3>Wärmeleitgruppe</h3>
-            <div class="radio-list">
-              <label class="radio-option"><input type="radio" name="wlg" value="035" checked /><span>035</span></label>
-              <label class="radio-option"><input type="radio" name="wlg" value="040" /><span>040</span></label>
-              <label class="radio-option"><input type="radio" name="wlg" value="045" /><span>045</span></label>
-            </div>
-          </div>
-          <div class="sub-block">
-            <h3>Dämmungsdicke</h3>
-            <div class="radio-list">
-              <label class="radio-option"><input type="radio" name="insulationThickness" value="20-2 mm"
-                  checked /><span>20-2 mm</span></label>
-              <label class="radio-option"><input type="radio" name="insulationThickness" value="25-2 mm" /><span>25-2
-                  mm</span></label>
-              <label class="radio-option"><input type="radio" name="insulationThickness" value="30-3 mm" /><span>30-3
-                  mm</span></label>
-              <label class="radio-option"><input type="radio" name="insulationThickness" value="35-3 mm" /><span>35-3
-                  mm</span></label>
-              <label class="radio-option"><input type="radio" name="insulationThickness" value="40-3 mm" /><span>40-3
-                  mm</span></label>
-            </div>
-          </div>
-          <div class="sub-block">
-            <h3>Heizrohr</h3>
-            <div class="radio-list">
-              <label class="radio-option"><input type="radio" name="pipeType" value="PE-RT"
-                  checked /><span>PE-RT</span></label>
-              <label class="radio-option"><input type="radio" name="pipeType" value="PE-Xc" /><span>PE-Xc</span></label>
-              <label class="radio-option"><input type="radio" name="pipeType" value="PE-Xa" /><span>PE-Xa</span></label>
-              <label class="radio-option"><input type="radio" name="pipeType"
-                  value="Alu-Verbund" /><span>Alu-Verbund</span></label>
-            </div>
-          </div>
-          <div class="sub-block">
-            <h3>Heizrohr-Größe</h3>
-            <div class="radio-list">
-              <label class="radio-option"><input type="radio" name="pipeSize" value="14 x 2,0 mm" checked /><span>14 x
-                  2,0 mm</span></label>
-              <label class="radio-option"><input type="radio" name="pipeSize" value="16 x 2,0 mm" /><span>16 x 2,0
-                  mm</span></label>
-              <label class="radio-option"><input type="radio" name="pipeSize" value="17 x 2,0 mm" /><span>17 x 2,0
-                  mm</span></label>
-              <label class="radio-option"><input type="radio" name="pipeSize" value="20 x 2,0 mm" /><span>20 x 2,0
-                  mm</span></label>
-            </div>
-          </div>
-    </div>
-    </section>
-
-    <section class="step-panel" data-step-panel="5">
-      <h2 class="section-title">5. Thermostat</h2>
-      <p class="section-subtitle">Bitte wählen, ob und welches Thermostat vorgesehen ist.</p>
-
-      <div class="sub-block">
-        <h3>Thermostat gewünscht?</h3>
-        <div class="choice-row" id="thermostatToggleChoices">
-          <div class="choice-card active" data-thermostat-toggle="ja">
-            <strong>Ja</strong>
-          </div>
-          <div class="choice-card" data-thermostat-toggle="nein">
-            <strong>Nein</strong>
-          </div>
-        </div>
-      </div>
-
-      <div id="thermostatOptions">
-        <div class="choice-row" id="thermostatChoices">
-          <div class="choice-card active" data-thermostat="Analog">
-            <strong>Analog</strong>
-            <span>Klassisches Raumthermostat.</span>
-          </div>
-          <div class="choice-card" data-thermostat="LCD">
-            <strong>LCD</strong>
-            <span>Digitales Display.</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="step-panel" data-step-panel="6">
-      <h2 class="section-title">6. Verteilertechnik</h2>
-      <p class="section-subtitle">Verteilerschrank-Art, Verteiler-Menge & Typ sowie Regeltechnik.</p>
-
-      <div class="stack-grid">
-        <div class="sub-block">
-          <h3>Verteilerschrank-Art</h3>
-          <div class="radio-list">
-            <label class="radio-option"><input type="radio" name="cabinetMounting" value="Aufputz"
-                checked /><span>Aufputz</span></label>
-            <label class="radio-option"><input type="radio" name="cabinetMounting"
-                value="Unterputz" /><span>Unterputz</span></label>
-          </div>
-        </div>
-
-        <div class="sub-block">
-          <h3>Verteiler Menge & Typ</h3>
-
-          <div class="choice-row" id="distributionModeChoices">
-            <div class="choice-card active" data-distribution-mode="auto">
-              <strong>Automatische Ermittlung durch Kalkulator</strong>
-            </div>
-            <div class="choice-card" data-distribution-mode="manual">
-              <strong>Manuelle Eingabe</strong>
+            <h3>Thermostat gewünscht?</h3>
+            <div class="choice-row" id="thermostatToggleChoices">
+              <div class="choice-card active" data-thermostat-toggle="ja">
+                <strong>Ja</strong>
+              </div>
+              <div class="choice-card" data-thermostat-toggle="nein">
+                <strong>Nein</strong>
+              </div>
             </div>
           </div>
 
-          <div id="distributionManualFields" class="distribution-manual-fields disabled-block">
-            <div class="distribution-row">
-              <select class="distribution-type">
-                <option value="">Typ wählen</option>
-                <option>HKV-D2</option>
-                <option>HKV-D3</option>
-                <option>HKV-D4</option>
-                <option>HKV-D5</option>
-                <option>HKV-D6</option>
-                <option>HKV-D7</option>
-                <option>HKV-D8</option>
-                <option>HKV-D9</option>
-                <option>HKV-D10</option>
-                <option>HKV-D11</option>
-                <option>HKV-D12</option>
-              </select>
-              <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
-            </div>
-
-            <div class="distribution-row">
-              <select class="distribution-type">
-                <option value="">Typ wählen</option>
-                <option>HKV-D2</option>
-                <option>HKV-D3</option>
-                <option>HKV-D4</option>
-                <option>HKV-D5</option>
-                <option>HKV-D6</option>
-                <option>HKV-D7</option>
-                <option>HKV-D8</option>
-                <option>HKV-D9</option>
-                <option>HKV-D10</option>
-                <option>HKV-D11</option>
-                <option>HKV-D12</option>
-              </select>
-              <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
-            </div>
-
-            <div class="distribution-row">
-              <select class="distribution-type">
-                <option value="">Typ wählen</option>
-                <option>HKV-D2</option>
-                <option>HKV-D3</option>
-                <option>HKV-D4</option>
-                <option>HKV-D5</option>
-                <option>HKV-D6</option>
-                <option>HKV-D7</option>
-                <option>HKV-D8</option>
-                <option>HKV-D9</option>
-                <option>HKV-D10</option>
-                <option>HKV-D11</option>
-                <option>HKV-D12</option>
-              </select>
-              <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
-            </div>
-
-            <div class="distribution-row">
-              <select class="distribution-type">
-                <option value="">Typ wählen</option>
-                <option>HKV-D2</option>
-                <option>HKV-D3</option>
-                <option>HKV-D4</option>
-                <option>HKV-D5</option>
-                <option>HKV-D6</option>
-                <option>HKV-D7</option>
-                <option>HKV-D8</option>
-                <option>HKV-D9</option>
-                <option>HKV-D10</option>
-                <option>HKV-D11</option>
-                <option>HKV-D12</option>
-              </select>
-              <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
-            </div>
-
-            <div class="distribution-row">
-              <select class="distribution-type">
-                <option value="">Typ wählen</option>
-                <option>HKV-D2</option>
-                <option>HKV-D3</option>
-                <option>HKV-D4</option>
-                <option>HKV-D5</option>
-                <option>HKV-D6</option>
-                <option>HKV-D7</option>
-                <option>HKV-D8</option>
-                <option>HKV-D9</option>
-                <option>HKV-D10</option>
-                <option>HKV-D11</option>
-                <option>HKV-D12</option>
-              </select>
-              <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
+          <div id="thermostatOptions">
+            <div class="choice-row" id="thermostatChoices">
+              <div class="choice-card active" data-thermostat="Analog">
+                <strong>Analog</strong>
+                <span>Klassisches Raumthermostat.</span>
+              </div>
+              <div class="choice-card" data-thermostat="LCD">
+                <strong>LCD</strong>
+                <span>Digitales Display.</span>
+              </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        <div class="sub-block">
-          <h3>Regeltechnik</h3>
+        <section class="step-panel" data-step-panel="6">
+          <h2 class="section-title">6. Verteilertechnik</h2>
+          <p class="section-subtitle">Verteilerschrank-Art, Verteiler-Menge & Typ sowie Regeltechnik.</p>
 
-          <div class="radio-list regulation-voltage-list">
-            <label class="radio-option"><input type="radio" name="regulationVoltage" value="24V DC" checked /><span>24V
-                DC</span></label>
-            <label class="radio-option"><input type="radio" name="regulationVoltage" value="230V AC" /><span>230V
-                AC</span></label>
-          </div>
-
-          <div class="regulation-list">
-            <div class="regulation-row">
-              <label class="check-option regulation-label">
-                <input type="checkbox" class="regulation-checkbox" data-label="Regelklemmleiste bis zu 6 Zonen" />
-                <span>Regelklemmleiste bis zu 6 Zonen</span>
-              </label>
-              <input type="number" min="0" step="1" class="regulation-qty" placeholder="Menge" />
-            </div>
-
-            <div class="regulation-row">
-              <label class="check-option regulation-label">
-                <input type="checkbox" class="regulation-checkbox" data-label="Regelklemmleiste bis zu 10 Zonen" />
-                <span>Regelklemmleiste bis zu 10 Zonen</span>
-              </label>
-              <input type="number" min="0" step="1" class="regulation-qty" placeholder="Menge" />
-            </div>
-
-            <div class="regulation-row">
-              <label class="check-option regulation-label">
-                <input type="checkbox" class="regulation-checkbox" data-label="Stellantrieb Premium" />
-                <span>Stellantrieb Premium</span>
-              </label>
-              <input type="number" min="0" step="1" class="regulation-qty" placeholder="Menge" />
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="step-panel" data-step-panel="7">
-      <h2 class="section-title">7. Zusatzdämmung</h2>
-      <p class="section-subtitle">Geliefert und montiert wird die ausgwählte Zusatzdämmung. Eine
-        Vermibit-Trockenausgelichsschüttung ist inbegriffen.</p>
-
-      <div class="stack-grid">
-        <div class="sub-block">
-          <h3>Zusatzdämmung gewünscht?</h3>
-          <div class="choice-row" id="extraInsulationToggleChoices">
-            <div class="choice-card active" data-extra-insulation-toggle="ja">
-              <strong>Ja</strong>
-            </div>
-            <div class="choice-card" data-extra-insulation-toggle="nein">
-              <strong>Nein</strong>
-            </div>
-          </div>
-        </div>
-
-        <div id="extraInsulationOptions">
           <div class="stack-grid">
             <div class="sub-block">
-              <h3>Zusatzdämmung</h3>
+              <h3>Verteilerschrank-Art</h3>
               <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="extraInsulation" value="PUR"
-                    checked /><span>PUR</span></label>
-                <label class="radio-option"><input type="radio" name="extraInsulation" value="EPS DEO" /><span>EPS
-                    DEO</span></label>
+                <label class="radio-option"><input type="radio" name="cabinetMounting" value="Aufputz"
+                    checked /><span>Aufputz</span></label>
+                <label class="radio-option"><input type="radio" name="cabinetMounting"
+                    value="Unterputz" /><span>Unterputz</span></label>
               </div>
             </div>
 
             <div class="sub-block">
-              <h3>Zusatzdämmung-Wärmeleitgruppe</h3>
-              <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="extraInsulationWlg" value="025"
-                    checked /><span>025</span></label>
+              <h3>Verteiler Menge & Typ</h3>
+
+              <div class="choice-row" id="distributionModeChoices">
+                <div class="choice-card active" data-distribution-mode="auto">
+                  <strong>Automatische Ermittlung durch Kalkulator</strong>
+                </div>
+                <div class="choice-card" data-distribution-mode="manual">
+                  <strong>Manuelle Eingabe</strong>
+                </div>
+              </div>
+
+              <div id="distributionManualFields" class="distribution-manual-fields disabled-block">
+                <div class="distribution-row">
+                  <select class="distribution-type">
+                    <option value="">Typ wählen</option>
+                    <option>HKV-D2</option>
+                    <option>HKV-D3</option>
+                    <option>HKV-D4</option>
+                    <option>HKV-D5</option>
+                    <option>HKV-D6</option>
+                    <option>HKV-D7</option>
+                    <option>HKV-D8</option>
+                    <option>HKV-D9</option>
+                    <option>HKV-D10</option>
+                    <option>HKV-D11</option>
+                    <option>HKV-D12</option>
+                  </select>
+                  <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
+                </div>
+
+                <div class="distribution-row">
+                  <select class="distribution-type">
+                    <option value="">Typ wählen</option>
+                    <option>HKV-D2</option>
+                    <option>HKV-D3</option>
+                    <option>HKV-D4</option>
+                    <option>HKV-D5</option>
+                    <option>HKV-D6</option>
+                    <option>HKV-D7</option>
+                    <option>HKV-D8</option>
+                    <option>HKV-D9</option>
+                    <option>HKV-D10</option>
+                    <option>HKV-D11</option>
+                    <option>HKV-D12</option>
+                  </select>
+                  <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
+                </div>
+
+                <div class="distribution-row">
+                  <select class="distribution-type">
+                    <option value="">Typ wählen</option>
+                    <option>HKV-D2</option>
+                    <option>HKV-D3</option>
+                    <option>HKV-D4</option>
+                    <option>HKV-D5</option>
+                    <option>HKV-D6</option>
+                    <option>HKV-D7</option>
+                    <option>HKV-D8</option>
+                    <option>HKV-D9</option>
+                    <option>HKV-D10</option>
+                    <option>HKV-D11</option>
+                    <option>HKV-D12</option>
+                  </select>
+                  <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
+                </div>
+
+                <div class="distribution-row">
+                  <select class="distribution-type">
+                    <option value="">Typ wählen</option>
+                    <option>HKV-D2</option>
+                    <option>HKV-D3</option>
+                    <option>HKV-D4</option>
+                    <option>HKV-D5</option>
+                    <option>HKV-D6</option>
+                    <option>HKV-D7</option>
+                    <option>HKV-D8</option>
+                    <option>HKV-D9</option>
+                    <option>HKV-D10</option>
+                    <option>HKV-D11</option>
+                    <option>HKV-D12</option>
+                  </select>
+                  <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
+                </div>
+
+                <div class="distribution-row">
+                  <select class="distribution-type">
+                    <option value="">Typ wählen</option>
+                    <option>HKV-D2</option>
+                    <option>HKV-D3</option>
+                    <option>HKV-D4</option>
+                    <option>HKV-D5</option>
+                    <option>HKV-D6</option>
+                    <option>HKV-D7</option>
+                    <option>HKV-D8</option>
+                    <option>HKV-D9</option>
+                    <option>HKV-D10</option>
+                    <option>HKV-D11</option>
+                    <option>HKV-D12</option>
+                  </select>
+                  <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
+                </div>
               </div>
             </div>
 
             <div class="sub-block">
-              <h3>Zusatzdämmung-Dicke</h3>
-              <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="20 mm"
-                    checked /><span>20 mm</span></label>
-                <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="30 mm" /><span>30
-                    mm</span></label>
-                <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="40 mm" /><span>40
-                    mm</span></label>
-                <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="50 mm" /><span>50
-                    mm</span></label>
-                <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="52 mm" /><span>52
-                    mm</span></label>
-                <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="60 mm" /><span>60
-                    mm</span></label>
+              <h3>Regeltechnik</h3>
+
+              <div class="radio-list regulation-voltage-list">
+                <label class="radio-option"><input type="radio" name="regulationVoltage" value="24V DC"
+                    checked /><span>24V
+                    DC</span></label>
+                <label class="radio-option"><input type="radio" name="regulationVoltage" value="230V AC" /><span>230V
+                    AC</span></label>
+              </div>
+
+              <div class="regulation-list">
+                <div class="regulation-row">
+                  <label class="check-option regulation-label">
+                    <input type="checkbox" class="regulation-checkbox" data-label="Regelklemmleiste bis zu 6 Zonen" />
+                    <span>Regelklemmleiste bis zu 6 Zonen</span>
+                  </label>
+                  <input type="number" min="0" step="1" class="regulation-qty" placeholder="Menge" />
+                </div>
+
+                <div class="regulation-row">
+                  <label class="check-option regulation-label">
+                    <input type="checkbox" class="regulation-checkbox" data-label="Regelklemmleiste bis zu 10 Zonen" />
+                    <span>Regelklemmleiste bis zu 10 Zonen</span>
+                  </label>
+                  <input type="number" min="0" step="1" class="regulation-qty" placeholder="Menge" />
+                </div>
+
+                <div class="regulation-row">
+                  <label class="check-option regulation-label">
+                    <input type="checkbox" class="regulation-checkbox" data-label="Stellantrieb Premium" />
+                    <span>Stellantrieb Premium</span>
+                  </label>
+                  <input type="number" min="0" step="1" class="regulation-qty" placeholder="Menge" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      <div class="schema-box schema-box-large">
-        <div class="schema-placeholder">
-          <img src="Aufbauschema.png" alt="Aufbau im Schema" class="schema-image">
-        </div>
-        <div class="layer-item">
-          <span>A: Standard-Estrichhöhe = 60-65mm (Rohrüberdeckung = 45 mm)</span>
-        </div>
-        <div class="layer-list" id="layerList"></div>
-      </div>
-    </section>
+        <section class="step-panel" data-step-panel="7">
+          <h2 class="section-title">7. Zusatzdämmung</h2>
+          <p class="section-subtitle">Geliefert und montiert wird die ausgwählte Zusatzdämmung. Eine
+            Vermibit-Trockenausgelichsschüttung ist inbegriffen.</p>
 
-    <section class="step-panel" data-step-panel="8">
-      <h2 class="section-title">8. Räume</h2>
-      <p class="section-subtitle">Etagen und Räume können über das Plus ergänzt werden. Jeder Raum erhält Namen,
-        Funktion, Verlegeabstand und Fläche.</p>
-      <div id="floorsContainer"></div>
-      <div class="btn-group" style="margin-top: 14px;"><button type="button" class="secondary" id="addFloorBtn">+
-          Etage hinzufügen</button></div>
-    </section>
+          <div class="stack-grid">
+            <div class="sub-block">
+              <h3>Zusatzdämmung gewünscht?</h3>
+              <div class="choice-row" id="extraInsulationToggleChoices">
+                <div class="choice-card active" data-extra-insulation-toggle="ja">
+                  <strong>Ja</strong>
+                </div>
+                <div class="choice-card" data-extra-insulation-toggle="nein">
+                  <strong>Nein</strong>
+                </div>
+              </div>
+            </div>
 
-    <section class="step-panel" data-step-panel="9">
-      <h2 class="section-title">9. Dienstleistungen</h2>
-      <p class="section-subtitle">Zusätzliche Dienstleistungen können hier ausgewählt werden.</p>
+            <div id="extraInsulationOptions">
+              <div class="stack-grid">
+                <div class="sub-block">
+                  <h3>Zusatzdämmung</h3>
+                  <div class="radio-list">
+                    <label class="radio-option"><input type="radio" name="extraInsulation" value="PUR"
+                        checked /><span>PUR</span></label>
+                    <label class="radio-option"><input type="radio" name="extraInsulation" value="EPS DEO" /><span>EPS
+                        DEO</span></label>
+                  </div>
+                </div>
 
-      <div class="stack-grid">
-        <div class="sub-block">
-          <h3>Planung & Berechnung</h3>
-          <div class="check-list">
-            <label class="check-option"><input type="checkbox" name="service" value="Beratungspauschale" />
-              <span>Beratungspauschale in der Angebotsphase<br>
-                (Beinhaltet eine ausführliche technische Betrachtung, einen Baustellentermin und ggf. ein
-                Höhenprotokoll oder eine Probebohrung.)</span></label>
-            <label class="check-option"><input type="checkbox" name="service" value="Schnellauslegung" />
-              <span>Schnellauslegung<br>
-                (inklusive Materialvorschlag)</span></label>
-            <label class="check-option"><input type="checkbox" name="service" value="Heizflächenauslegung" />
-              <span>Heizflächenauslegung - Berechnung für den hydraulischen Abgleich<br>
-                (inklusive Verlegeplan)</span></label>
-            <label class="check-option"><input type="checkbox" name="service" value="Heizlastberechnung" />
-              <span>Heizlastberechnung nach DIN EN 12831<br>
-                (inklusive Heizflächenauslegung und eine Berechnung für den hydraulischen Abgleich)</span></label>
+                <div class="sub-block">
+                  <h3>Zusatzdämmung-Wärmeleitgruppe</h3>
+                  <div class="radio-list">
+                    <label class="radio-option"><input type="radio" name="extraInsulationWlg" value="025"
+                        checked /><span>025</span></label>
+                  </div>
+                </div>
+
+                <div class="sub-block">
+                  <h3>Zusatzdämmung-Dicke</h3>
+                  <div class="radio-list">
+                    <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="20 mm"
+                        checked /><span>20 mm</span></label>
+                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                        value="30 mm" /><span>30
+                        mm</span></label>
+                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                        value="40 mm" /><span>40
+                        mm</span></label>
+                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                        value="50 mm" /><span>50
+                        mm</span></label>
+                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                        value="52 mm" /><span>52
+                        mm</span></label>
+                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                        value="60 mm" /><span>60
+                        mm</span></label>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
+
+          <div class="schema-box schema-box-large">
+            <div class="schema-placeholder">
+              <img src="Aufbauschema.png" alt="Aufbau im Schema" class="schema-image">
+            </div>
+            <div class="layer-item">
+              <span>A: Standard-Estrichhöhe = 60-65mm (Rohrüberdeckung = 45 mm)</span>
+            </div>
+            <div class="layer-list" id="layerList"></div>
+          </div>
+        </section>
+
+        <section class="step-panel" data-step-panel="8">
+          <h2 class="section-title">8. Räume</h2>
+          <p class="section-subtitle">Etagen und Räume können über das Plus ergänzt werden. Jeder Raum erhält Namen,
+            Funktion, Verlegeabstand und Fläche.</p>
+          <div id="floorsContainer"></div>
+          <div class="btn-group" style="margin-top: 14px;"><button type="button" class="secondary" id="addFloorBtn">+
+              Etage hinzufügen</button></div>
+        </section>
+
+        <section class="step-panel" data-step-panel="9">
+          <h2 class="section-title">9. Dienstleistungen</h2>
+          <p class="section-subtitle">Zusätzliche Dienstleistungen können hier ausgewählt werden.</p>
+
+          <div class="stack-grid">
+            <div class="sub-block">
+              <h3>Planung & Berechnung</h3>
+              <div class="check-list">
+                <label class="check-option"><input type="checkbox" name="service" value="Beratungspauschale" />
+                  <span>Beratungspauschale in der Angebotsphase<br>
+                    (Beinhaltet eine ausführliche technische Betrachtung, einen Baustellentermin und ggf. ein
+                    Höhenprotokoll oder eine Probebohrung.)</span></label>
+                <label class="check-option"><input type="checkbox" name="service" value="Schnellauslegung" />
+                  <span>Schnellauslegung<br>
+                    (inklusive Materialvorschlag)</span></label>
+                <label class="check-option"><input type="checkbox" name="service" value="Heizflächenauslegung" />
+                  <span>Heizflächenauslegung - Berechnung für den hydraulischen Abgleich<br>
+                    (inklusive Verlegeplan)</span></label>
+                <label class="check-option"><input type="checkbox" name="service" value="Heizlastberechnung" />
+                  <span>Heizlastberechnung nach DIN EN 12831<br>
+                    (inklusive Heizflächenauslegung und eine Berechnung für den hydraulischen Abgleich)</span></label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="step-panel" data-step-panel="10">
+          <h2 class="section-title">10. Berechnung starten</h2>
+          <p class="section-subtitle">Erst mit diesem Button wird später die Berechnungslogik ausgelöst.</p>
+          <div class="summary-box"><strong>Prüfung</strong>
+            <div id="finalCheck" class="muted">Die aktuelle Auswahl wird hier zusammengefasst.</div>
+          </div>
+
+          <div class="summary-box">
+            <strong>Allgemeine Hinweise</strong>
+            <div class="notes-box">
+              <p>Bei den Flächen-Warmwasser-Fußbodenheizungssystemen fällt unter 80 m² Fläche zusätzlich eine
+                Mindermengenpauschale an.</p>
+              <p>Folgende Leistungen sind nicht im Leistungspaket enthalten:</p>
+              <ul>
+                <li>Montage der Verteiler und Schränke</li>
+                <li>Montage Klemmleiste, Stellantriebe und Raumthermostat</li>
+                <li>Spülen, Befüllen, Entlüften und Einstellen der Fußbodenheizung</li>
+                <li>Funktionsheizen, hydraulischer Abgleich</li>
+                <li>Ausgleich unsachgemäßer Rohbauhöhen durch unterschiedliche Dämmungen/Systembahnen in einzelnen
+                  Räumen</li>
+                <li>Nachziehen der Klemmverschraubungen nach ca. 4 Wochen ist bauseits bzw. vom Gewerk Heizung
+                  durchzuführen</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="summary-box calc-box"><strong>Berechnung</strong>
+            <div class="muted">Die Berechnungslogik wird im nächsten Schritt ergänzt.</div>
+            <div class="btn-group" style="margin-top: 12px;"><button type="button" id="startCalculationBtn">Berechnung
+                starten</button></div>
+          </div>
+        </section>
+
+        <div class="btn-row">
+          <div class="btn-group"><button type="button" class="secondary" id="prevBtn">Zurück</button></div>
+          <div class="btn-group"><button type="button" id="nextBtn">Weiter</button></div>
         </div>
-      </div>
-    </section>
+      </main>
 
-    <section class="step-panel" data-step-panel="10">
-      <h2 class="section-title">10. Berechnung starten</h2>
-      <p class="section-subtitle">Erst mit diesem Button wird später die Berechnungslogik ausgelöst.</p>
-      <div class="summary-box"><strong>Prüfung</strong>
-        <div id="finalCheck" class="muted">Die aktuelle Auswahl wird hier zusammengefasst.</div>
-      </div>
-
-      <div class="summary-box">
-        <strong>Allgemeine Hinweise</strong>
-        <div class="notes-box">
-          <p>Bei den Flächen-Warmwasser-Fußbodenheizungssystemen fällt unter 80 m² Fläche zusätzlich eine
-            Mindermengenpauschale an.</p>
-          <p>Folgende Leistungen sind nicht im Leistungspaket enthalten:</p>
-          <ul>
-            <li>Montage der Verteiler und Schränke</li>
-            <li>Montage Klemmleiste, Stellantriebe und Raumthermostat</li>
-            <li>Spülen, Befüllen, Entlüften und Einstellen der Fußbodenheizung</li>
-            <li>Funktionsheizen, hydraulischer Abgleich</li>
-            <li>Ausgleich unsachgemäßer Rohbauhöhen durch unterschiedliche Dämmungen/Systembahnen in einzelnen
-              Räumen</li>
-            <li>Nachziehen der Klemmverschraubungen nach ca. 4 Wochen ist bauseits bzw. vom Gewerk Heizung
-              durchzuführen</li>
-          </ul>
+      <aside class="summary">
+        <h2>Aktuelle Auswahl</h2>
+        <div class="summary-box"><strong>Projektart</strong><span id="summaryProjectType">Noch nicht gewählt</span>
         </div>
-      </div>
-
-      <div class="summary-box calc-box"><strong>Berechnung</strong>
-        <div class="muted">Die Berechnungslogik wird im nächsten Schritt ergänzt.</div>
-        <div class="btn-group" style="margin-top: 12px;"><button type="button" id="startCalculationBtn">Berechnung
-            starten</button></div>
-      </div>
-    </section>
-
-    <div class="btn-row">
-      <div class="btn-group"><button type="button" class="secondary" id="prevBtn">Zurück</button></div>
-      <div class="btn-group"><button type="button" id="nextBtn">Weiter</button></div>
+        <div class="summary-box hidden" id="summaryBrandBox"><strong>Marke</strong><span
+            id="summaryBrand">Handelsmarke</span></div>
+        <div class="summary-box"><strong>Wärmeerzeuger</strong><span id="summaryHeatSource">Noch nicht gewählt</span>
+        </div>
+        <div class="summary-box"><strong>Standort</strong><span id="summaryPlz">PLZ offen</span></div>
+        <div class="summary-box"><strong>System</strong>
+          <div class="tag" id="summarySystem">Tacker</div>
+          <div class="tag" id="summaryWlg">035</div>
+          <div class="tag" id="summaryInsulationThickness">20-2 mm</div>
+          <div class="tag" id="summaryPipeType">PE-RT</div>
+          <div class="tag" id="summaryPipeSize">14 x 2,0 mm</div>
+          <div id="summaryEstrichRange" class="muted" style="margin-top: 8px;">Kein Estrich gewählt.</div>
+          <div id="summaryEstrichAdditives" class="muted" style="margin-top: 8px;">Keine Zusatzmittel gewählt.</div>
+          <div id="summaryDryConstruction" class="muted" style="margin-top: 8px;">Kein Trockenbau gewählt.</div>
+        </div>
+        <div class="summary-box"><strong>Thermostat</strong>
+          <div class="tag" id="summaryThermostat">Analog</div>
+        </div>
+        <div class="summary-box">
+          <strong>Verteilertechnik</strong>
+          <div class="tag" id="summaryCabinetMounting">Aufputz</div>
+          <div class="tag" id="summaryDistributionMode">Automatische Ermittlung</div>
+          <div class="tag" id="summaryRegulationVoltage">24V DC</div>
+          <div id="summaryDistributionItems" class="muted" style="margin-top: 8px;">Verteiler werden automatisch
+            ermittelt.</div>
+          <div id="summaryRegulationItems" class="muted" style="margin-top: 8px;">Keine Regeltechnik ausgewählt.</div>
+        </div>
+        <div class="summary-box"><strong>Zusatzdämmung</strong>
+          <div class="tag" id="summaryExtraInsulation">PUR</div>
+          <div class="tag" id="summaryExtraInsulationWlg">025</div>
+          <div class="tag" id="summaryExtraInsulationThickness">20 mm</div>
+        </div>
+        <div class="summary-box"><strong>Räume</strong>
+          <div id="summaryRooms" class="muted">Noch keine Räume angelegt.</div>
+        </div>
+      </aside>
     </div>
-    </main>
-
-    <aside class="summary">
-      <h2>Aktuelle Auswahl</h2>
-      <div class="summary-box"><strong>Projektart</strong><span id="summaryProjectType">Noch nicht gewählt</span>
-      </div>
-      <div class="summary-box hidden" id="summaryBrandBox"><strong>Marke</strong><span
-          id="summaryBrand">Handelsmarke</span></div>
-      <div class="summary-box"><strong>Wärmeerzeuger</strong><span id="summaryHeatSource">Noch nicht gewählt</span>
-      </div>
-      <div class="summary-box"><strong>Standort</strong><span id="summaryPlz">PLZ offen</span></div>
-      <div class="summary-box"><strong>System</strong>
-        <div class="tag" id="summarySystem">Tacker</div>
-        <div class="tag" id="summaryWlg">035</div>
-        <div class="tag" id="summaryInsulationThickness">20-2 mm</div>
-        <div class="tag" id="summaryPipeType">PE-RT</div>
-        <div class="tag" id="summaryPipeSize">14 x 2,0 mm</div>
-        <div id="summaryEstrichRange" class="muted" style="margin-top: 8px;">Kein Estrich gewählt.</div>
-        <div id="summaryEstrichAdditives" class="muted" style="margin-top: 8px;">Keine Zusatzmittel gewählt.</div>
-        <div id="summaryDryConstruction" class="muted" style="margin-top: 8px;">Kein Trockenbau gewählt.</div>
-      </div>
-      <div class="summary-box"><strong>Thermostat</strong>
-        <div class="tag" id="summaryThermostat">Analog</div>
-      </div>
-      <div class="summary-box">
-        <strong>Verteilertechnik</strong>
-        <div class="tag" id="summaryCabinetMounting">Aufputz</div>
-        <div class="tag" id="summaryDistributionMode">Automatische Ermittlung</div>
-        <div class="tag" id="summaryRegulationVoltage">24V DC</div>
-        <div id="summaryDistributionItems" class="muted" style="margin-top: 8px;">Verteiler werden automatisch
-          ermittelt.</div>
-        <div id="summaryRegulationItems" class="muted" style="margin-top: 8px;">Keine Regeltechnik ausgewählt.</div>
-      </div>
-      <div class="summary-box"><strong>Zusatzdämmung</strong>
-        <div class="tag" id="summaryExtraInsulation">PUR</div>
-        <div class="tag" id="summaryExtraInsulationWlg">025</div>
-        <div class="tag" id="summaryExtraInsulationThickness">20 mm</div>
-      </div>
-      <div class="summary-box"><strong>Räume</strong>
-        <div id="summaryRooms" class="muted">Noch keine Räume angelegt.</div>
-      </div>
-    </aside>
-  </div>
   </div>
 
   <template id="floorTemplate">
