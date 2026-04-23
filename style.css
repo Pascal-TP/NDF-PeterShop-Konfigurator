@@ -546,3 +546,9 @@ Ganz unten ergänzen */
     grid-template-columns: 1fr;
   }
 }
+
+.sub-block-note {
+  margin: 0 0 14px 0;
+  color: var(--muted);
+  line-height: 1.5;
+}

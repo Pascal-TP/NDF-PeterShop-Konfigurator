@@ -38,6 +38,12 @@ const distributionQtyFields = document.querySelectorAll('.distribution-qty');
 const regulationCheckboxes = document.querySelectorAll('.regulation-checkbox');
 const regulationQtyFields = document.querySelectorAll('.regulation-qty');
 const thermostatOptions = document.getElementById('thermostatOptions');
+const summaryEstrichRange = document.getElementById('summaryEstrichRange');
+const summaryEstrichAdditives = document.getElementById('summaryEstrichAdditives');
+const summaryDryConstruction = document.getElementById('summaryDryConstruction');
+const estrichRangeCheckboxes = document.querySelectorAll('input[name="estrichRange"]');
+const estrichAdditiveCheckboxes = document.querySelectorAll('input[name="estrichAdditive"]');
+const dryConstructionCheckboxes = document.querySelectorAll('input[name="dryConstruction"]');
 
 
 function getRadioValue(name) {
@@ -228,6 +234,24 @@ function getRegulationEntries() {
   return entries;
 }
 
+function getEstrichRangeEntries() {
+  return Array.from(estrichRangeCheckboxes)
+    .filter((checkbox) => checkbox.checked)
+    .map((checkbox) => checkbox.value);
+}
+
+function getEstrichAdditiveEntries() {
+  return Array.from(estrichAdditiveCheckboxes)
+    .filter((checkbox) => checkbox.checked)
+    .map((checkbox) => checkbox.value);
+}
+
+function getDryConstructionEntries() {
+  return Array.from(dryConstructionCheckboxes)
+    .filter((checkbox) => checkbox.checked)
+    .map((checkbox) => checkbox.value);
+}
+
 function renderFloors() {
   floorsContainer.innerHTML = '';
 
@@ -353,6 +377,24 @@ function updateSummary() {
   document.getElementById('summaryExtraInsulationWlg').textContent = getRadioValue('extraInsulationWlg');
   document.getElementById('summaryExtraInsulationThickness').textContent = getRadioValue('extraInsulationThickness');
 
+  const estrichRangeEntries = getEstrichRangeEntries();
+  summaryEstrichRange.textContent =
+    estrichRangeEntries.length
+      ? `Estrich: ${estrichRangeEntries.join(', ')}`
+      : 'Kein Estrich gewählt.';
+
+  const estrichAdditiveEntries = getEstrichAdditiveEntries();
+  summaryEstrichAdditives.textContent =
+    estrichAdditiveEntries.length
+      ? `Zusatzmittel: ${estrichAdditiveEntries.join(', ')}`
+      : 'Keine Zusatzmittel gewählt.';
+
+  const dryConstructionEntries = getDryConstructionEntries();
+  summaryDryConstruction.textContent =
+    dryConstructionEntries.length
+      ? `Trockenbau: ${dryConstructionEntries.join(', ')}`
+      : 'Kein Trockenbau gewählt.';
+
   const roomTexts = [];
   state.floors.forEach((floor, floorIndex) => {
     floor.rooms.forEach((room, roomIndex) => {
@@ -381,6 +423,9 @@ function updateFinalCheck() {
   const servicesText = state.services.length ? state.services.join(', ') : 'Keine zusätzlichen Dienstleistungen gewählt';
   const manualDistributionEntries = getManualDistributionEntries();
   const regulationEntries = getRegulationEntries();
+  const estrichRangeEntries = getEstrichRangeEntries();
+  const estrichAdditiveEntries = getEstrichAdditiveEntries();
+  const dryConstructionEntries = getDryConstructionEntries();
 
   finalCheck.innerHTML = `
     <div><strong>Projekt:</strong> ${summaryProjectType.textContent}${state.projectType === 'neubau' ? ' / ' + summaryBrand.textContent : ''}</div>
@@ -388,6 +433,9 @@ function updateFinalCheck() {
     <div><strong>PLZ:</strong> ${summaryPlz.textContent}</div>
     <div><strong>System:</strong> ${getRadioValue('system')}, ${getRadioValue('wlg')}, ${getRadioValue('insulationThickness')}</div>
     <div><strong>Rohr:</strong> ${getRadioValue('pipeType')} / ${getRadioValue('pipeSize')}</div>
+    <div><strong>Estrich:</strong> ${estrichRangeEntries.length ? estrichRangeEntries.join(', ') : 'Keine Auswahl'}</div>
+<div><strong>Zusatzmittel:</strong> ${estrichAdditiveEntries.length ? estrichAdditiveEntries.join(', ') : 'Keine Auswahl'}</div>
+<div><strong>Trockenbau:</strong> ${dryConstructionEntries.length ? dryConstructionEntries.join(', ') : 'Keine Auswahl'}</div>
     <div><strong>Thermostat:</strong> ${state.thermostatEnabled === 'nein' ? 'Kein Thermostat' : state.thermostat}</div>
     <div><strong>Verteilerschrank-Art:</strong> ${getRadioValue('cabinetMounting')}</div>
 <div><strong>Verteiler Menge & Typ:</strong> ${state.distributionMode === 'auto' ? 'Automatische Ermittlung' : (manualDistributionEntries.length ? manualDistributionEntries.join(', ') : 'Keine manuelle Eingabe')}</div>
@@ -481,6 +529,18 @@ regulationCheckboxes.forEach((field) => {
 
 regulationQtyFields.forEach((field) => {
   field.addEventListener('input', updateSummary);
+});
+
+estrichRangeCheckboxes.forEach((field) => {
+  field.addEventListener('change', updateSummary);
+});
+
+estrichAdditiveCheckboxes.forEach((field) => {
+  field.addEventListener('change', updateSummary);
+});
+
+dryConstructionCheckboxes.forEach((field) => {
+  field.addEventListener('change', updateSummary);
 });
 
 serviceCheckboxes.forEach((checkbox) => {
