@@ -4,8 +4,8 @@ const state = {
   brand: 'handelsmarke',
   heatSource: '',
   thermostat: 'Analog',
-  thermostatEnabled: 'ja',
   extraInsulationEnabled: 'ja',
+  distributionMode: 'auto',
   floors: [],
   maxUnlockedStep: 0,
   services: []
@@ -22,12 +22,23 @@ const summaryBrandBox = document.getElementById('summaryBrandBox');
 const summaryHeatSource = document.getElementById('summaryHeatSource');
 const summaryPlz = document.getElementById('summaryPlz');
 const summaryRooms = document.getElementById('summaryRooms');
+const summaryCabinetMounting = document.getElementById('summaryCabinetMounting');
+const summaryDistributionMode = document.getElementById('summaryDistributionMode');
+const summaryRegulationVoltage = document.getElementById('summaryRegulationVoltage');
+const summaryDistributionItems = document.getElementById('summaryDistributionItems');
+const summaryRegulationItems = document.getElementById('summaryRegulationItems');
 const finalCheck = document.getElementById('finalCheck');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const serviceCheckboxes = document.querySelectorAll('input[name="service"]');
 const extraInsulationOptions = document.getElementById('extraInsulationOptions');
+const distributionManualFields = document.getElementById('distributionManualFields');
+const distributionTypeFields = document.querySelectorAll('.distribution-type');
+const distributionQtyFields = document.querySelectorAll('.distribution-qty');
+const regulationCheckboxes = document.querySelectorAll('.regulation-checkbox');
+const regulationQtyFields = document.querySelectorAll('.regulation-qty');
 const thermostatOptions = document.getElementById('thermostatOptions');
+
 
 function getRadioValue(name) {
   const checked = document.querySelector(`input[name="${name}"]:checked`);
@@ -168,6 +179,55 @@ function renderExtraInsulationToggle() {
   }
 }
 
+function renderDistributionMode() {
+  document.querySelectorAll('#distributionModeChoices .choice-card').forEach((card) => {
+    card.classList.toggle('active', card.dataset.distributionMode === state.distributionMode);
+  });
+
+  const disabled = state.distributionMode === 'auto';
+  distributionManualFields.classList.toggle('disabled-block', disabled);
+
+  distributionTypeFields.forEach((field) => {
+    field.disabled = disabled;
+  });
+
+  distributionQtyFields.forEach((field) => {
+    field.disabled = disabled;
+  });
+}
+
+function getManualDistributionEntries() {
+  const entries = [];
+
+  distributionTypeFields.forEach((typeField, index) => {
+    const qtyField = distributionQtyFields[index];
+    const typeValue = typeField.value.trim();
+    const qtyValue = qtyField.value.trim();
+
+    if (typeValue && qtyValue && Number(qtyValue) > 0) {
+      entries.push(`${typeValue} x ${qtyValue}`);
+    }
+  });
+
+  return entries;
+}
+
+function getRegulationEntries() {
+  const entries = [];
+
+  regulationCheckboxes.forEach((checkbox, index) => {
+    const qtyField = regulationQtyFields[index];
+    const qtyValue = qtyField.value.trim();
+
+    if (checkbox.checked) {
+      const qtyText = qtyValue && Number(qtyValue) > 0 ? ` x ${qtyValue}` : '';
+      entries.push(`${checkbox.dataset.label}${qtyText}`);
+    }
+  });
+
+  return entries;
+}
+
 function renderFloors() {
   floorsContainer.innerHTML = '';
 
@@ -271,9 +331,24 @@ function updateSummary() {
   document.getElementById('summaryInsulationThickness').textContent = getRadioValue('insulationThickness');
   document.getElementById('summaryPipeType').textContent = getRadioValue('pipeType');
   document.getElementById('summaryPipeSize').textContent = getRadioValue('pipeSize');
-  document.getElementById('summaryConnectionSet').textContent = getRadioValue('connectionSet');
-  document.getElementById('summaryCabinetType').textContent = getRadioValue('cabinetType');
-  document.getElementById('summaryCabinetMounting').textContent = getRadioValue('cabinetMounting');
+  summaryCabinetMounting.textContent = getRadioValue('cabinetMounting');
+  summaryDistributionMode.textContent =
+    state.distributionMode === 'auto' ? 'Automatische Ermittlung' : 'Manuelle Eingabe';
+  summaryRegulationVoltage.textContent = getRadioValue('regulationVoltage');
+
+  const manualDistributionEntries = getManualDistributionEntries();
+  summaryDistributionItems.textContent =
+    state.distributionMode === 'auto'
+      ? 'Verteiler werden automatisch ermittelt.'
+      : (manualDistributionEntries.length
+        ? manualDistributionEntries.join(', ')
+        : 'Keine manuelle Verteilerauswahl erfasst.');
+
+  const regulationEntries = getRegulationEntries();
+  summaryRegulationItems.textContent =
+    regulationEntries.length
+      ? regulationEntries.join(', ')
+      : 'Keine Regeltechnik ausgewählt.';
   document.getElementById('summaryExtraInsulation').textContent = getRadioValue('extraInsulation');
   document.getElementById('summaryExtraInsulationWlg').textContent = getRadioValue('extraInsulationWlg');
   document.getElementById('summaryExtraInsulationThickness').textContent = getRadioValue('extraInsulationThickness');
@@ -304,6 +379,8 @@ function updateSummary() {
 function updateFinalCheck() {
   const roomsCount = state.floors.reduce((sum, floor) => sum + floor.rooms.length, 0);
   const servicesText = state.services.length ? state.services.join(', ') : 'Keine zusätzlichen Dienstleistungen gewählt';
+  const manualDistributionEntries = getManualDistributionEntries();
+  const regulationEntries = getRegulationEntries();
 
   finalCheck.innerHTML = `
     <div><strong>Projekt:</strong> ${summaryProjectType.textContent}${state.projectType === 'neubau' ? ' / ' + summaryBrand.textContent : ''}</div>
@@ -312,7 +389,9 @@ function updateFinalCheck() {
     <div><strong>System:</strong> ${getRadioValue('system')}, ${getRadioValue('wlg')}, ${getRadioValue('insulationThickness')}</div>
     <div><strong>Rohr:</strong> ${getRadioValue('pipeType')} / ${getRadioValue('pipeSize')}</div>
     <div><strong>Thermostat:</strong> ${state.thermostatEnabled === 'nein' ? 'Kein Thermostat' : state.thermostat}</div>
-    <div><strong>Verteilertechnik:</strong> ${getRadioValue('connectionSet')}, ${getRadioValue('cabinetType')}, ${getRadioValue('cabinetMounting')}</div>
+    <div><strong>Verteilerschrank-Art:</strong> ${getRadioValue('cabinetMounting')}</div>
+<div><strong>Verteiler Menge & Typ:</strong> ${state.distributionMode === 'auto' ? 'Automatische Ermittlung' : (manualDistributionEntries.length ? manualDistributionEntries.join(', ') : 'Keine manuelle Eingabe')}</div>
+<div><strong>Regeltechnik:</strong> ${getRadioValue('regulationVoltage')} / ${regulationEntries.length ? regulationEntries.join(', ') : 'Keine Zusatzkomponenten'}</div>
     <div><strong>Zusatzdämmung:</strong> ${state.extraInsulationEnabled === 'nein' ? 'Keine' : `${getRadioValue('extraInsulation')} / ${getRadioValue('extraInsulationWlg')} / ${getRadioValue('extraInsulationThickness')}`}</div>
     <div><strong>Etagen / Räume:</strong> ${state.floors.length} / ${roomsCount}</div>
     <div><strong>Dienstleistungen:</strong> ${servicesText}</div>
@@ -376,8 +455,32 @@ document.querySelectorAll('#extraInsulationToggleChoices .choice-card').forEach(
   });
 });
 
+document.querySelectorAll('#distributionModeChoices .choice-card').forEach((card) => {
+  card.addEventListener('click', () => {
+    state.distributionMode = card.dataset.distributionMode;
+    renderDistributionMode();
+    updateSummary();
+  });
+});
+
 document.querySelectorAll('input[type="radio"]').forEach((radio) => {
   radio.addEventListener('change', updateSummary);
+});
+
+distributionTypeFields.forEach((field) => {
+  field.addEventListener('change', updateSummary);
+});
+
+distributionQtyFields.forEach((field) => {
+  field.addEventListener('input', updateSummary);
+});
+
+regulationCheckboxes.forEach((field) => {
+  field.addEventListener('change', updateSummary);
+});
+
+regulationQtyFields.forEach((field) => {
+  field.addEventListener('input', updateSummary);
 });
 
 serviceCheckboxes.forEach((checkbox) => {
@@ -426,8 +529,8 @@ renderProjectType();
 renderBrand();
 renderHeatSource();
 renderThermostat();
-renderThermostatToggle();
 renderExtraInsulationToggle();
+renderDistributionMode();
 renderFloors();
 updateSummary();
 showStep(0);

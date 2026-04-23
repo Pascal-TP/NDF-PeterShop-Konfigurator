@@ -505,3 +505,44 @@ button:disabled {
   flex: 1 1 100%;
   background: #f3f6f9;
 }
+
+/* style.css
+Ganz unten ergänzen */
+.distribution-manual-fields {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.distribution-row {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 12px;
+}
+
+.regulation-voltage-list {
+  margin-bottom: 16px;
+}
+
+.regulation-list {
+  display: grid;
+  gap: 12px;
+}
+
+.regulation-row {
+  display: grid;
+  grid-template-columns: 1fr 140px;
+  gap: 12px;
+  align-items: center;
+}
+
+.regulation-label {
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .distribution-row,
+  .regulation-row {
+    grid-template-columns: 1fr;
+  }
+}
