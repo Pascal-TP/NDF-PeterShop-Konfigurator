@@ -159,7 +159,41 @@ function renderBrand() {
   document.querySelectorAll('#brandChoices .choice-card').forEach((card) => {
     card.classList.toggle('active', card.dataset.brand === state.brand);
   });
-  summaryBrand.textContent = state.brand === 'uponor' ? 'Uponor' : state.brand === 'roth' ? 'Roth' : 'Handelsmarke';
+
+  summaryBrand.textContent =
+    state.brand === 'uponor' ? 'Uponor' :
+    state.brand === 'roth' ? 'Roth' :
+    'Handelsmarke';
+
+  syncSystemOptionsByBrand();
+}
+
+function syncSystemOptionsByBrand() {
+  const systemRadios = document.querySelectorAll('input[name="system"]');
+
+  let allowedSystems = [];
+
+  if (state.brand === 'uponor') {
+    allowedSystems = ['Tacker', 'Klett'];
+  } else {
+    allowedSystems = ['Tacker'];
+  }
+
+  systemRadios.forEach((radio) => {
+    const optionLabel = radio.closest('.radio-option');
+    const isAllowed = allowedSystems.includes(radio.value);
+
+    radio.disabled = !isAllowed;
+    optionLabel?.classList.toggle('disabled-radio-option', !isAllowed);
+  });
+
+  const checkedSystem = document.querySelector('input[name="system"]:checked');
+  if (!checkedSystem || checkedSystem.disabled) {
+    const firstAllowed = Array.from(systemRadios).find((radio) => !radio.disabled);
+    if (firstAllowed) {
+      firstAllowed.checked = true;
+    }
+  }
 }
 
 function renderHeatSource() {

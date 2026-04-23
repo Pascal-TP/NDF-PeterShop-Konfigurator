@@ -560,3 +560,11 @@ Ganz unten ergänzen */
 .disabled-option span {
   cursor: not-allowed;
 }
+
+.disabled-radio-option {
+  opacity: 0.45;
+}
+
+.disabled-radio-option span {
+  cursor: not-allowed;
+}
