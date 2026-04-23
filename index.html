@@ -14,7 +14,7 @@
       <div class="hero-grid">
         <div>
           <h1>Konfigurator Fußbodenheizung</h1>
-          <p>Geführte Eingabemaske für den PeterShop-Konfigurator. Die Berechnung startet erst im letzten Schritt.</p>
+          <p>Geführte Eingabemaske für die optimale Bedarfsermittlung.</p>
         </div>
         <img src="logo.png" alt="Logo" class="hero-logo"
           onerror="this.style.opacity='0.5'; this.alt='Bitte später logo.png ergänzen';" />
@@ -62,8 +62,7 @@
 
         <section class="step-panel active" data-step-panel="1">
           <h2 class="section-title">1. Projektart</h2>
-          <p class="section-subtitle">Bitte zuerst die Projektart wählen. Nur bei Neubau erscheint danach die
-            Markenauswahl.</p>
+          <p class="section-subtitle">Bitte zuerst die Projektart wählen.</p>
           <div class="choice-row" id="projectTypeChoices">
             <div class="choice-card" data-type="neubau"><strong>Neubau</strong><span>Neues Bauvorhaben mit zusätzlicher
                 Auswahl der Marke.</span></div>
@@ -198,7 +197,7 @@
 
         <section class="step-panel" data-step-panel="5">
           <h2 class="section-title">5. Thermostat</h2>
-          <p class="section-subtitle">Bitte wählen, ob ein Thermostat vorgesehen ist.</p>
+          <p class="section-subtitle">Bitte wählen, ob und welches Thermostat vorgesehen ist.</p>
 
           <div class="sub-block">
             <h3>Thermostat gewünscht?</h3>
@@ -477,14 +476,15 @@
                     (Beinhaltet eine ausführliche technische Betrachtung, einen Baustellentermin und ggf. ein
                     Höhenprotokoll oder eine Probebohrung.)</span></label>
                 <label class="check-option"><input type="checkbox" name="service" value="Schnellauslegung" />
-                  <span>Schnellauslegung</span></label>
+                  <span>Schnellauslegung<br>
+                  (inklusive Materialvorschlag)</span></label>
                 <label class="check-option"><input type="checkbox" name="service" value="Heizflächenauslegung" />
-                  <span>Heizflächenauslegung</span></label>
+                  <span>Heizflächenauslegung - Berechnung für den hydraulischen Abgleich<br>
+                  (inklusive Verlegeplan)</span></label>
                 <label class="check-option"><input type="checkbox" name="service" value="Heizlastberechnung" />
-                  <span>Heizlastberechnung nach DIN EN 12831</span></label>
-                <label class="check-option"><input type="checkbox" name="service" value="Änderung Berechnung" />
-                  <span>Änderung in der Berechnung im Nachgang</span></label>
-              </div>
+                  <span>Heizlastberechnung nach DIN EN 12831<br>
+                  (inklusive Heizflächenauslegung und eine Berechnung für den hydraulischen Abgleich)</span></label>
+               </div>
             </div>
           </div>
         </section>
