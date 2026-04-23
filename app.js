@@ -47,6 +47,13 @@ const dryConstructionCheckboxes = document.querySelectorAll('input[name="dryCons
 const millingSystemCheckboxes = document.querySelectorAll('input[name="millingSystem"]');
 const millingSetupCheckbox = document.getElementById('millingSetupCheckbox');
 const floorSurchargeCheckbox = document.getElementById('floorSurchargeCheckbox');
+const millingBlock = document.getElementById('millingBlock');
+const estrichBlock = document.getElementById('estrichBlock');
+const dryConstructionBlock = document.getElementById('dryConstructionBlock');
+const wlgBlock = document.getElementById('wlgBlock');
+const insulationThicknessBlock = document.getElementById('insulationThicknessBlock');
+const pipeTypeBlock = document.getElementById('pipeTypeBlock');
+const pipeSizeBlock = document.getElementById('pipeSizeBlock');
 
 
 function getRadioValue(name) {
@@ -113,6 +120,34 @@ function renderProjectType() {
   summaryBrandBox.classList.toggle('hidden', !showBrand);
   summaryProjectType.textContent = state.projectType ? (state.projectType === 'neubau' ? 'Neubau' : 'Sanierung') : 'Noch nicht gewählt';
   summaryBrand.textContent = state.brand === 'uponor' ? 'Uponor' : state.brand === 'roth' ? 'Roth' : 'Handelsmarke';
+
+  renderSystemBlocksByProjectType();
+}
+
+function renderSystemBlocksByProjectType() {
+  const isNeubau = state.projectType === 'neubau';
+  const isSanierung = state.projectType === 'sanierung';
+
+  // Neubau: Fräsen ausblenden
+  millingBlock.classList.toggle('hidden', isNeubau);
+
+  // Sanierung: nur Fräsen, Estrich und Trockenbau sichtbar
+  estrichBlock.classList.toggle('hidden', false);
+  dryConstructionBlock.classList.toggle('hidden', false);
+
+  wlgBlock.classList.toggle('hidden', isSanierung);
+  insulationThicknessBlock.classList.toggle('hidden', isSanierung);
+  pipeTypeBlock.classList.toggle('hidden', isSanierung);
+  pipeSizeBlock.classList.toggle('hidden', isSanierung);
+
+  // System-Kachel selbst bleibt sichtbar,
+  // aber bei Sanierung werden nur die 3 Standard-Systeme gezeigt, damit keine Folgeblöcke sichtbar sind
+  if (isSanierung) {
+    wlgBlock.classList.add('hidden');
+    insulationThicknessBlock.classList.add('hidden');
+    pipeTypeBlock.classList.add('hidden');
+    pipeSizeBlock.classList.add('hidden');
+  }
 }
 
 function renderBrand() {
@@ -407,10 +442,10 @@ function updateLayerPreview() {
 function updateSummary() {
   summaryPlz.textContent = document.getElementById('plz').value.trim() || 'PLZ offen';
   document.getElementById('summarySystem').textContent = getRadioValue('system');
-  document.getElementById('summaryWlg').textContent = getRadioValue('wlg');
-  document.getElementById('summaryInsulationThickness').textContent = getRadioValue('insulationThickness');
-  document.getElementById('summaryPipeType').textContent = getRadioValue('pipeType');
-  document.getElementById('summaryPipeSize').textContent = getRadioValue('pipeSize');
+  document.getElementById('summaryWlg').textContent = wlgBlock.classList.contains('hidden') ? '-' : getRadioValue('wlg');
+  document.getElementById('summaryInsulationThickness').textContent = insulationThicknessBlock.classList.contains('hidden') ? '-' : getRadioValue('insulationThickness');
+  document.getElementById('summaryPipeType').textContent = pipeTypeBlock.classList.contains('hidden') ? '-' : getRadioValue('pipeType');
+  document.getElementById('summaryPipeSize').textContent = pipeSizeBlock.classList.contains('hidden') ? '-' : getRadioValue('pipeSize');
   summaryCabinetMounting.textContent = getRadioValue('cabinetMounting');
   summaryDistributionMode.textContent =
     state.distributionMode === 'auto' ? 'Automatische Ermittlung' : 'Manuelle Eingabe';
@@ -656,9 +691,11 @@ document.getElementById('startCalculationBtn').addEventListener('click', () => {
 
 state.floors = [createFloor()];
 renderProjectType();
+renderSystemBlocksByProjectType();
 renderBrand();
 renderHeatSource();
 renderThermostat();
+renderThermostatToggle();
 renderExtraInsulationToggle();
 renderDistributionMode();
 renderFloors();
