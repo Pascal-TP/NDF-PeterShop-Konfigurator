@@ -55,6 +55,7 @@ const insulationThicknessBlock = document.getElementById('insulationThicknessBlo
 const pipeTypeBlock = document.getElementById('pipeTypeBlock');
 const pipeSizeBlock = document.getElementById('pipeSizeBlock');
 const systemBlock = document.getElementById('systemBlock');
+const systemSanierungBlock = document.getElementById('systemSanierungBlock');
 
 
 function getRadioValue(name) {
@@ -129,21 +130,29 @@ function renderSystemBlocksByProjectType() {
   const isNeubau = state.projectType === 'neubau';
   const isSanierung = state.projectType === 'sanierung';
 
-  // System nur bei Neubau sichtbar
-  systemBlock.classList.toggle('hidden', isSanierung);
+  // System Neubau
+  systemBlock.classList.toggle('hidden', !isNeubau);
 
-  // Fräsen nur bei Sanierung sichtbar
+  // System Sanierung
+  systemSanierungBlock.classList.toggle('hidden', !isSanierung);
+
+  // Fräsen
   millingBlock.classList.toggle('hidden', isNeubau);
 
-  // Diese beiden immer sichtbar
+  // Immer sichtbar
   estrichBlock.classList.remove('hidden');
   dryConstructionBlock.classList.remove('hidden');
 
-  // Nur bei Neubau sichtbar
+  // Nur Neubau
   wlgBlock.classList.toggle('hidden', isSanierung);
   insulationThicknessBlock.classList.toggle('hidden', isSanierung);
   pipeTypeBlock.classList.toggle('hidden', isSanierung);
   pipeSizeBlock.classList.toggle('hidden', isSanierung);
+
+  // Automatisch System setzen bei Sanierung
+  if (isSanierung) {
+    state.system = 'Klett 3mm';
+  }
 }
 
 function renderBrand() {
@@ -437,7 +446,10 @@ function updateLayerPreview() {
 
 function updateSummary() {
   summaryPlz.textContent = document.getElementById('plz').value.trim() || 'PLZ offen';
-  document.getElementById('summarySystem').textContent = getRadioValue('system');
+  document.getElementById('summarySystem').textContent =
+    state.projectType === 'sanierung'
+      ? 'Klett 3mm'
+      : getRadioValue('system');
   document.getElementById('summaryWlg').textContent = wlgBlock.classList.contains('hidden') ? '-' : getRadioValue('wlg');
   document.getElementById('summaryInsulationThickness').textContent = insulationThicknessBlock.classList.contains('hidden') ? '-' : getRadioValue('insulationThickness');
   document.getElementById('summaryPipeType').textContent = pipeTypeBlock.classList.contains('hidden') ? '-' : getRadioValue('pipeType');
