@@ -272,6 +272,21 @@ function syncEstrichAdditivesRules() {
   });
 }
 
+function syncEstrichRangeRules() {
+  const rangeCheckboxes = Array.from(estrichRangeCheckboxes);
+  const selected = rangeCheckboxes.find((checkbox) => checkbox.checked);
+
+  rangeCheckboxes.forEach((checkbox) => {
+    if (selected && checkbox !== selected) {
+      checkbox.disabled = true;
+      checkbox.closest('.check-option')?.classList.add('disabled-option');
+    } else {
+      checkbox.disabled = false;
+      checkbox.closest('.check-option')?.classList.remove('disabled-option');
+    }
+  });
+}
+
 function renderFloors() {
   floorsContainer.innerHTML = '';
 
@@ -436,6 +451,7 @@ function updateSummary() {
       ? `Trockenbau: ${dryConstructionEntries.join(', ')}`
       : 'Kein Trockenbau gewählt.';
 
+  syncEstrichRangeRules();
   syncEstrichAdditivesRules();
   syncMillingSystemRules();
 
@@ -576,7 +592,10 @@ regulationQtyFields.forEach((field) => {
 });
 
 estrichRangeCheckboxes.forEach((field) => {
-  field.addEventListener('change', updateSummary);
+  field.addEventListener('change', () => {
+    syncEstrichRangeRules();
+    updateSummary();
+  });
 });
 
 estrichAdditiveCheckboxes.forEach((field) => {
@@ -644,5 +663,6 @@ renderExtraInsulationToggle();
 renderDistributionMode();
 renderFloors();
 syncEstrichAdditivesRules();
+syncEstrichRangeRules();
 updateSummary();
 showStep(0);
