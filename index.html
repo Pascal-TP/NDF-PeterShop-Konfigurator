@@ -87,12 +87,13 @@
           <h2 class="section-title">2. Wärmeerzeuger</h2>
           <p class="section-subtitle">Hier gibt es bewusst keine Vorauswahl. Der Nutzer muss aktiv auswählen, bevor es
             weitergeht.</p>
-          <div class="choice-row" id="heatSourceChoices">
-            <div class="choice-card" data-heat-source="Wärmepumpe"><strong>Wärmepumpe</strong></div>
-            <div class="choice-card" data-heat-source="Brennwert"><strong>Brennwert</strong></div>
-            <div class="choice-card" data-heat-source="Fernwärme"><strong>Fernwärme</strong></div>
-            <div class="choice-card" data-heat-source="Hybrid"><strong>Hybrid</strong></div>
-          </div>
+        <div class="choice-row" id="heatSourceChoices">
+  <div class="choice-card" data-heat-source="Keine Angabe"><strong>Keine Angabe</strong></div>
+  <div class="choice-card" data-heat-source="Wärmepumpe"><strong>Wärmepumpe</strong></div>
+  <div class="choice-card" data-heat-source="Brennwert"><strong>Brennwert</strong></div>
+  <div class="choice-card" data-heat-source="Fernwärme"><strong>Fernwärme</strong></div>
+  <div class="choice-card" data-heat-source="Hybrid"><strong>Hybrid</strong></div>
+</div>
         </section>
 
         <section class="step-panel" data-step-panel="3">
@@ -179,14 +180,34 @@
         </section>
 
         <section class="step-panel" data-step-panel="5">
-          <h2 class="section-title">5. Thermostat</h2>
-          <p class="section-subtitle">Bitte den gewünschten Thermostat wählen.</p>
-          <div class="choice-row" id="thermostatChoices">
-            <div class="choice-card active" data-thermostat="Analog"><strong>Analog</strong><span>Klassisches
-                Raumthermostat.</span></div>
-            <div class="choice-card" data-thermostat="LCD"><strong>LCD</strong><span>Digitales Display.</span></div>
-          </div>
-        </section>
+  <h2 class="section-title">5. Thermostat</h2>
+  <p class="section-subtitle">Bitte wählen, ob ein Thermostat vorgesehen ist.</p>
+
+  <div class="sub-block">
+    <h3>Thermostat vorhanden?</h3>
+    <div class="choice-row" id="thermostatToggleChoices">
+      <div class="choice-card active" data-thermostat-toggle="ja">
+        <strong>Ja</strong>
+      </div>
+      <div class="choice-card" data-thermostat-toggle="nein">
+        <strong>Nein</strong>
+      </div>
+    </div>
+  </div>
+
+  <div id="thermostatOptions">
+    <div class="choice-row" id="thermostatChoices">
+      <div class="choice-card active" data-thermostat="Analog">
+        <strong>Analog</strong>
+        <span>Klassisches Raumthermostat.</span>
+      </div>
+      <div class="choice-card" data-thermostat="LCD">
+        <strong>LCD</strong>
+        <span>Digitales Display.</span>
+      </div>
+    </div>
+  </div>
+</section>
 
         <section class="step-panel" data-step-panel="6">
           <h2 class="section-title">6. Verteilertechnik</h2>
@@ -230,11 +251,11 @@
 
         <section class="step-panel" data-step-panel="7">
           <h2 class="section-title">7. Zusatzdämmung</h2>
-          <p class="section-subtitle">Hier wird später unten auch der grafische Aufbau dargestellt.</p>
+          <p class="section-subtitle">Geliefert und montiert wird die ausgwählte Zusatzdämmung. Eine Vermibit-Trockenausgelichsschüttung ist inbegriffen.</p>
 
           <div class="stack-grid">
             <div class="sub-block">
-              <h3>Zusatzdämmung vorhanden?</h3>
+              <h3>Zusatzdämmung gewünscht?</h3>
               <div class="choice-row" id="extraInsulationToggleChoices">
                 <div class="choice-card active" data-extra-insulation-toggle="ja">
                   <strong>Ja</strong>
@@ -308,14 +329,15 @@
 
         <section class="step-panel" data-step-panel="9">
           <h2 class="section-title">9. Dienstleistungen</h2>
-          <p class="section-subtitle">Zusätzliche Dienstleistungen gemäß Preisliste können hier ausgewählt werden.</p>
+          <p class="section-subtitle">Zusätzliche Dienstleistungen können hier ausgewählt werden.</p>
 
           <div class="stack-grid">
             <div class="sub-block">
               <h3>Planung & Berechnung</h3>
               <div class="check-list">
                 <label class="check-option"><input type="checkbox" name="service" value="Beratungspauschale" />
-                  <span>Beratungspauschale in der Angebotsphase</span></label>
+                  <span>Beratungspauschale in der Angebotsphase<br>
+                        (Beinhaltet eine ausführliche technische Betrachtung, einen Baustellentermin und ggf. ein Höhenprotokoll oder eine Probebohrung.)</span></label>
                 <label class="check-option"><input type="checkbox" name="service" value="Schnellauslegung" />
                   <span>Schnellauslegung</span></label>
                 <label class="check-option"><input type="checkbox" name="service" value="Heizflächenauslegung" />

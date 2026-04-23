@@ -4,6 +4,7 @@ const state = {
   brand: 'handelsmarke',
   heatSource: '',
   thermostat: 'Analog',
+  thermostatEnabled: 'ja',
   extraInsulationEnabled: 'ja',
   floors: [],
   maxUnlockedStep: 0,
@@ -26,6 +27,7 @@ const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const serviceCheckboxes = document.querySelectorAll('input[name="service"]');
 const extraInsulationOptions = document.getElementById('extraInsulationOptions');
+const thermostatOptions = document.getElementById('thermostatOptions');
 
 function getRadioValue(name) {
   const checked = document.querySelector(`input[name="${name}"]:checked`);
@@ -102,8 +104,13 @@ function renderBrand() {
 
 function renderHeatSource() {
   document.querySelectorAll('#heatSourceChoices .choice-card').forEach((card) => {
+    const isNone = card.dataset.heatSource === 'Keine Angabe';
+    const disableOtherCards = state.heatSource === 'Keine Angabe' && !isNone;
+
     card.classList.toggle('active', card.dataset.heatSource === state.heatSource);
+    card.classList.toggle('disabled-card', disableOtherCards);
   });
+
   summaryHeatSource.textContent = state.heatSource || 'Noch nicht gewählt';
 }
 
@@ -112,6 +119,24 @@ function renderThermostat() {
     card.classList.toggle('active', card.dataset.thermostat === state.thermostat);
   });
   document.getElementById('summaryThermostat').textContent = state.thermostat;
+}
+
+function renderThermostatToggle() {
+  document.querySelectorAll('#thermostatToggleChoices .choice-card').forEach((card) => {
+    card.classList.toggle('active', card.dataset.thermostatToggle === state.thermostatEnabled);
+  });
+
+  const disabled = state.thermostatEnabled === 'nein';
+  thermostatOptions.classList.toggle('disabled-block', disabled);
+
+  if (disabled) {
+    thermostatOptions.querySelectorAll('.choice-card').forEach((card) => {
+      card.classList.remove('active');
+    });
+    document.getElementById('summaryThermostat').textContent = 'Kein Thermostat';
+  } else {
+    renderThermostat();
+  }
 }
 
 function renderExtraInsulationToggle() {
@@ -286,7 +311,7 @@ function updateFinalCheck() {
     <div><strong>PLZ:</strong> ${summaryPlz.textContent}</div>
     <div><strong>System:</strong> ${getRadioValue('system')}, ${getRadioValue('wlg')}, ${getRadioValue('insulationThickness')}</div>
     <div><strong>Rohr:</strong> ${getRadioValue('pipeType')} / ${getRadioValue('pipeSize')}</div>
-    <div><strong>Thermostat:</strong> ${state.thermostat}</div>
+    <div><strong>Thermostat:</strong> ${state.thermostatEnabled === 'nein' ? 'Kein Thermostat' : state.thermostat}</div>
     <div><strong>Verteilertechnik:</strong> ${getRadioValue('connectionSet')}, ${getRadioValue('cabinetType')}, ${getRadioValue('cabinetMounting')}</div>
     <div><strong>Zusatzdämmung:</strong> ${state.extraInsulationEnabled === 'nein' ? 'Keine' : `${getRadioValue('extraInsulation')} / ${getRadioValue('extraInsulationWlg')} / ${getRadioValue('extraInsulationThickness')}`}</div>
     <div><strong>Etagen / Räume:</strong> ${state.floors.length} / ${roomsCount}</div>
@@ -312,7 +337,16 @@ document.querySelectorAll('#brandChoices .choice-card').forEach((card) => {
 
 document.querySelectorAll('#heatSourceChoices .choice-card').forEach((card) => {
   card.addEventListener('click', () => {
-    state.heatSource = card.dataset.heatSource;
+    const selectedValue = card.dataset.heatSource;
+
+    if (selectedValue === 'Keine Angabe' && state.heatSource === 'Keine Angabe') {
+      state.heatSource = '';
+    } else if (card.classList.contains('disabled-card')) {
+      return;
+    } else {
+      state.heatSource = selectedValue;
+    }
+
     renderHeatSource();
     updateSummary();
   });
@@ -322,6 +356,14 @@ document.querySelectorAll('#thermostatChoices .choice-card').forEach((card) => {
   card.addEventListener('click', () => {
     state.thermostat = card.dataset.thermostat;
     renderThermostat();
+    updateSummary();
+  });
+});
+
+document.querySelectorAll('#thermostatToggleChoices .choice-card').forEach((card) => {
+  card.addEventListener('click', () => {
+    state.thermostatEnabled = card.dataset.thermostatToggle;
+    renderThermostatToggle();
     updateSummary();
   });
 });
@@ -384,6 +426,7 @@ renderProjectType();
 renderBrand();
 renderHeatSource();
 renderThermostat();
+renderThermostatToggle();
 renderExtraInsulationToggle();
 renderFloors();
 updateSummary();
