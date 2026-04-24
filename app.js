@@ -245,6 +245,18 @@ function canProceedToNextStep() {
   if (state.currentStep === 3) {
     return /^\d{5}$/.test(document.getElementById('plz').value.trim());
   }
+  if (state.currentStep === 5) {
+  if (state.thermostatEnabled === 'nein') {
+    return true;
+  }
+
+  if (state.thermostatEnabled === 'ja') {
+    return state.thermostat !== '';
+  }
+
+  return false;
+}
+
   if (state.currentStep === 6) {
     return state.distributionEnabled !== '';
   }
