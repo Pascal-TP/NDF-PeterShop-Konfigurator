@@ -7,6 +7,7 @@ const state = {
   thermostatEnabled: '',
   extraInsulationEnabled: '',
   distributionMode: '',
+  distributionEnabled: '',
   floors: [],
   maxUnlockedStep: 0,
   services: [],
@@ -56,7 +57,7 @@ const dryConstructionBlock = document.getElementById('dryConstructionBlock');
 const wlgBlock = document.getElementById('wlgBlock');
 const insulationThicknessBlock = document.getElementById('insulationThicknessBlock');
 const pipeTypeBlock = document.getElementById('pipeTypeBlock');
-const pipeSizeBlock = document.getElementById('pipeSizeBlock') || { classList: { contains: () => true, toggle: () => {} } };
+const pipeSizeBlock = document.getElementById('pipeSizeBlock') || { classList: { contains: () => true, toggle: () => { } } };
 const systemBlock = document.getElementById('systemBlock');
 const systemSanierungBlock = document.getElementById('systemSanierungBlock');
 const systemInfoTacker = document.getElementById('systemInfoTacker');
@@ -70,6 +71,8 @@ const savePdfBtn = document.getElementById('savePdfBtn');
 const backToConfigBtn = document.getElementById('backToConfigBtn');
 const printResultBtn = document.getElementById('printResultBtn');
 const handoverShopBtn = document.getElementById('handoverShopBtn');
+const distributionToggleChoices = document.getElementById('distributionToggleChoices');
+const distributionOptions = document.getElementById('distributionOptions');
 
 const appModal = document.getElementById('appModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -171,6 +174,7 @@ function resetFromProjectTypeForward() {
   state.services = [];
   state.floors = [createFloor()];
   state.maxUnlockedStep = 1;
+  state.distributionEnabled = '';
 
   document.querySelectorAll('input').forEach((input) => {
     if (input.type === 'checkbox') input.checked = false;
@@ -242,6 +246,9 @@ function canProceedToNextStep() {
     return /^\d{5}$/.test(document.getElementById('plz').value.trim());
   }
   return true;
+  if (state.currentStep === 6) {
+    return state.distributionEnabled !== '';
+  }
 }
 
 function renderProjectType() {
@@ -459,6 +466,35 @@ function renderThermostatToggle() {
       state.thermostatEnabled === 'nein' ? 'Kein Thermostat' : 'Keine Auswahl';
   } else {
     renderThermostat();
+  }
+}
+
+function renderDistributionToggle() {
+  document.querySelectorAll('#distributionToggleChoices .choice-card').forEach((card) => {
+    card.classList.toggle('active', card.dataset.distributionToggle === state.distributionEnabled);
+  });
+
+  const disabled = state.distributionEnabled !== 'ja';
+
+  distributionOptions.classList.toggle('disabled-block', disabled);
+
+  distributionOptions.querySelectorAll('input, select').forEach((el) => {
+    el.disabled = disabled;
+    if (disabled) {
+      if (el.type === 'checkbox') el.checked = false;
+      if (el.tagName === 'SELECT') el.selectedIndex = 0;
+    }
+  });
+
+  if (state.distributionEnabled === 'nein') {
+    summaryDistributionMode.textContent = 'Keine';
+  } else {
+    summaryDistributionMode.textContent =
+      state.distributionMode === 'auto'
+        ? 'Automatische Ermittlung'
+        : state.distributionMode === 'manual'
+          ? 'Manuelle Eingabe'
+          : 'Keine Auswahl';
   }
 }
 
@@ -1061,6 +1097,16 @@ document.querySelectorAll('#distributionModeChoices .choice-card').forEach((card
   });
 });
 
+document.querySelectorAll('#distributionToggleChoices .choice-card').forEach((card) => {
+  card.addEventListener('click', () => {
+    state.distributionEnabled = card.dataset.distributionToggle;
+
+    renderDistributionToggle();
+    renderDistributionMode();
+    updateSummary();
+  });
+});
+
 document.getElementById('startCalculationBtn').addEventListener('click', () => {
   showResultPage();
 });
@@ -1243,6 +1289,7 @@ renderThermostat();
 renderThermostatToggle();
 renderExtraInsulationToggle();
 renderDistributionMode();
+renderDistributionToggle();
 renderFloors();
 syncEstrichAdditivesRules();
 syncEstrichRangeRules();
