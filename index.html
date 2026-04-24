@@ -132,7 +132,7 @@
               <h3>System</h3>
               <div class="radio-list">
                 <label class="radio-option">
-                  <input type="checkbox" name="system" value="Tacker" checked />
+                  <input type="checkbox" name="system" value="Tacker" />
                   <span>Tacker</span>
                   <span class="info-trigger" tabindex="0">i
                     <span class="info-tooltip" id="systemInfoTacker">Hier kommt der Text für Handelsmarke Tacker
@@ -266,25 +266,28 @@
             <div class="sub-block" id="wlgBlock">
               <h3>Wärmeleitgruppe</h3>
               <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="wlg" value="035"
-                    checked /><span>035</span></label>
-                <label class="radio-option"><input type="radio" name="wlg" value="040" /><span>040</span></label>
-                <label class="radio-option"><input type="radio" name="wlg" value="045" /><span>045</span></label>
+                <label class="radio-option"><input type="checkbox" name="wlg" value="035" /><span>035</span></label>
+                <label class="radio-option"><input type="checkbox" name="wlg" value="040" /><span>040</span></label>
+                <label class="radio-option"><input type="checkbox" name="wlg" value="045" /><span>045</span></label>
               </div>
             </div>
 
             <div class="sub-block" id="insulationThicknessBlock">
               <h3>Dämmungsdicke</h3>
               <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="insulationThickness" value="20-2 mm"
-                    checked /><span>20-2 mm</span></label>
-                <label class="radio-option"><input type="radio" name="insulationThickness" value="25-2 mm" /><span>25-2
+                <label class="radio-option"><input type="checkbox" name="insulationThickness"
+                    value="20-2 mm" /><span>20-2 mm</span></label>
+                <label class="radio-option"><input type="checkbox" name="insulationThickness"
+                    value="25-2 mm" /><span>25-2
                     mm</span></label>
-                <label class="radio-option"><input type="radio" name="insulationThickness" value="30-3 mm" /><span>30-3
+                <label class="radio-option"><input type="checkbox" name="insulationThickness"
+                    value="30-3 mm" /><span>30-3
                     mm</span></label>
-                <label class="radio-option"><input type="radio" name="insulationThickness" value="35-3 mm" /><span>35-3
+                <label class="radio-option"><input type="checkbox" name="insulationThickness"
+                    value="35-3 mm" /><span>35-3
                     mm</span></label>
-                <label class="radio-option"><input type="radio" name="insulationThickness" value="40-3 mm" /><span>40-3
+                <label class="radio-option"><input type="checkbox" name="insulationThickness"
+                    value="40-3 mm" /><span>40-3
                     mm</span></label>
               </div>
             </div>
@@ -292,13 +295,13 @@
             <div class="sub-block" id="pipeTypeBlock">
               <h3>Heizrohr</h3>
               <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="pipeType" value="PE-RT"
-                    checked /><span>PE-RT</span></label>
-                <label class="radio-option"><input type="radio" name="pipeType"
+                <label class="radio-option"><input type="checkbox" name="pipeType"
+                    value="PE-RT" /><span>PE-RT</span></label>
+                <label class="radio-option"><input type="checkbox" name="pipeType"
                     value="PE-Xc" /><span>PE-Xc</span></label>
-                <label class="radio-option"><input type="radio" name="pipeType"
+                <label class="radio-option"><input type="checkbox" name="pipeType"
                     value="PE-Xa" /><span>PE-Xa</span></label>
-                <label class="radio-option"><input type="radio" name="pipeType"
+                <label class="radio-option"><input type="checkbox" name="pipeType"
                     value="Alu-Verbund" /><span>Alu-Verbund</span></label>
               </div>
             </div>
@@ -306,14 +309,14 @@
             <div class="sub-block" id="pipeSizeBlock">
               <h3>Heizrohr-Größe</h3>
               <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="pipeSize" value="14 x 2,0 mm" checked /><span>14
+                <label class="radio-option"><input type="checkbox" name="pipeSize" value="14 x 2,0 mm" /><span>14
                     x
                     2,0 mm</span></label>
-                <label class="radio-option"><input type="radio" name="pipeSize" value="16 x 2,0 mm" /><span>16 x 2,0
+                <label class="radio-option"><input type="checkbox" name="pipeSize" value="16 x 2,0 mm" /><span>16 x 2,0
                     mm</span></label>
-                <label class="radio-option"><input type="radio" name="pipeSize" value="17 x 2,0 mm" /><span>17 x 2,0
+                <label class="radio-option"><input type="checkbox" name="pipeSize" value="17 x 2,0 mm" /><span>17 x 2,0
                     mm</span></label>
-                <label class="radio-option"><input type="radio" name="pipeSize" value="20 x 2,0 mm" /><span>20 x 2,0
+                <label class="radio-option"><input type="checkbox" name="pipeSize" value="20 x 2,0 mm" /><span>20 x 2,0
                     mm</span></label>
               </div>
             </div>
@@ -327,7 +330,7 @@
           <div class="sub-block">
             <h3>Thermostat gewünscht?</h3>
             <div class="choice-row" id="thermostatToggleChoices">
-              <div class="choice-card active" data-thermostat-toggle="ja">
+              <div class="choice-card" data-thermostat-toggle="ja">
                 <strong>Ja</strong>
               </div>
               <div class="choice-card" data-thermostat-toggle="nein">
@@ -338,7 +341,7 @@
 
           <div id="thermostatOptions">
             <div class="choice-row" id="thermostatChoices">
-              <div class="choice-card active" data-thermostat="Analog">
+              <div class="choice-card" data-thermostat="Analog">
                 <strong>Analog</strong>
                 <span>Klassisches Raumthermostat.</span>
               </div>
@@ -358,9 +361,9 @@
             <div class="sub-block">
               <h3>Verteilerschrank-Art</h3>
               <div class="radio-list">
-                <label class="radio-option"><input type="radio" name="cabinetMounting" value="Aufputz"
-                    checked /><span>Aufputz</span></label>
-                <label class="radio-option"><input type="radio" name="cabinetMounting"
+                <label class="radio-option"><input type="checkbox" name="cabinetMounting"
+                    value="Aufputz" /><span>Aufputz</span></label>
+                <label class="radio-option"><input type="checkbox" name="cabinetMounting"
                     value="Unterputz" /><span>Unterputz</span></label>
               </div>
             </div>
@@ -369,7 +372,7 @@
               <h3>Verteiler Menge & Typ</h3>
 
               <div class="choice-row" id="distributionModeChoices">
-                <div class="choice-card active" data-distribution-mode="auto">
+                <div class="choice-card" data-distribution-mode="auto">
                   <strong>Automatische Ermittlung durch Kalkulator</strong>
                 </div>
                 <div class="choice-card" data-distribution-mode="manual">
@@ -474,10 +477,9 @@
               <h3>Regeltechnik</h3>
 
               <div class="radio-list regulation-voltage-list">
-                <label class="radio-option"><input type="radio" name="regulationVoltage" value="24V DC"
-                    checked /><span>24V
+                <label class="radio-option"><input type="checkbox" name="regulationVoltage" value="24V DC" /><span>24V
                     DC</span></label>
-                <label class="radio-option"><input type="radio" name="regulationVoltage" value="230V AC" /><span>230V
+                <label class="radio-option"><input type="checkbox" name="regulationVoltage" value="230V AC" /><span>230V
                     AC</span></label>
               </div>
 
@@ -519,7 +521,7 @@
             <div class="sub-block">
               <h3>Zusatzdämmung gewünscht?</h3>
               <div class="choice-row" id="extraInsulationToggleChoices">
-                <div class="choice-card active" data-extra-insulation-toggle="ja">
+                <div class="choice-card" data-extra-insulation-toggle="ja">
                   <strong>Ja</strong>
                 </div>
                 <div class="choice-card" data-extra-insulation-toggle="nein">
@@ -533,9 +535,10 @@
                 <div class="sub-block">
                   <h3>Zusatzdämmung</h3>
                   <div class="radio-list">
-                    <label class="radio-option"><input type="radio" name="extraInsulation" value="PUR"
-                        checked /><span>PUR</span></label>
-                    <label class="radio-option"><input type="radio" name="extraInsulation" value="EPS DEO" /><span>EPS
+                    <label class="radio-option"><input type="checkbox" name="extraInsulation"
+                        value="PUR" /><span>PUR</span></label>
+                    <label class="radio-option"><input type="checkbox" name="extraInsulation"
+                        value="EPS DEO" /><span>EPS
                         DEO</span></label>
                   </div>
                 </div>
@@ -543,29 +546,29 @@
                 <div class="sub-block">
                   <h3>Zusatzdämmung-Wärmeleitgruppe</h3>
                   <div class="radio-list">
-                    <label class="radio-option"><input type="radio" name="extraInsulationWlg" value="025"
-                        checked /><span>025</span></label>
+                    <label class="radio-option"><input type="checkbox" name="extraInsulationWlg"
+                        value="025" /><span>025</span></label>
                   </div>
                 </div>
 
                 <div class="sub-block">
                   <h3>Zusatzdämmung-Dicke</h3>
                   <div class="radio-list">
-                    <label class="radio-option"><input type="radio" name="extraInsulationThickness" value="20 mm"
-                        checked /><span>20 mm</span></label>
-                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                    <label class="radio-option"><input type="checkbox" name="extraInsulationThickness"
+                        value="20 mm" /><span>20 mm</span></label>
+                    <label class="radio-option"><input type="checkbox" name="extraInsulationThickness"
                         value="30 mm" /><span>30
                         mm</span></label>
-                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                    <label class="radio-option"><input type="checkbox" name="extraInsulationThickness"
                         value="40 mm" /><span>40
                         mm</span></label>
-                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                    <label class="radio-option"><input type="checkbox" name="extraInsulationThickness"
                         value="50 mm" /><span>50
                         mm</span></label>
-                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                    <label class="radio-option"><input type="checkbox" name="extraInsulationThickness"
                         value="52 mm" /><span>52
                         mm</span></label>
-                    <label class="radio-option"><input type="radio" name="extraInsulationThickness"
+                    <label class="radio-option"><input type="checkbox" name="extraInsulationThickness"
                         value="60 mm" /><span>60
                         mm</span></label>
                   </div>

@@ -1,11 +1,12 @@
 const state = {
   currentStep: 0,
   projectType: '',
-  brand: 'handelsmarke',
+  brand: '',
   heatSource: '',
-  thermostat: 'Analog',
-  extraInsulationEnabled: 'ja',
-  distributionMode: 'auto',
+  thermostat: '',
+  thermostatEnabled: '',
+  extraInsulationEnabled: '',
+  distributionMode: '',
   floors: [],
   maxUnlockedStep: 0,
   services: []
@@ -62,9 +63,29 @@ const systemInfoKlett = document.getElementById('systemInfoKlett');
 const systemInfoKlett3mm = document.getElementById('systemInfoKlett3mm');
 
 
-function getRadioValue(name) {
+function getCheckedValue(name) {
   const checked = document.querySelector(`input[name="${name}"]:checked`);
   return checked ? checked.value : '';
+}
+
+function getDisplayValue(name) {
+  return getCheckedValue(name) || 'Keine Auswahl';
+}
+
+function setupSingleChoiceCheckboxGroup(name) {
+  document.querySelectorAll(`input[name="${name}"]`).forEach((checkbox) => {
+    checkbox.addEventListener('change', () => {
+      if (checkbox.checked) {
+        document.querySelectorAll(`input[name="${name}"]`).forEach((otherCheckbox) => {
+          if (otherCheckbox !== checkbox) {
+            otherCheckbox.checked = false;
+          }
+        });
+      }
+
+      updateSummary();
+    });
+  });
 }
 
 function getSystemValue() {
@@ -88,6 +109,42 @@ function createRoom() {
     spacing: 'VA 100',
     area: ''
   };
+}
+
+function resetFromProjectTypeForward() {
+  state.heatSource = '';
+  state.thermostat = '';
+  state.thermostatEnabled = '';
+  state.extraInsulationEnabled = '';
+  state.distributionMode = '';
+  state.services = [];
+  state.floors = [createFloor()];
+  state.maxUnlockedStep = 1;
+
+  document.querySelectorAll('input').forEach((input) => {
+    if (input.type === 'checkbox') input.checked = false;
+    if (input.type === 'number' || input.type === 'text') input.value = '';
+  });
+
+  document.querySelectorAll('select').forEach((select) => {
+    select.selectedIndex = 0;
+  });
+
+  renderHeatSource();
+  renderThermostat();
+  renderThermostatToggle();
+  renderExtraInsulationToggle();
+  renderDistributionMode();
+  renderFloors();
+  updateSummary();
+}
+
+function confirmReturnToProjectType(targetStep) {
+  if (targetStep === 1 && state.currentStep > 1) {
+    return confirm('Die Rückkehr zu diesem Schritt bewirkt ein Zurücksetzen sämtlicher Eingaben.');
+  }
+
+  return true;
 }
 
 function showStep(step) {
@@ -115,6 +172,9 @@ function canProceedToNextStep() {
     return true;
   }
   if (state.currentStep === 1) {
+    if (state.projectType === 'neubau') {
+      return state.brand !== '';
+    }
     return state.projectType !== '';
   }
   if (state.currentStep === 2) {
@@ -135,7 +195,11 @@ function renderProjectType() {
   brandBlock.classList.toggle('hidden', !showBrand);
   summaryBrandBox.classList.toggle('hidden', !showBrand);
   summaryProjectType.textContent = state.projectType ? (state.projectType === 'neubau' ? 'Neubau' : 'Sanierung') : 'Noch nicht gewählt';
-  summaryBrand.textContent = state.brand === 'uponor' ? 'Uponor' : state.brand === 'roth' ? 'Roth' : 'Handelsmarke';
+  summaryBrand.textContent =
+    state.brand === 'uponor' ? 'Uponor' :
+      state.brand === 'roth' ? 'Roth' :
+        state.brand === 'handelsmarke' ? 'Handelsmarke' :
+          'Keine Auswahl';
 
   renderSystemBlocksByProjectType();
 }
@@ -163,10 +227,6 @@ function renderSystemBlocksByProjectType() {
   pipeTypeBlock.classList.toggle('hidden', isSanierung);
   pipeSizeBlock.classList.toggle('hidden', isSanierung);
 
-  // Automatisch System setzen bei Sanierung
-  if (isSanierung) {
-    state.system = 'Klett 3mm';
-  }
 }
 
 function renderBrand() {
@@ -330,14 +390,15 @@ function renderThermostatToggle() {
     card.classList.toggle('active', card.dataset.thermostatToggle === state.thermostatEnabled);
   });
 
-  const disabled = state.thermostatEnabled === 'nein';
+  const disabled = state.thermostatEnabled !== 'ja';
   thermostatOptions.classList.toggle('disabled-block', disabled);
 
   if (disabled) {
     thermostatOptions.querySelectorAll('.choice-card').forEach((card) => {
       card.classList.remove('active');
     });
-    document.getElementById('summaryThermostat').textContent = 'Kein Thermostat';
+    document.getElementById('summaryThermostat').textContent =
+      state.thermostatEnabled === 'nein' ? 'Kein Thermostat' : 'Keine Auswahl';
   } else {
     renderThermostat();
   }
@@ -348,27 +409,22 @@ function renderExtraInsulationToggle() {
     card.classList.toggle('active', card.dataset.extraInsulationToggle === state.extraInsulationEnabled);
   });
 
-  const disabled = state.extraInsulationEnabled === 'nein';
+  const disabled = state.extraInsulationEnabled !== 'ja';
   extraInsulationOptions.classList.toggle('disabled-block', disabled);
 
   extraInsulationOptions.querySelectorAll('input').forEach((input) => {
     input.disabled = disabled;
+    if (disabled) input.checked = false;
   });
 
-  if (disabled) {
+  if (state.extraInsulationEnabled === 'nein') {
     document.getElementById('summaryExtraInsulation').textContent = 'Keine';
     document.getElementById('summaryExtraInsulationWlg').textContent = '-';
     document.getElementById('summaryExtraInsulationThickness').textContent = '-';
   } else {
-    if (state.extraInsulationEnabled === 'nein') {
-      document.getElementById('summaryExtraInsulation').textContent = 'Keine';
-      document.getElementById('summaryExtraInsulationWlg').textContent = '-';
-      document.getElementById('summaryExtraInsulationThickness').textContent = '-';
-    } else {
-      document.getElementById('summaryExtraInsulation').textContent = getRadioValue('extraInsulation');
-      document.getElementById('summaryExtraInsulationWlg').textContent = getRadioValue('extraInsulationWlg');
-      document.getElementById('summaryExtraInsulationThickness').textContent = getRadioValue('extraInsulationThickness');
-    }
+    document.getElementById('summaryExtraInsulation').textContent = 'Keine Auswahl';
+    document.getElementById('summaryExtraInsulationWlg').textContent = 'Keine Auswahl';
+    document.getElementById('summaryExtraInsulationThickness').textContent = 'Keine Auswahl';
   }
 }
 
@@ -377,7 +433,7 @@ function renderDistributionMode() {
     card.classList.toggle('active', card.dataset.distributionMode === state.distributionMode);
   });
 
-  const disabled = state.distributionMode === 'auto';
+  const disabled = state.distributionMode !== 'manual';
   distributionManualFields.classList.toggle('disabled-block', disabled);
 
   distributionTypeFields.forEach((field) => {
@@ -576,10 +632,10 @@ function updateLayerPreview() {
   const extraInsulationText =
     state.extraInsulationEnabled === 'nein'
       ? 'keine'
-      : getRadioValue('extraInsulationThickness');
+      : getCheckedValue('extraInsulationThickness');
 
   const layers = [
-    ['B: Systemdämmung', getRadioValue('insulationThickness')],
+    ['B: Systemdämmung', getCheckedValue('insulationThickness')],
     ['C: Zusatzdämmung', extraInsulationText]
   ];
 
@@ -592,14 +648,20 @@ function updateSummary() {
   summaryPlz.textContent = document.getElementById('plz').value.trim() || 'PLZ offen';
   document.getElementById('summarySystem').textContent =
     getSystemValue() || 'Keine Auswahl';
-  document.getElementById('summaryWlg').textContent = wlgBlock.classList.contains('hidden') ? '-' : getRadioValue('wlg');
-  document.getElementById('summaryInsulationThickness').textContent = insulationThicknessBlock.classList.contains('hidden') ? '-' : getRadioValue('insulationThickness');
-  document.getElementById('summaryPipeType').textContent = pipeTypeBlock.classList.contains('hidden') ? '-' : getRadioValue('pipeType');
-  document.getElementById('summaryPipeSize').textContent = pipeSizeBlock.classList.contains('hidden') ? '-' : getRadioValue('pipeSize');
-  summaryCabinetMounting.textContent = getRadioValue('cabinetMounting');
+  document.getElementById('summaryWlg').textContent = wlgBlock.classList.contains('hidden') ? '-' : (getCheckedValue('wlg') || 'Keine Auswahl');
+  document.getElementById('summaryInsulationThickness').textContent = insulationThicknessBlock.classList.contains('hidden') ? '-' : (getCheckedValue('insulationThickness') || 'Keine Auswahl');
+  document.getElementById('summaryPipeType').textContent = pipeTypeBlock.classList.contains('hidden') ? '-' : (getCheckedValue('pipeType') || 'Keine Auswahl');
+  document.getElementById('summaryPipeSize').textContent = pipeSizeBlock.classList.contains('hidden') ? '-' : (getCheckedValue('pipeSize') || 'Keine Auswahl');
+
+  summaryCabinetMounting.textContent = getCheckedValue('cabinetMounting') || 'Keine Auswahl';
   summaryDistributionMode.textContent =
-    state.distributionMode === 'auto' ? 'Automatische Ermittlung' : 'Manuelle Eingabe';
-  summaryRegulationVoltage.textContent = getRadioValue('regulationVoltage');
+    state.distributionMode === 'auto'
+      ? 'Automatische Ermittlung'
+      : state.distributionMode === 'manual'
+        ? 'Manuelle Eingabe'
+        : 'Keine Auswahl';
+
+  summaryRegulationVoltage.textContent = getCheckedValue('regulationVoltage') || 'Keine Auswahl';
 
   const manualDistributionEntries = getManualDistributionEntries();
   summaryDistributionItems.textContent =
@@ -614,9 +676,9 @@ function updateSummary() {
     regulationEntries.length
       ? regulationEntries.join(', ')
       : 'Keine Regeltechnik ausgewählt.';
-  document.getElementById('summaryExtraInsulation').textContent = getRadioValue('extraInsulation');
-  document.getElementById('summaryExtraInsulationWlg').textContent = getRadioValue('extraInsulationWlg');
-  document.getElementById('summaryExtraInsulationThickness').textContent = getRadioValue('extraInsulationThickness');
+  document.getElementById('summaryExtraInsulation').textContent = getCheckedValue('extraInsulation');
+  document.getElementById('summaryExtraInsulationWlg').textContent = getCheckedValue('extraInsulationWlg');
+  document.getElementById('summaryExtraInsulationThickness').textContent = getCheckedValue('extraInsulationThickness');
 
   const estrichRangeEntries = getEstrichRangeEntries();
   summaryEstrichRange.textContent =
@@ -635,6 +697,16 @@ function updateSummary() {
     dryConstructionEntries.length
       ? `Trockenbau: ${dryConstructionEntries.join(', ')}`
       : 'Kein Trockenbau gewählt.';
+
+  if (state.extraInsulationEnabled === 'nein') {
+    document.getElementById('summaryExtraInsulation').textContent = 'Keine';
+    document.getElementById('summaryExtraInsulationWlg').textContent = '-';
+    document.getElementById('summaryExtraInsulationThickness').textContent = '-';
+  } else {
+    document.getElementById('summaryExtraInsulation').textContent = getCheckedValue('extraInsulation') || 'Keine Auswahl';
+    document.getElementById('summaryExtraInsulationWlg').textContent = getCheckedValue('extraInsulationWlg') || 'Keine Auswahl';
+    document.getElementById('summaryExtraInsulationThickness').textContent = getCheckedValue('extraInsulationThickness') || 'Keine Auswahl';
+  }
 
   syncEstrichRangeRules();
   syncEstrichAdditivesRules();
@@ -676,16 +748,16 @@ function updateFinalCheck() {
     <div><strong>Projekt:</strong> ${summaryProjectType.textContent}${state.projectType === 'neubau' ? ' / ' + summaryBrand.textContent : ''}</div>
     <div><strong>Wärmeerzeuger:</strong> ${summaryHeatSource.textContent}</div>
     <div><strong>PLZ:</strong> ${summaryPlz.textContent}</div>
-    <div><strong>System:</strong> ${getSystemValue() || 'Keine Auswahl'}, ${getRadioValue('wlg')}, ${getRadioValue('insulationThickness')}</div>
-    <div><strong>Rohr:</strong> ${getRadioValue('pipeType')} / ${getRadioValue('pipeSize')}</div>
+    <div><strong>System:</strong> ${getSystemValue() || 'Keine Auswahl'}, ${getCheckedValue('wlg')}, ${getCheckedValue('insulationThickness')}</div>
+    <div><strong>Rohr:</strong> ${getCheckedValue('pipeType')} / ${getCheckedValue('pipeSize')}</div>
     <div><strong>Estrich:</strong> ${estrichRangeEntries.length ? estrichRangeEntries.join(', ') : 'Keine Auswahl'}</div>
 <div><strong>Zusatzmittel:</strong> ${estrichAdditiveEntries.length ? estrichAdditiveEntries.join(', ') : 'Keine Auswahl'}</div>
 <div><strong>Trockenbau:</strong> ${dryConstructionEntries.length ? dryConstructionEntries.join(', ') : 'Keine Auswahl'}</div>
     <div><strong>Thermostat:</strong> ${state.thermostatEnabled === 'nein' ? 'Kein Thermostat' : state.thermostat}</div>
-    <div><strong>Verteilerschrank-Art:</strong> ${getRadioValue('cabinetMounting')}</div>
+    <div><strong>Verteilerschrank-Art:</strong> ${getCheckedValue('cabinetMounting')}</div>
 <div><strong>Verteiler Menge & Typ:</strong> ${state.distributionMode === 'auto' ? 'Automatische Ermittlung' : (manualDistributionEntries.length ? manualDistributionEntries.join(', ') : 'Keine manuelle Eingabe')}</div>
-<div><strong>Regeltechnik:</strong> ${getRadioValue('regulationVoltage')} / ${regulationEntries.length ? regulationEntries.join(', ') : 'Keine Zusatzkomponenten'}</div>
-    <div><strong>Zusatzdämmung:</strong> ${state.extraInsulationEnabled === 'nein' ? 'Keine' : `${getRadioValue('extraInsulation')} / ${getRadioValue('extraInsulationWlg')} / ${getRadioValue('extraInsulationThickness')}`}</div>
+<div><strong>Regeltechnik:</strong> ${getCheckedValue('regulationVoltage')} / ${regulationEntries.length ? regulationEntries.join(', ') : 'Keine Zusatzkomponenten'}</div>
+    <div><strong>Zusatzdämmung:</strong> ${state.extraInsulationEnabled === 'nein' ? 'Keine' : `${getCheckedValue('extraInsulation')} / ${getCheckedValue('extraInsulationWlg')} / ${getCheckedValue('extraInsulationThickness')}`}</div>
     <div><strong>Etagen / Räume:</strong> ${state.floors.length} / ${roomsCount}</div>
     <div><strong>Dienstleistungen:</strong> ${servicesText}</div>
   `;
@@ -693,8 +765,20 @@ function updateFinalCheck() {
 
 document.querySelectorAll('#projectTypeChoices .choice-card').forEach((card) => {
   card.addEventListener('click', () => {
-    state.projectType = card.dataset.type;
+    const newProjectType = card.dataset.type;
+
+    if (state.projectType && state.projectType !== newProjectType) {
+      resetFromProjectTypeForward();
+    }
+
+    state.projectType = newProjectType;
+
+    if (newProjectType === 'sanierung') {
+      state.brand = '';
+    }
+
     renderProjectType();
+    renderBrand();
     updateSummary();
   });
 });
@@ -756,9 +840,18 @@ document.querySelectorAll('#distributionModeChoices .choice-card').forEach((card
   });
 });
 
-document.querySelectorAll('input[type="radio"]').forEach((radio) => {
-  radio.addEventListener('change', updateSummary);
-});
+[
+  'system',
+  'wlg',
+  'insulationThickness',
+  'pipeType',
+  'pipeSize',
+  'extraInsulation',
+  'extraInsulationWlg',
+  'extraInsulationThickness',
+  'cabinetMounting',
+  'regulationVoltage'
+].forEach(setupSingleChoiceCheckboxGroup);
 
 document.querySelectorAll('input[name="system"]').forEach((checkbox) => {
   checkbox.addEventListener('change', () => {
@@ -825,12 +918,28 @@ document.querySelectorAll('.step-item').forEach((item) => {
   item.addEventListener('click', () => {
     const targetStep = Number(item.dataset.step);
     if (targetStep <= state.maxUnlockedStep) {
+      if (!confirmReturnToProjectType(targetStep)) return;
+
+      if (targetStep === 1 && state.currentStep > 1) {
+        resetFromProjectTypeForward();
+      }
+
       showStep(targetStep);
     }
   });
 });
 
-prevBtn.addEventListener('click', () => showStep(state.currentStep - 1));
+prevBtn.addEventListener('click', () => {
+  const targetStep = state.currentStep - 1;
+
+  if (!confirmReturnToProjectType(targetStep)) return;
+
+  if (targetStep === 1 && state.currentStep > 1) {
+    resetFromProjectTypeForward();
+  }
+
+  showStep(targetStep);
+});
 
 nextBtn.addEventListener('click', () => {
   if (!canProceedToNextStep()) return;
