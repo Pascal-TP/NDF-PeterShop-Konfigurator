@@ -67,6 +67,7 @@ const mainLayout = document.getElementById('mainLayout');
 const resultPanel = document.getElementById('resultPanel');
 const resultTableBody = document.getElementById('resultTableBody');
 const savePdfBtn = document.getElementById('savePdfBtn');
+const backToConfigBtn = document.getElementById('backToConfigBtn');
 const printResultBtn = document.getElementById('printResultBtn');
 const handoverShopBtn = document.getElementById('handoverShopBtn');
 
@@ -833,6 +834,20 @@ function showResultPage() {
   document.querySelector('.btn-row').classList.add('hidden');
 }
 
+function returnToConfiguration() {
+  // Ergebnisbereich ausblenden
+  resultPanel.classList.add('hidden');
+
+  // Schritte wieder anzeigen
+  mainLayout.classList.remove('result-mode');
+
+  // Buttons unten wieder sichtbar machen
+  document.querySelector('.btn-row').classList.remove('hidden');
+
+  // Zurück zum letzten Schritt (Berechnung)
+  showStep(9);
+}
+
 function resetAllInputsAfterHandover() {
   state.currentStep = 0;
   state.projectType = '';
@@ -1029,6 +1044,10 @@ printResultBtn.addEventListener('click', () => {
   window.print();
 });
 
+backToConfigBtn.addEventListener('click', () => {
+  returnToConfiguration();
+});
+
 handoverShopBtn.addEventListener('click', async () => {
   const confirmed = await showAppModal({
     title: 'Übergabe an PeterShop',
@@ -1170,7 +1189,7 @@ document.getElementById('addFloorBtn').addEventListener('click', () => {
 });
 
 document.getElementById('startCalculationBtn').addEventListener('click', () => {
-  alert('Die Berechnungslogik wird im nächsten Schritt ergänzt.');
+  showResultPage();
 });
 
 state.floors = [createFloor()];
