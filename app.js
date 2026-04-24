@@ -789,18 +789,21 @@ function calculateProducts() {
   // Platzhalterdaten – später ersetzen wir diese Logik durch CSV-Artikel + echte Mengenberechnung.
   return [
     {
+      selected: true,
       articleNumber: 'TEST-1001',
       description: 'Platzhalter Artikel Fußbodenheizungssystem',
       quantity: 1,
       unit: 'Stk.'
     },
     {
+      selected: true,
       articleNumber: 'TEST-2001',
       description: 'Platzhalter Montageleistung',
       quantity: 1,
       unit: 'pauschal'
     },
     {
+      selected: true,
       articleNumber: 'TEST-3001',
       description: 'Platzhalter Zusatzleistung',
       quantity: state.floors.length || 1,
@@ -810,14 +813,29 @@ function calculateProducts() {
 }
 
 function renderResultTable(products) {
-  resultTableBody.innerHTML = products.map((item) => `
+  resultTableBody.innerHTML = products.map((item, index) => `
     <tr>
+      <td>
+        <input 
+          type="checkbox" 
+          class="result-select-checkbox" 
+          data-result-index="${index}" 
+          ${item.selected !== false ? 'checked' : ''}
+        />
+      </td>
       <td>${item.articleNumber}</td>
       <td>${item.description}</td>
       <td>${item.quantity}</td>
       <td>${item.unit}</td>
     </tr>
   `).join('');
+
+  document.querySelectorAll('.result-select-checkbox').forEach((checkbox) => {
+    checkbox.addEventListener('change', () => {
+      const index = Number(checkbox.dataset.resultIndex);
+      state.calculatedProducts[index].selected = checkbox.checked;
+    });
+  });
 }
 
 function showResultPage() {
@@ -1057,6 +1075,17 @@ handoverShopBtn.addEventListener('click', async () => {
   });
 
   if (!confirmed) return;
+
+  const productsForShop = state.calculatedProducts.filter((item) => item.selected !== false);
+
+  if (productsForShop.length === 0) {
+    await showAppModal({
+      title: 'Keine Artikel ausgewählt',
+      message: 'Es wurde keine Position für die Übergabe an den PeterShop ausgewählt.',
+      confirmText: 'OK'
+    });
+    return;
+  }
 
   // Platzhalter: Hier kommt später die echte Shop-Übergabe per API/Formular/URL hin.
   resetAllInputsAfterHandover();

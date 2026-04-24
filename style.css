@@ -753,3 +753,15 @@ Ganz unten ergänzen */
     display: block !important;
   }
 }
+
+.result-hint-box p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.result-select-checkbox {
+  width: 18px;
+  height: 18px;
+  min-height: auto;
+  margin: 0;
+}
