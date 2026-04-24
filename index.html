@@ -21,7 +21,7 @@
       </div>
     </section>
 
-    <div class="layout">
+    <div class="layout" id="mainLayout">
       <aside class="steps">
         <h2>Schritte</h2>
         <div class="step-list">
@@ -656,6 +656,31 @@
           </div>
         </section>
 
+        <section id="resultPanel" class="result-panel hidden">
+          <h2 class="section-title">Ergebnis</h2>
+          <p class="section-subtitle">Die folgenden Artikel wurden anhand Ihrer Auswahl ermittelt.</p>
+
+          <div class="result-table-wrap">
+            <table class="result-table">
+              <thead>
+                <tr>
+                  <th>Artikel-Nr.</th>
+                  <th>Beschreibung</th>
+                  <th>Menge</th>
+                  <th>Einheit</th>
+                </tr>
+              </thead>
+              <tbody id="resultTableBody"></tbody>
+            </table>
+          </div>
+
+          <div class="result-actions">
+            <button type="button" id="savePdfBtn">Speichern als PDF</button>
+            <button type="button" id="printResultBtn" class="secondary">Drucken</button>
+            <button type="button" id="handoverShopBtn">Übergabe an PeterShop</button>
+          </div>
+        </section>
+
         <div class="btn-row">
           <div class="btn-group"><button type="button" class="secondary" id="prevBtn">Zurück</button></div>
           <div class="btn-group"><button type="button" id="nextBtn">Weiter</button></div>
@@ -746,6 +771,18 @@
       </div>
     </div>
   </template>
+
+  <div id="appModal" class="modal-backdrop hidden">
+    <div class="modal-box">
+      <h3 id="modalTitle">Hinweis</h3>
+      <p id="modalMessage"></p>
+
+      <div class="modal-actions">
+        <button type="button" class="secondary hidden" id="modalCancelBtn">Abbrechen</button>
+        <button type="button" id="modalOkBtn">OK</button>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>

@@ -9,7 +9,9 @@ const state = {
   distributionMode: '',
   floors: [],
   maxUnlockedStep: 0,
-  services: []
+  services: [],
+  calculatedProducts: [],
+  isLocked: false
 };
 
 const totalSteps = 11;
@@ -61,6 +63,21 @@ const systemInfoTacker = document.getElementById('systemInfoTacker');
 const systemInfoNoppe = document.getElementById('systemInfoNoppe');
 const systemInfoKlett = document.getElementById('systemInfoKlett');
 const systemInfoKlett3mm = document.getElementById('systemInfoKlett3mm');
+const mainLayout = document.getElementById('mainLayout');
+const resultPanel = document.getElementById('resultPanel');
+const resultTableBody = document.getElementById('resultTableBody');
+const savePdfBtn = document.getElementById('savePdfBtn');
+const printResultBtn = document.getElementById('printResultBtn');
+const handoverShopBtn = document.getElementById('handoverShopBtn');
+
+const appModal = document.getElementById('appModal');
+const modalTitle = document.getElementById('modalTitle');
+const modalMessage = document.getElementById('modalMessage');
+const modalOkBtn = document.getElementById('modalOkBtn');
+const modalCancelBtn = document.getElementById('modalCancelBtn');
+
+const shopToken = new URLSearchParams(window.location.search).get('token');
+const tokenStorageKey = shopToken ? `petershop-konfigurator-token-used-${shopToken}` : '';
 
 
 function getCheckedValue(name) {
@@ -96,6 +113,33 @@ function getSystemValue() {
 
   const checked = document.querySelector(selector);
   return checked ? checked.value : '';
+}
+
+function showAppModal({ title = 'Hinweis', message = '', confirmText = 'OK', cancelText = null }) {
+  return new Promise((resolve) => {
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+    modalOkBtn.textContent = confirmText;
+
+    if (cancelText) {
+      modalCancelBtn.textContent = cancelText;
+      modalCancelBtn.classList.remove('hidden');
+    } else {
+      modalCancelBtn.classList.add('hidden');
+    }
+
+    appModal.classList.remove('hidden');
+
+    const cleanup = (result) => {
+      appModal.classList.add('hidden');
+      modalOkBtn.onclick = null;
+      modalCancelBtn.onclick = null;
+      resolve(result);
+    };
+
+    modalOkBtn.onclick = () => cleanup(true);
+    modalCancelBtn.onclick = () => cleanup(false);
+  });
 }
 
 function createFloor() {
@@ -139,9 +183,14 @@ function resetFromProjectTypeForward() {
   updateSummary();
 }
 
-function confirmReturnToProjectType(targetStep) {
+async function confirmReturnToProjectType(targetStep) {
   if (targetStep === 1 && state.currentStep > 1) {
-    return confirm('Die Rückkehr zu diesem Schritt bewirkt ein Zurücksetzen sämtlicher Eingaben.');
+    return await showAppModal({
+      title: 'Hinweis',
+      message: 'Die Rückkehr zu diesem Schritt bewirkt ein Zurücksetzen sämtlicher Eingaben.',
+      confirmText: 'Weiter',
+      cancelText: 'Abbrechen'
+    });
   }
 
   return true;
@@ -735,6 +784,129 @@ function updateSummary() {
   nextBtn.disabled = !canProceedToNextStep();
 }
 
+function calculateProducts() {
+  // Platzhalterdaten – später ersetzen wir diese Logik durch CSV-Artikel + echte Mengenberechnung.
+  return [
+    {
+      articleNumber: 'TEST-1001',
+      description: 'Platzhalter Artikel Fußbodenheizungssystem',
+      quantity: 1,
+      unit: 'Stk.'
+    },
+    {
+      articleNumber: 'TEST-2001',
+      description: 'Platzhalter Montageleistung',
+      quantity: 1,
+      unit: 'pauschal'
+    },
+    {
+      articleNumber: 'TEST-3001',
+      description: 'Platzhalter Zusatzleistung',
+      quantity: state.floors.length || 1,
+      unit: 'Stk.'
+    }
+  ];
+}
+
+function renderResultTable(products) {
+  resultTableBody.innerHTML = products.map((item) => `
+    <tr>
+      <td>${item.articleNumber}</td>
+      <td>${item.description}</td>
+      <td>${item.quantity}</td>
+      <td>${item.unit}</td>
+    </tr>
+  `).join('');
+}
+
+function showResultPage() {
+  state.calculatedProducts = calculateProducts();
+  renderResultTable(state.calculatedProducts);
+
+  document.querySelectorAll('.step-panel').forEach((panel) => {
+    panel.classList.remove('active');
+  });
+
+  resultPanel.classList.remove('hidden');
+  mainLayout.classList.add('result-mode');
+
+  document.querySelector('.btn-row').classList.add('hidden');
+}
+
+function resetAllInputsAfterHandover() {
+  state.currentStep = 0;
+  state.projectType = '';
+  state.brand = '';
+  state.heatSource = '';
+  state.thermostat = '';
+  state.thermostatEnabled = '';
+  state.extraInsulationEnabled = '';
+  state.distributionMode = '';
+  state.floors = [createFloor()];
+  state.services = [];
+  state.calculatedProducts = [];
+  state.maxUnlockedStep = 0;
+  state.isLocked = true;
+
+  document.querySelectorAll('input').forEach((input) => {
+    if (input.type === 'checkbox') input.checked = false;
+    if (input.type === 'number' || input.type === 'text') input.value = '';
+  });
+
+  document.querySelectorAll('select').forEach((select) => {
+    select.selectedIndex = 0;
+  });
+
+  renderProjectType();
+  renderBrand();
+  renderHeatSource();
+  renderThermostat();
+  renderThermostatToggle();
+  renderExtraInsulationToggle();
+  renderDistributionMode();
+  renderFloors();
+  updateSummary();
+}
+
+function lockConfigurator() {
+  state.isLocked = true;
+
+  if (shopToken) {
+    localStorage.setItem(tokenStorageKey, 'used');
+  }
+
+  document.querySelectorAll('button, input, select, .choice-card, .step-item').forEach((el) => {
+    el.disabled = true;
+    el.classList.add('disabled-card');
+  });
+
+  resultPanel.innerHTML = `
+    <h2 class="section-title">Konfigurator abgeschlossen</h2>
+    <p class="section-subtitle">
+      Die Artikel wurden an den PeterShop übergeben. Dieser Konfigurator kann mit diesem Token nicht erneut genutzt werden.
+    </p>
+  `;
+}
+
+function checkTokenUsageOnLoad() {
+  if (shopToken && localStorage.getItem(tokenStorageKey) === 'used') {
+    mainLayout.classList.add('result-mode');
+    document.querySelector('.steps').classList.add('hidden');
+    document.querySelector('.btn-row').classList.add('hidden');
+    document.querySelectorAll('.step-panel').forEach((panel) => panel.classList.remove('active'));
+
+    resultPanel.classList.remove('hidden');
+    resultPanel.innerHTML = `
+      <h2 class="section-title">Token bereits verwendet</h2>
+      <p class="section-subtitle">
+        Dieser Konfigurator-Link wurde bereits genutzt. Bitte starten Sie den Konfigurator erneut aus dem PeterShop.
+      </p>
+    `;
+
+    state.isLocked = true;
+  }
+}
+
 function updateFinalCheck() {
   const roomsCount = state.floors.reduce((sum, floor) => sum + floor.rooms.length, 0);
   const servicesText = state.services.length ? state.services.join(', ') : 'Keine zusätzlichen Dienstleistungen gewählt';
@@ -842,6 +1014,41 @@ document.querySelectorAll('#distributionModeChoices .choice-card').forEach((card
     renderDistributionMode();
     updateSummary();
   });
+});
+
+document.getElementById('startCalculationBtn').addEventListener('click', () => {
+  showResultPage();
+});
+
+savePdfBtn.addEventListener('click', () => {
+  // Browser-Variante: Der Nutzer kann im Druckdialog "Als PDF speichern" wählen.
+  window.print();
+});
+
+printResultBtn.addEventListener('click', () => {
+  window.print();
+});
+
+handoverShopBtn.addEventListener('click', async () => {
+  const confirmed = await showAppModal({
+    title: 'Übergabe an PeterShop',
+    message: 'Mit Übergabe an PeterShop werden die Artikel an den PeterShop gesendet und in Ihrem Warenkorb gelegt. Sämtliche Eingaben werden dadurch im Konfigurator entfernt. Sind Sie sicher, jetzt an den PeterShop zu übergeben?',
+    confirmText: 'Ja, übergeben',
+    cancelText: 'Abbrechen'
+  });
+
+  if (!confirmed) return;
+
+  // Platzhalter: Hier kommt später die echte Shop-Übergabe per API/Formular/URL hin.
+  resetAllInputsAfterHandover();
+
+  await showAppModal({
+    title: 'Übergabe erfolgreich',
+    message: 'Ihre Artikel sind an Ihren Warenkorb übergeben worden, Sie können nun dieses Fenster schließen und zu PeterShop zurückkehren.',
+    confirmText: 'OK'
+  });
+
+  lockConfigurator();
 });
 
 [
@@ -981,3 +1188,4 @@ syncEstrichAdditivesRules();
 syncEstrichRangeRules();
 updateSummary();
 showStep(0);
+checkTokenUsageOnLoad();

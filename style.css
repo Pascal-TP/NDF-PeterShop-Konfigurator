@@ -634,3 +634,122 @@ Ganz unten ergänzen */
 .info-tooltip {
   white-space: pre-line;
 }
+
+.layout.result-mode {
+  grid-template-columns: 1fr 320px;
+}
+
+.layout.result-mode .steps {
+  display: none;
+}
+
+.result-panel {
+  display: block;
+}
+
+.result-table-wrap {
+  overflow-x: auto;
+  margin-top: 18px;
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.result-table th,
+.result-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #e5e7eb;
+  text-align: left;
+  vertical-align: top;
+}
+
+.result-table th {
+  background: #e8eef4;
+  color: #0b2a4a;
+  font-weight: 700;
+}
+
+.result-table tr:last-child td {
+  border-bottom: none;
+}
+
+.result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 42, 74, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 20px;
+}
+
+.modal-box {
+  width: min(520px, 100%);
+  background: white;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.25);
+}
+
+.modal-box h3 {
+  margin: 0 0 10px 0;
+  color: #0b2a4a;
+}
+
+.modal-box p {
+  margin: 0;
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre-line;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+@media print {
+  .hero,
+  .steps,
+  .summary,
+  .btn-row,
+  .result-actions,
+  .modal-backdrop {
+    display: none !important;
+  }
+
+  .app {
+    max-width: none;
+    padding: 0;
+  }
+
+  .layout,
+  .layout.result-mode {
+    display: block;
+  }
+
+  .content-card {
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .result-panel {
+    display: block !important;
+  }
+}
