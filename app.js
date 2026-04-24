@@ -12,6 +12,7 @@ const state = {
   maxUnlockedStep: 0,
   services: [],
   calculatedProducts: [],
+  articleCatalog: [],
   isLocked: false
 };
 
@@ -67,6 +68,7 @@ const systemInfoKlett3mm = document.getElementById('systemInfoKlett3mm');
 const mainLayout = document.getElementById('mainLayout');
 const resultPanel = document.getElementById('resultPanel');
 const resultTableBody = document.getElementById('resultTableBody');
+const resultTotalNet = document.getElementById('resultTotalNet');
 const savePdfBtn = document.getElementById('savePdfBtn');
 const backToConfigBtn = document.getElementById('backToConfigBtn');
 const printResultBtn = document.getElementById('printResultBtn');
@@ -838,9 +840,105 @@ function updateSummary() {
   nextBtn.disabled = !canProceedToNextStep();
 }
 
+function parseCsvLine(line) {
+  const result = [];
+  let current = '';
+  let insideQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    const nextChar = line[i + 1];
+
+    if (char === '"' && nextChar === '"') {
+      current += '"';
+      i++;
+    } else if (char === '"') {
+      insideQuotes = !insideQuotes;
+    } else if (char === ';' && !insideQuotes) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += char;
+    }
+  }
+
+  result.push(current.trim());
+  return result;
+}
+
+function parseGermanNumber(value) {
+  if (!value) return 0;
+
+  return Number(
+    String(value)
+      .replace(/\./g, '')
+      .replace(',', '.')
+      .replace(/[^\d.-]/g, '')
+  ) || 0;
+}
+
+function formatEuro(value) {
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR'
+  }).format(value || 0);
+}
+
+function formatQuantity(value) {
+  return new Intl.NumberFormat('de-DE', {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2
+  }).format(value || 0);
+}
+
+function getUnitFromPriceUnit(priceUnit) {
+  if (!priceUnit) return '';
+  return String(priceUnit).replace('€/', '').replace('EUR/', '').trim();
+}
+
+async function loadArticleCatalog() {
+  const response = await fetch('master.csv');
+
+  if (!response.ok) {
+    throw new Error('master.csv konnte nicht geladen werden.');
+  }
+
+  const buffer = await response.arrayBuffer();
+  const csvText = new TextDecoder('windows-1252').decode(buffer);
+
+  const lines = csvText
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean);
+
+  const headers = parseCsvLine(lines[0]).map(header => header.toLowerCase());
+
+  state.articleCatalog = lines.slice(1).map((line) => {
+    const values = parseCsvLine(line);
+    const row = {};
+
+    headers.forEach((header, index) => {
+      row[header] = values[index] || '';
+    });
+
+    return {
+      articleNumber: row.artikelnummer,
+      description: row.artikelbezeichnung,
+      unitPrice: parseGermanNumber(row.preis),
+      priceUnit: row.einheit,
+      unit: getUnitFromPriceUnit(row.einheit),
+      category: row.kategorie,
+      brand: row.marke
+    };
+  });
+}
+
+function findArticle(articleNumber) {
+  return state.articleCatalog.find(article => article.articleNumber === articleNumber);
+}
+
 function calculateProducts() {
   const products = [];
-
   const relevantArea = getRelevantAreaForHeatingSystem();
 
   if (
@@ -851,16 +949,31 @@ function calculateProducts() {
     getCheckedValue('insulationThickness') === '20-2 mm' &&
     getCheckedValue('pipeType') === 'PE-RT'
   ) {
-    products.push({
-      selected: true,
-      articleNumber: 'H54NO000101',
-      description: 'Artikelbeschreibung später aus master.csv',
-      quantity: relevantArea,
-      unit: 'm²'
-    });
+    const article = findArticle('H54NO000101');
+
+    if (article) {
+      products.push({
+        selected: true,
+        articleNumber: article.articleNumber,
+        description: article.description,
+        quantity: relevantArea,
+        unit: article.unit,
+        unitPrice: article.unitPrice,
+        priceUnit: article.priceUnit,
+        totalPrice: relevantArea * article.unitPrice
+      });
+    }
   }
 
   return products;
+}
+
+function updateResultTotal() {
+  const total = state.calculatedProducts
+    .filter(item => item.selected !== false)
+    .reduce((sum, item) => sum + (item.totalPrice || 0), 0);
+
+  resultTotalNet.textContent = formatEuro(total);
 }
 
 function renderResultTable(products) {
@@ -876,8 +989,10 @@ function renderResultTable(products) {
       </td>
       <td>${item.articleNumber}</td>
       <td>${item.description}</td>
-      <td>${item.quantity}</td>
+      <td>${formatQuantity(item.quantity)}</td>
       <td>${item.unit}</td>
+      <td>${formatEuro(item.unitPrice)} / ${item.unit}</td>
+      <td>${formatEuro(item.totalPrice)}</td>
     </tr>
   `).join('');
 
@@ -885,8 +1000,11 @@ function renderResultTable(products) {
     checkbox.addEventListener('change', () => {
       const index = Number(checkbox.dataset.resultIndex);
       state.calculatedProducts[index].selected = checkbox.checked;
+      updateResultTotal();
     });
   });
+
+  updateResultTotal();
 }
 
 function showResultPage() {
@@ -1119,8 +1237,20 @@ document.querySelectorAll('#distributionToggleChoices .choice-card').forEach((ca
   });
 });
 
-document.getElementById('startCalculationBtn').addEventListener('click', () => {
-  showResultPage();
+document.getElementById('startCalculationBtn').addEventListener('click', async () => {
+  try {
+    if (!state.articleCatalog.length) {
+      await loadArticleCatalog();
+    }
+
+    showResultPage();
+  } catch (error) {
+    await showAppModal({
+      title: 'Fehler',
+      message: 'Die Artikeldaten konnten nicht geladen werden. Bitte prüfen Sie, ob die Datei master.csv im Projektordner liegt.',
+      confirmText: 'OK'
+    });
+  }
 });
 
 savePdfBtn.addEventListener('click', () => {
@@ -1285,10 +1415,6 @@ document.getElementById('addFloorBtn').addEventListener('click', () => {
   state.floors.push(createFloor());
   renderFloors();
   updateSummary();
-});
-
-document.getElementById('startCalculationBtn').addEventListener('click', () => {
-  showResultPage();
 });
 
 state.floors = [createFloor()];
