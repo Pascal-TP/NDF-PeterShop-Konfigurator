@@ -512,7 +512,11 @@ button:disabled {
 
 .choice-card.full-width {
   flex: 1 1 100%;
-  background: #fafafa;
+}
+
+.choice-card.full-width.active {
+  background: var(--accent);
+  border-color: #7ca2c6;
 }
 
 /* style.css
