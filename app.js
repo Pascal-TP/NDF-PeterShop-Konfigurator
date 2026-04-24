@@ -246,16 +246,16 @@ function canProceedToNextStep() {
     return /^\d{5}$/.test(document.getElementById('plz').value.trim());
   }
   if (state.currentStep === 5) {
-  if (state.thermostatEnabled === 'nein') {
-    return true;
-  }
+    if (state.thermostatEnabled === 'nein') {
+      return true;
+    }
 
-  if (state.thermostatEnabled === 'ja') {
-    return state.thermostat !== '';
-  }
+    if (state.thermostatEnabled === 'ja') {
+      return state.thermostat !== '';
+    }
 
-  return false;
-}
+    return false;
+  }
 
   if (state.currentStep === 6) {
     return state.distributionEnabled !== '';
@@ -445,14 +445,11 @@ function updateSystemInfoTextsByBrand() {
 
 function renderHeatSource() {
   document.querySelectorAll('#heatSourceChoices .choice-card').forEach((card) => {
-    const isNone = card.dataset.heatSource === 'Keine Angabe';
-    const disableOtherCards = state.heatSource === 'Keine Angabe' && !isNone;
-
     card.classList.toggle('active', card.dataset.heatSource === state.heatSource);
-    card.classList.toggle('disabled-card', disableOtherCards);
+    card.classList.remove('disabled-card');
   });
 
-  summaryHeatSource.textContent = state.heatSource || 'Noch nicht gewählt';
+  summaryHeatSource.textContent = state.heatSource || 'Keine Auswahl';
 }
 
 function renderThermostat() {
@@ -1062,15 +1059,7 @@ document.querySelectorAll('#brandChoices .choice-card').forEach((card) => {
 
 document.querySelectorAll('#heatSourceChoices .choice-card').forEach((card) => {
   card.addEventListener('click', () => {
-    const selectedValue = card.dataset.heatSource;
-
-    if (selectedValue === 'Keine Angabe' && state.heatSource === 'Keine Angabe') {
-      state.heatSource = '';
-    } else if (card.classList.contains('disabled-card')) {
-      return;
-    } else {
-      state.heatSource = selectedValue;
-    }
+    state.heatSource = card.dataset.heatSource;
 
     renderHeatSource();
     updateSummary();
