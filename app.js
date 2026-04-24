@@ -989,9 +989,8 @@ function renderResultTable(products) {
       </td>
       <td>${item.articleNumber}</td>
       <td>${item.description}</td>
-      <td>${formatQuantity(item.quantity)}</td>
-      <td>${item.unit}</td>
-      <td>${formatEuro(item.unitPrice)} / ${item.unit}</td>
+      <td>${formatQuantity(item.quantity)} ${item.unit}</td>
+      <td>${formatEuro(item.unitPrice)} / ${item.unit}</td> 
       <td>${formatEuro(item.totalPrice)}</td>
     </tr>
   `).join('');

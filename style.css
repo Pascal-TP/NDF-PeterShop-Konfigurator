@@ -794,3 +794,7 @@ Ganz unten ergänzen */
   color: var(--muted);
   line-height: 1.4;
 }
+
+td {
+  white-space: nowrap;
+}
