@@ -80,6 +80,12 @@ const modalCancelBtn = document.getElementById('modalCancelBtn');
 const shopToken = new URLSearchParams(window.location.search).get('token');
 const tokenStorageKey = shopToken ? `petershop-konfigurator-token-used-${shopToken}` : '';
 
+function scrollToTop() {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth' // optional: 'auto' wenn du kein weiches Scrollen willst
+  });
+}
 
 function getCheckedValue(name) {
   const checked = document.querySelector(`input[name="${name}"]:checked`);
@@ -215,6 +221,8 @@ function showStep(step) {
   prevBtn.style.visibility = state.currentStep === 0 ? 'hidden' : 'visible';
   nextBtn.style.display = state.currentStep === totalSteps - 1 ? 'none' : 'inline-flex';
   nextBtn.disabled = !canProceedToNextStep();
+
+  scrollToTop();
 }
 
 function canProceedToNextStep() {
@@ -850,6 +858,8 @@ function showResultPage() {
   mainLayout.classList.add('result-mode');
 
   document.querySelector('.btn-row').classList.add('hidden');
+
+  scrollToTop();
 }
 
 function returnToConfiguration() {
@@ -864,6 +874,8 @@ function returnToConfiguration() {
 
   // Zurück zum letzten Schritt (Berechnung)
   showStep(9);
+
+  scrollToTop();
 }
 
 function resetAllInputsAfterHandover() {
