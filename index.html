@@ -29,11 +29,11 @@
           <div class="step-item" data-step="1"><span class="step-number">1</span><span>Projektart</span></div>
           <div class="step-item" data-step="2"><span class="step-number">2</span><span>Wärmeerzeuger</span></div>
           <div class="step-item" data-step="3"><span class="step-number">3</span><span>Standort</span></div>
-          <div class="step-item" data-step="4"><span class="step-number">4</span><span>System</span></div>
-          <div class="step-item" data-step="5"><span class="step-number">5</span><span>Thermostat</span></div>
-          <div class="step-item" data-step="6"><span class="step-number">6</span><span>Verteilertechnik</span></div>
-          <div class="step-item" data-step="7"><span class="step-number">7</span><span>Zusatzdämmung</span></div>
-          <div class="step-item" data-step="8"><span class="step-number">8</span><span>Räume</span></div>
+          <div class="step-item" data-step="4"><span class="step-number">4</span><span>Räume</span></div>
+          <div class="step-item" data-step="5"><span class="step-number">5</span><span>System</span></div>
+          <div class="step-item" data-step="6"><span class="step-number">6</span><span>Thermostat</span></div>
+          <div class="step-item" data-step="7"><span class="step-number">7</span><span>Verteilertechnik</span></div>
+          <div class="step-item" data-step="8"><span class="step-number">8</span><span>Zusatzdämmung</span></div>
           <div class="step-item" data-step="9"><span class="step-number">9</span><span>Dienstleistungen</span></div>
           <div class="step-item" data-step="10"><span class="step-number">10</span><span>Berechnung</span></div>
         </div>
@@ -123,8 +123,15 @@
           </div>
         </section>
 
-        <section class="step-panel" data-step-panel="4">
-          <h2 class="section-title">4. System</h2>
+        <section class="step-panel" data-step-panel="5">
+          <div class="section-title-row">
+            <h2 class="section-title">5. System</h2>
+
+            <div class="field floor-select-field">
+              <label for="systemFloorSelect">Etage</label>
+              <select id="systemFloorSelect"></select>
+            </div>
+          </div>
           <p class="section-subtitle">Treffen Sie hier Ihre Systemauswahl.</p>
 
           <div class="stack-grid">
@@ -322,8 +329,8 @@
           -->
         </section>
 
-        <section class="step-panel" data-step-panel="5">
-          <h2 class="section-title">5. Thermostat</h2>
+        <section class="step-panel" data-step-panel="6">
+          <h2 class="section-title">6. Thermostat</h2>
           <p class="section-subtitle">Bitte wählen, ob und welches Thermostat vorgesehen ist.</p>
 
           <div class="sub-block">
@@ -352,8 +359,8 @@
           </div>
         </section>
 
-        <section class="step-panel" data-step-panel="6">
-          <h2 class="section-title">6. Verteilertechnik</h2>
+        <section class="step-panel" data-step-panel="7">
+          <h2 class="section-title">7. Verteilertechnik</h2>
           <p class="section-subtitle">Verteilerschrank-Art, Verteiler-Menge & Typ sowie Regeltechnik.</p>
 
           <div class="sub-block">
@@ -528,8 +535,8 @@
           </div>
         </section>
 
-        <section class="step-panel" data-step-panel="7">
-          <h2 class="section-title">7. Zusatzdämmung</h2>
+        <section class="step-panel" data-step-panel="8">
+          <h2 class="section-title">8. Zusatzdämmung</h2>
           <p class="section-subtitle">Geliefert und montiert wird die ausgwählte Zusatzdämmung. Eine
             Vermibit-Trockenausgelichsschüttung ist inbegriffen.</p>
 
@@ -605,8 +612,8 @@
           </div>
         </section>
 
-        <section class="step-panel" data-step-panel="8">
-          <h2 class="section-title">8. Räume</h2>
+        <section class="step-panel" data-step-panel="4">
+          <h2 class="section-title">4. Räume</h2>
           <p class="section-subtitle">Etagen und Räume können über das Plus ergänzt werden. Jeder Raum erhält Namen,
             Funktion, Verlegeabstand und Fläche.</p>
           <div id="floorsContainer"></div>
@@ -722,6 +729,11 @@
 
         <div class="btn-row">
           <div class="btn-group"><button type="button" class="secondary" id="prevBtn">Zurück</button></div>
+
+          <div class="btn-group">
+            <button type="button" class="secondary hidden" id="assignFloorSystemBtn">System der Etage zuweisen</button>
+          </div>
+
           <div class="btn-group"><button type="button" id="nextBtn">Weiter</button></div>
         </div>
       </main>

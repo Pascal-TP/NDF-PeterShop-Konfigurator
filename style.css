@@ -798,3 +798,33 @@ Ganz unten ergänzen */
 td {
   white-space: nowrap;
 }
+
+.section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.floor-select-field {
+  min-width: 220px;
+}
+
+.floor-select-field label {
+  font-size: 13px;
+}
+
+.floor-select-field select {
+  background: white;
+}
+
+@media (max-width: 720px) {
+  .section-title-row {
+    flex-direction: column;
+  }
+
+  .floor-select-field {
+    width: 100%;
+  }
+}
