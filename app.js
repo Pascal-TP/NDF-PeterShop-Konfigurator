@@ -67,6 +67,16 @@ function getRadioValue(name) {
   return checked ? checked.value : '';
 }
 
+function getSystemValue() {
+  const selector =
+    state.projectType === 'sanierung'
+      ? '#systemSanierungBlock input[name="system"]:checked'
+      : '#systemBlock input[name="system"]:checked';
+
+  const checked = document.querySelector(selector);
+  return checked ? checked.value : '';
+}
+
 function createFloor() {
   return { name: '', rooms: [createRoom()] };
 }
@@ -174,8 +184,8 @@ function renderBrand() {
 }
 
 function syncSystemOptionsByBrand() {
-  const systemRadios = document.querySelectorAll('#systemBlock input[name="system"]');
-  const sanierungSystemRadio = document.querySelector('#systemSanierungBlock input[name="system"]');
+  const neubauSystemCheckboxes = document.querySelectorAll('#systemBlock input[name="system"]');
+  const sanierungSystemCheckbox = document.querySelector('#systemSanierungBlock input[name="system"]');
 
   let allowedSystems = [];
 
@@ -185,31 +195,22 @@ function syncSystemOptionsByBrand() {
     allowedSystems = ['Tacker'];
   }
 
-  systemRadios.forEach((radio) => {
-    const optionLabel = radio.closest('.radio-option');
-    const isAllowed = allowedSystems.includes(radio.value);
+  neubauSystemCheckboxes.forEach((checkbox) => {
+    const optionLabel = checkbox.closest('.radio-option');
+    const isAllowed = allowedSystems.includes(checkbox.value);
 
-    radio.disabled = !isAllowed;
+    checkbox.disabled = !isAllowed;
     optionLabel?.classList.toggle('disabled-radio-option', !isAllowed);
+
+    if (!isAllowed) {
+      checkbox.checked = false;
+    }
   });
 
-  // Sanierungs-System "Klett 3mm" immer freigeben
-  if (sanierungSystemRadio) {
-    const sanierungLabel = sanierungSystemRadio.closest('.radio-option');
-    sanierungSystemRadio.disabled = false;
+  if (sanierungSystemCheckbox) {
+    const sanierungLabel = sanierungSystemCheckbox.closest('.radio-option');
+    sanierungSystemCheckbox.disabled = false;
     sanierungLabel?.classList.remove('disabled-radio-option');
-  }
-
-  const checkedSystem = document.querySelector('input[name="system"]:checked');
-  if (!checkedSystem || checkedSystem.disabled) {
-    if (state.projectType === 'sanierung' && sanierungSystemRadio) {
-      sanierungSystemRadio.checked = true;
-    } else {
-      const firstAllowed = Array.from(systemRadios).find((radio) => !radio.disabled);
-      if (firstAllowed) {
-        firstAllowed.checked = true;
-      }
-    }
   }
 }
 
@@ -590,9 +591,7 @@ function updateLayerPreview() {
 function updateSummary() {
   summaryPlz.textContent = document.getElementById('plz').value.trim() || 'PLZ offen';
   document.getElementById('summarySystem').textContent =
-    state.projectType === 'sanierung'
-      ? 'Klett 3mm'
-      : getRadioValue('system');
+    getSystemValue() || 'Keine Auswahl';
   document.getElementById('summaryWlg').textContent = wlgBlock.classList.contains('hidden') ? '-' : getRadioValue('wlg');
   document.getElementById('summaryInsulationThickness').textContent = insulationThicknessBlock.classList.contains('hidden') ? '-' : getRadioValue('insulationThickness');
   document.getElementById('summaryPipeType').textContent = pipeTypeBlock.classList.contains('hidden') ? '-' : getRadioValue('pipeType');
@@ -677,7 +676,7 @@ function updateFinalCheck() {
     <div><strong>Projekt:</strong> ${summaryProjectType.textContent}${state.projectType === 'neubau' ? ' / ' + summaryBrand.textContent : ''}</div>
     <div><strong>Wärmeerzeuger:</strong> ${summaryHeatSource.textContent}</div>
     <div><strong>PLZ:</strong> ${summaryPlz.textContent}</div>
-    <div><strong>System:</strong> ${getRadioValue('system')}, ${getRadioValue('wlg')}, ${getRadioValue('insulationThickness')}</div>
+    <div><strong>System:</strong> ${getSystemValue() || 'Keine Auswahl'}, ${getRadioValue('wlg')}, ${getRadioValue('insulationThickness')}</div>
     <div><strong>Rohr:</strong> ${getRadioValue('pipeType')} / ${getRadioValue('pipeSize')}</div>
     <div><strong>Estrich:</strong> ${estrichRangeEntries.length ? estrichRangeEntries.join(', ') : 'Keine Auswahl'}</div>
 <div><strong>Zusatzmittel:</strong> ${estrichAdditiveEntries.length ? estrichAdditiveEntries.join(', ') : 'Keine Auswahl'}</div>
@@ -759,6 +758,20 @@ document.querySelectorAll('#distributionModeChoices .choice-card').forEach((card
 
 document.querySelectorAll('input[type="radio"]').forEach((radio) => {
   radio.addEventListener('change', updateSummary);
+});
+
+document.querySelectorAll('input[name="system"]').forEach((checkbox) => {
+  checkbox.addEventListener('change', () => {
+    if (checkbox.checked) {
+      document.querySelectorAll('input[name="system"]').forEach((otherCheckbox) => {
+        if (otherCheckbox !== checkbox) {
+          otherCheckbox.checked = false;
+        }
+      });
+    }
+
+    updateSummary();
+  });
 });
 
 distributionTypeFields.forEach((field) => {
