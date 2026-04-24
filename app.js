@@ -839,30 +839,28 @@ function updateSummary() {
 }
 
 function calculateProducts() {
-  // Platzhalterdaten – später ersetzen wir diese Logik durch CSV-Artikel + echte Mengenberechnung.
-  return [
-    {
+  const products = [];
+
+  const relevantArea = getRelevantAreaForHeatingSystem();
+
+  if (
+    state.projectType === 'neubau' &&
+    state.brand === 'handelsmarke' &&
+    getSystemValue() === 'Tacker' &&
+    getCheckedValue('wlg') === '045' &&
+    getCheckedValue('insulationThickness') === '20-2 mm' &&
+    getCheckedValue('pipeType') === 'PE-RT'
+  ) {
+    products.push({
       selected: true,
-      articleNumber: 'TEST-1001',
-      description: 'Platzhalter Artikel Fußbodenheizungssystem',
-      quantity: 1,
-      unit: 'Stk.'
-    },
-    {
-      selected: true,
-      articleNumber: 'TEST-2001',
-      description: 'Platzhalter Montageleistung',
-      quantity: 1,
-      unit: 'pauschal'
-    },
-    {
-      selected: true,
-      articleNumber: 'TEST-3001',
-      description: 'Platzhalter Zusatzleistung',
-      quantity: state.floors.length || 1,
-      unit: 'Stk.'
-    }
-  ];
+      articleNumber: 'H54NO000101',
+      description: 'Artikelbeschreibung später aus master.csv',
+      quantity: relevantArea,
+      unit: 'm²'
+    });
+  }
+
+  return products;
 }
 
 function renderResultTable(products) {
@@ -995,6 +993,19 @@ function checkTokenUsageOnLoad() {
 
     state.isLocked = true;
   }
+}
+
+function getRelevantAreaForHeatingSystem() {
+  return state.floors.reduce((sum, floor) => {
+    return sum + floor.rooms.reduce((roomSum, room) => {
+      const isRelevantRoom =
+        room.function === 'Wohnraum' || room.function === 'Bad';
+
+      const area = Number(String(room.area).replace(',', '.')) || 0;
+
+      return isRelevantRoom ? roomSum + area : roomSum;
+    }, 0);
+  }, 0);
 }
 
 function updateFinalCheck() {
