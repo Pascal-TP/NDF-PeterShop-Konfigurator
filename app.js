@@ -372,12 +372,12 @@ function showStep(step) {
   nextBtn.style.display = state.currentStep === totalSteps - 1 ? 'none' : 'inline-flex';
   nextBtn.disabled = !canProceedToNextStep();
 
-const isSystemStep = state.currentStep === 5;
-assignFloorSystemBtn.classList.toggle('hidden', !isSystemStep);
+  const isSystemStep = state.currentStep === 5;
+  assignFloorSystemBtn.classList.toggle('hidden', !isSystemStep);
 
-if (isSystemStep) {
-  renderSystemFloorSelect();
-}
+  if (isSystemStep) {
+    renderSystemFloorSelect();
+  }
 
   scrollToTop();
 }
@@ -398,25 +398,27 @@ function canProceedToNextStep() {
   if (state.currentStep === 3) {
     return /^\d{5}$/.test(document.getElementById('plz').value.trim());
   }
- if (state.currentStep === 5) {
-  return allHeatedFloorsHaveSystemAssignment();
-}
-
-if (state.currentStep === 6) {
-  if (state.thermostatEnabled === 'nein') {
-    return true;
+  if (state.currentStep === 5) {
+    return allHeatedFloorsHaveSystemAssignment();
   }
 
-  if (state.thermostatEnabled === 'ja') {
-    return state.thermostat !== '';
+  if (state.currentStep === 6) {
+    if (state.thermostatEnabled === 'nein') {
+      return true;
+    }
+
+    if (state.thermostatEnabled === 'ja') {
+      return state.thermostat !== '';
+    }
+
+    return false;
   }
 
-  return false;
-}
+  if (state.currentStep === 7) {
+    return state.distributionEnabled !== '';
+  }
 
-if (state.currentStep === 7) {
-  return state.distributionEnabled !== '';
-}
+  return true;
 }
 
 function renderProjectType() {
