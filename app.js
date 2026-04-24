@@ -1094,6 +1094,55 @@ function findArticle(articleNumber) {
   return state.articleCatalog.find(article => article.articleNumber === articleNumber);
 }
 
+function getHeatedRoomCount() {
+  return state.floors.reduce((sum, floor) => {
+    return sum + floor.rooms.filter((room) =>
+      room.function === 'Wohnraum' || room.function === 'Bad'
+    ).length;
+  }, 0);
+}
+
+function getTotalAreaAllRooms() {
+  return state.floors.reduce((sum, floor) => {
+    return sum + floor.rooms.reduce((roomSum, room) => {
+      const area = Number(String(room.area).replace(',', '.')) || 0;
+      return roomSum + area;
+    }, 0);
+  }, 0);
+}
+
+function getTotalAreaHeatedRooms() {
+  return state.floors.reduce((sum, floor) => {
+    return sum + floor.rooms.reduce((roomSum, room) => {
+      const isHeatedRoom = room.function === 'Wohnraum' || room.function === 'Bad';
+      const area = Number(String(room.area).replace(',', '.')) || 0;
+      return isHeatedRoom ? roomSum + area : roomSum;
+    }, 0);
+  }, 0);
+}
+
+function addArticle(products, articleNumber, quantityOverride = 1) {
+  const article = findArticle(articleNumber);
+
+  if (!article) {
+    console.warn(`Artikelnummer ${articleNumber} wurde in master.csv nicht gefunden.`);
+    return;
+  }
+
+  const quantity = Number(quantityOverride) || 0;
+
+  products.push({
+    selected: true,
+    articleNumber: article.articleNumber,
+    description: article.description,
+    quantity,
+    unit: article.unit,
+    unitPrice: article.unitPrice,
+    priceUnit: article.priceUnit,
+    totalPrice: quantity * article.unitPrice
+  });
+}
+
 function calculateProducts() {
   const products = [];
   const relevantArea = getRelevantAreaForHeatingSystem();
@@ -1121,6 +1170,36 @@ function calculateProducts() {
       });
     }
   }
+
+  const heatedRoomCount = getHeatedRoomCount();
+const totalAreaAllRooms = getTotalAreaAllRooms();
+const totalAreaHeatedRooms = getTotalAreaHeatedRooms();
+
+// Thermostate
+if (state.thermostatEnabled === 'ja' && state.thermostat === 'Analog') {
+  addArticle(products, '100BIE021', heatedRoomCount);
+}
+
+if (state.thermostatEnabled === 'ja' && state.thermostat === 'LCD') {
+  addArticle(products, '100BIE022', heatedRoomCount);
+}
+
+// Dienstleistungen
+if (state.services.includes('Beratungspauschale')) {
+  addArticle(products, 'H54NO503501', 1);
+}
+
+if (state.services.includes('Schnellauslegung')) {
+  addArticle(products, 'H54NO504701', totalAreaAllRooms);
+}
+
+if (state.services.includes('Heizflächenauslegung')) {
+  addArticle(products, 'H54NO504501', totalAreaHeatedRooms);
+}
+
+if (state.services.includes('Heizlastberechnung')) {
+  addArticle(products, 'H54NO504001', totalAreaHeatedRooms);
+}
 
   return products;
 }
