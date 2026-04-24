@@ -591,14 +591,14 @@ Ganz unten ergänzen */
   left: calc(100% + 10px);
   top: 50%;
   transform: translateY(-50%);
-  min-width: 260px;
-  max-width: 550px;
-  padding: 10px 12px;
+  min-width: 420px;
+  max-width: 7000px;
+  padding: 12px 14px;
   border-radius: 10px;
   background: #0b2a4a;
   color: white;
   font-size: 13px;
-  line-height: 1.4;
+  line-height: 1.5;
   box-shadow: 0 8px 24px rgba(0,0,0,0.18);
   opacity: 0;
   visibility: hidden;
