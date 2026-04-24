@@ -773,6 +773,10 @@ document.querySelectorAll('#projectTypeChoices .choice-card').forEach((card) => 
 
     state.projectType = newProjectType;
 
+    if (newProjectType === 'neubau') {
+      state.brand = 'handelsmarke';
+    }
+
     if (newProjectType === 'sanierung') {
       state.brand = '';
     }
