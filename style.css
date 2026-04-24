@@ -511,8 +511,8 @@ button:disabled {
 }
 
 .choice-card.full-width {
-  background: white;
-  border: 1px solid #d1d5db;
+  flex: 1 1 100%;
+  background: #fafafa;
 }
 
 /* style.css
