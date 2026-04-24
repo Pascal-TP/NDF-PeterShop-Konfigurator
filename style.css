@@ -226,6 +226,15 @@ input, select {
   min-height: auto;
   margin: 0;
 }
+
+.radio-option input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-height: auto;
+  margin: 0;
+  flex: 0 0 18px;
+}
+
 .schema-box {
   background: white;
   border: 1px dashed #b8c7d4;
@@ -591,8 +600,8 @@ Ganz unten ergänzen */
   left: calc(100% + 10px);
   top: 50%;
   transform: translateY(-50%);
-  min-width: 420px;
-  max-width: 7000px;
+  min-width: 450px;
+  max-width: 720px;
   padding: 12px 14px;
   border-radius: 10px;
   background: #0b2a4a;
