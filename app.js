@@ -245,10 +245,10 @@ function canProceedToNextStep() {
   if (state.currentStep === 3) {
     return /^\d{5}$/.test(document.getElementById('plz').value.trim());
   }
-  return true;
   if (state.currentStep === 6) {
     return state.distributionEnabled !== '';
   }
+  return true;
 }
 
 function renderProjectType() {
