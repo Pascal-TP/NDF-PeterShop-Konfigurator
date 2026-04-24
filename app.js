@@ -56,7 +56,7 @@ const dryConstructionBlock = document.getElementById('dryConstructionBlock');
 const wlgBlock = document.getElementById('wlgBlock');
 const insulationThicknessBlock = document.getElementById('insulationThicknessBlock');
 const pipeTypeBlock = document.getElementById('pipeTypeBlock');
-const pipeSizeBlock = document.getElementById('pipeSizeBlock');
+const pipeSizeBlock = document.getElementById('pipeSizeBlock') || { classList: { contains: () => true, toggle: () => {} } };
 const systemBlock = document.getElementById('systemBlock');
 const systemSanierungBlock = document.getElementById('systemSanierungBlock');
 const systemInfoTacker = document.getElementById('systemInfoTacker');
