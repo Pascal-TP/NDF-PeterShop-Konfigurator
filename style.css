@@ -828,3 +828,7 @@ td {
     width: 100%;
   }
 }
+
+#systemOptionFlipfix {
+  margin-top: 20px;
+}

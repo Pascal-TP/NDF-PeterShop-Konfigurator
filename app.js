@@ -62,6 +62,8 @@ const pipeTypeBlock = document.getElementById('pipeTypeBlock');
 const pipeSizeBlock = document.getElementById('pipeSizeBlock') || { classList: { contains: () => true, toggle: () => { } } };
 const systemBlock = document.getElementById('systemBlock');
 const systemSanierungBlock = document.getElementById('systemSanierungBlock');
+const systemOptionFlipfix = document.getElementById('systemOptionFlipfix');
+const systemOptionPipeOnly = document.getElementById('systemOptionPipeOnly');
 const systemInfoTacker = document.getElementById('systemInfoTacker');
 const systemInfoNoppe = document.getElementById('systemInfoNoppe');
 const systemInfoKlett = document.getElementById('systemInfoKlett');
@@ -115,6 +117,7 @@ function setupSingleChoiceCheckboxGroup(name) {
         });
       }
 
+      if (name === 'system') syncSystemOptionsByBrand();
       updateSummary();
     });
   });
@@ -482,26 +485,56 @@ function syncSystemOptionsByBrand() {
   const neubauSystemCheckboxes = document.querySelectorAll('#systemBlock input[name="system"]');
   const sanierungSystemCheckbox = document.querySelector('#systemSanierungBlock input[name="system"]');
 
-  let allowedSystems = [];
-
-  if (state.brand === 'uponor') {
-    allowedSystems = ['Tacker', 'Klett'];
-  } else {
-    allowedSystems = ['Tacker'];
-  }
+  const selectedSystem = getSystemValue();
 
   neubauSystemCheckboxes.forEach((checkbox) => {
     const optionLabel = checkbox.closest('.radio-option');
-    const isAllowed = allowedSystems.includes(checkbox.value);
 
+    let isAllowed = true;
+    let isHidden = false;
+
+    // Grundregel: Noppe erstmal bei allen Herstellern gesperrt
+    if (checkbox.value === 'Noppe') {
+      isAllowed = false;
+    }
+
+    // Handelsmarke und Roth: Klett gesperrt
+    if ((state.brand === 'handelsmarke' || state.brand === 'roth') && checkbox.value === 'Klett') {
+      isAllowed = false;
+    }
+
+    // Uponor: Flipfix ausblenden
+    if (
+      state.brand === 'uponor' &&
+      checkbox.value === 'Systemplatte Flipfix (2mm Hohlkammer-Platte)'
+    ) {
+      isHidden = true;
+      isAllowed = false;
+    }
+
+    // Wenn Tacker gewählt wurde: Klett und Noppe sperren
+    if (selectedSystem === 'Tacker' && (checkbox.value === 'Klett' || checkbox.value === 'Noppe')) {
+      isAllowed = false;
+    }
+
+    // Wenn Flipfix gewählt wurde: Klett sperren
+    if (
+      selectedSystem === 'Systemplatte Flipfix (2mm Hohlkammer-Platte)' &&
+      checkbox.value === 'Klett'
+    ) {
+      isAllowed = false;
+    }
+
+    optionLabel?.classList.toggle('hidden', isHidden);
     checkbox.disabled = !isAllowed;
     optionLabel?.classList.toggle('disabled-radio-option', !isAllowed);
 
-    if (!isAllowed) {
+    if (!isAllowed || isHidden) {
       checkbox.checked = false;
     }
   });
 
+  // Sanierungs-System bleibt unabhängig davon aktiv
   if (sanierungSystemCheckbox) {
     const sanierungLabel = sanierungSystemCheckbox.closest('.radio-option');
     sanierungSystemCheckbox.disabled = false;
@@ -1172,34 +1205,34 @@ function calculateProducts() {
   }
 
   const heatedRoomCount = getHeatedRoomCount();
-const totalAreaAllRooms = getTotalAreaAllRooms();
-const totalAreaHeatedRooms = getTotalAreaHeatedRooms();
+  const totalAreaAllRooms = getTotalAreaAllRooms();
+  const totalAreaHeatedRooms = getTotalAreaHeatedRooms();
 
-// Thermostate
-if (state.thermostatEnabled === 'ja' && state.thermostat === 'Analog') {
-  addArticle(products, '100BIE021', heatedRoomCount);
-}
+  // Thermostate
+  if (state.thermostatEnabled === 'ja' && state.thermostat === 'Analog') {
+    addArticle(products, '100BIE021', heatedRoomCount);
+  }
 
-if (state.thermostatEnabled === 'ja' && state.thermostat === 'LCD') {
-  addArticle(products, '100BIE022', heatedRoomCount);
-}
+  if (state.thermostatEnabled === 'ja' && state.thermostat === 'LCD') {
+    addArticle(products, '100BIE022', heatedRoomCount);
+  }
 
-// Dienstleistungen
-if (state.services.includes('Beratungspauschale')) {
-  addArticle(products, 'H54NO503501', 1);
-}
+  // Dienstleistungen
+  if (state.services.includes('Beratungspauschale')) {
+    addArticle(products, 'H54NO503501', 1);
+  }
 
-if (state.services.includes('Schnellauslegung')) {
-  addArticle(products, 'H54NO504701', totalAreaAllRooms);
-}
+  if (state.services.includes('Schnellauslegung')) {
+    addArticle(products, 'H54NO504701', totalAreaAllRooms);
+  }
 
-if (state.services.includes('Heizflächenauslegung')) {
-  addArticle(products, 'H54NO504501', totalAreaHeatedRooms);
-}
+  if (state.services.includes('Heizflächenauslegung')) {
+    addArticle(products, 'H54NO504501', totalAreaHeatedRooms);
+  }
 
-if (state.services.includes('Heizlastberechnung')) {
-  addArticle(products, 'H54NO504001', totalAreaHeatedRooms);
-}
+  if (state.services.includes('Heizlastberechnung')) {
+    addArticle(products, 'H54NO504001', totalAreaHeatedRooms);
+  }
 
   return products;
 }
