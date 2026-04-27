@@ -133,6 +133,11 @@ function getSystemValue() {
   return checked ? checked.value : '';
 }
 
+function getSystemAddonValue() {
+  const checked = document.querySelector('input[name="systemAddon"]:checked');
+  return checked ? checked.value : '';
+}
+
 function getFloorLabel(floor, index) {
   return floor.name || `Etage ${index + 1}`;
 }
@@ -144,6 +149,7 @@ function floorHasHeatedRooms(floor) {
 function getCurrentSystemSelection() {
   return {
     system: getSystemValue(),
+    systemAddon: getSystemAddonValue(),
     wlg: getCheckedValue('wlg'),
     insulationThickness: getCheckedValue('insulationThickness'),
     pipeType: getCheckedValue('pipeType')
@@ -151,7 +157,9 @@ function getCurrentSystemSelection() {
 }
 
 function clearSystemSelection() {
-  document.querySelectorAll('input[name="system"], input[name="wlg"], input[name="insulationThickness"], input[name="pipeType"]').forEach((input) => {
+  document.querySelectorAll(
+    'input[name="system"], input[name="systemAddon"], input[name="wlg"], input[name="insulationThickness"], input[name="pipeType"]'
+  ).forEach((input) => {
     input.checked = false;
   });
 }
@@ -163,6 +171,7 @@ function setSystemSelection(selection) {
 
   Object.entries({
     system: selection.system,
+    systemAddon: selection.systemAddon,
     wlg: selection.wlg,
     insulationThickness: selection.insulationThickness,
     pipeType: selection.pipeType
@@ -457,7 +466,7 @@ function renderSystemBlocksByProjectType() {
 
   // Immer sichtbar
   estrichBlock.classList.remove('hidden');
-  dryConstructionBlock.classList.remove('hidden');
+  dryConstructionBlock.classList.toggle('hidden', !isSanierung);
 
   // Nur Neubau
   wlgBlock.classList.toggle('hidden', isSanierung);
@@ -540,6 +549,18 @@ function syncSystemOptionsByBrand() {
     sanierungSystemCheckbox.disabled = false;
     sanierungLabel?.classList.remove('disabled-radio-option');
   }
+  const selectedAddonAfterRules = getSystemAddonValue();
+  const disableInsulationFields = selectedAddonAfterRules === SYSTEM_PIPE_ONLY;
+
+  document.querySelectorAll('input[name="wlg"], input[name="insulationThickness"]').forEach((input) => {
+    input.disabled = disableInsulationFields;
+
+    if (disableInsulationFields) {
+      input.checked = false;
+    }
+
+    input.closest('.radio-option')?.classList.toggle('disabled-radio-option', disableInsulationFields);
+  });
 }
 
 function updateSystemInfoTextsByBrand() {
@@ -1164,6 +1185,16 @@ function addArticle(products, articleNumber, quantityOverride = 1) {
 
   const quantity = Number(quantityOverride) || 0;
 
+  if (quantity <= 0) return;
+
+  const existing = products.find(item => item.articleNumber === article.articleNumber);
+
+  if (existing) {
+    existing.quantity += quantity;
+    existing.totalPrice = existing.quantity * existing.unitPrice;
+    return;
+  }
+
   products.push({
     selected: true,
     articleNumber: article.articleNumber,
@@ -1176,33 +1207,101 @@ function addArticle(products, articleNumber, quantityOverride = 1) {
   });
 }
 
+const SYSTEM_FLIPFIX = 'Systemplatte Flipfix (2mm Hohlkammer-Platte)';
+const SYSTEM_PIPE_ONLY = 'nur Rohr, Dämmung komplett bauseits';
+
+const BASE_SYSTEM_ARTICLES = [
+  {
+    wlg: '045',
+    insulationThickness: '20-2 mm',
+    articleNumber: 'H54NO000101'
+  },
+  {
+    wlg: '045',
+    insulationThickness: '30-3 mm',
+    articleNumber: 'H54NO000501'
+  },
+  {
+    wlg: '040',
+    insulationThickness: '30-2 mm',
+    articleNumber: 'H54NO001001'
+  },
+  {
+    wlg: '035',
+    insulationThickness: '30 mm',
+    articleNumber: 'H54NO001501'
+  }
+];
+
+const BASE_ARTICLE_NUMBERS = BASE_SYSTEM_ARTICLES.map(rule => rule.articleNumber);
+
+function getHeatedAreaForFloor(floor) {
+  return floor.rooms.reduce((sum, room) => {
+    const isRelevantRoom = room.function === 'Wohnraum' || room.function === 'Bad';
+    const area = Number(String(room.area).replace(',', '.')) || 0;
+
+    return isRelevantRoom ? sum + area : sum;
+  }, 0);
+}
+
+function getHeatedAreaForFloorBySpacing(floor, spacing) {
+  return floor.rooms.reduce((sum, room) => {
+    const isRelevantRoom = room.function === 'Wohnraum' || room.function === 'Bad';
+    const hasSpacing = room.spacing === spacing;
+    const area = Number(String(room.area).replace(',', '.')) || 0;
+
+    return isRelevantRoom && hasSpacing ? sum + area : sum;
+  }, 0);
+}
+
 function calculateProducts() {
   const products = [];
-  const relevantArea = getRelevantAreaForHeatingSystem();
 
-  if (
-    state.projectType === 'neubau' &&
-    state.brand === 'handelsmarke' &&
-    getSystemValue() === 'Tacker' &&
-    getCheckedValue('wlg') === '045' &&
-    getCheckedValue('insulationThickness') === '20-2 mm' &&
-    getCheckedValue('pipeType') === 'PE-RT'
-  ) {
-    const article = findArticle('H54NO000101');
+  state.floors.forEach((floor) => {
+    if (!floorHasHeatedRooms(floor)) return;
 
-    if (article) {
-      products.push({
-        selected: true,
-        articleNumber: article.articleNumber,
-        description: article.description,
-        quantity: relevantArea,
-        unit: article.unit,
-        unitPrice: article.unitPrice,
-        priceUnit: article.priceUnit,
-        totalPrice: relevantArea * article.unitPrice
-      });
+    const selection = floor.systemAssignment;
+    const addon = selection.systemAddon || '';
+    if (!selection) return;
+
+    const heatedArea = getHeatedAreaForFloor(floor);
+    const heatedAreaVa100 = getHeatedAreaForFloorBySpacing(floor, 'VA 100');
+
+    if (
+      state.projectType === 'neubau' &&
+      state.brand === 'handelsmarke'
+    ) {
+      const baseRule = BASE_SYSTEM_ARTICLES.find(rule =>
+        rule.wlg === selection.wlg &&
+        rule.insulationThickness === selection.insulationThickness
+      );
+
+      if (selection.system === 'Tacker' && baseRule) {
+        // Standard: PE-RT ist im Grundartikel enthalten.
+        // Wenn ein anderes Rohr gewählt wurde, bleibt der Grundartikel trotzdem bestehen,
+        // zusätzlich kommt der Rohr-Aufpreis dazu.
+        if (addon === SYSTEM_FLIPFIX) {
+          addArticle(products, '100BIE032', heatedArea);
+        } else if (addon === SYSTEM_PIPE_ONLY) {
+          addArticle(products, '100BIE033', heatedArea);
+        } else {
+          addArticle(products, baseRule.articleNumber, heatedArea);
+        }
+
+        if (selection.pipeType === 'PE-Xc' || selection.pipeType === 'PE-Xa') {
+          addArticle(products, 'H54NO500001', heatedArea);
+        }
+
+        if (selection.pipeType === 'Alu-Verbund') {
+          addArticle(products, 'H54NO500501', heatedArea);
+        }
+
+        if (heatedAreaVa100 > 0) {
+          addArticle(products, 'H54NO501501', heatedAreaVa100);
+        }
+      }
     }
-  }
+  });
 
   const heatedRoomCount = getHeatedRoomCount();
   const totalAreaAllRooms = getTotalAreaAllRooms();
@@ -1581,6 +1680,7 @@ handoverShopBtn.addEventListener('click', async () => {
 
 [
   'system',
+  'systemAddon',
   'wlg',
   'insulationThickness',
   'pipeType',
