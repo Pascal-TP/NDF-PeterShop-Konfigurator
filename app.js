@@ -1258,35 +1258,34 @@ function calculateProducts() {
   const products = [];
 
   state.floors.forEach((floor) => {
-    if (!floorHasHeatedRooms(floor)) return;
+  if (!floorHasHeatedRooms(floor)) return;
 
-    const selection = floor.systemAssignment;
-    const addon = selection.systemAddon || '';
+  const selection = floor.systemAssignment;
+  if (!selection) return;
 
-    // Berechnung 14: Sanierung + Klett 3mm
-    if (
-      state.projectType === 'sanierung' &&
-      selection.system === 'Klett 3mm'
-    ) {
-      addArticle(products, 'H54NO020001', heatedArea);
-    }
+  const addon = selection.systemAddon || '';
+  const heatedArea = getHeatedAreaForFloor(floor);
+  const heatedAreaVa100 = getHeatedAreaForFloorBySpacing(floor, 'VA 100');
 
-    // Berechnung 15: Neubau + Uponor + Klett
-    if (
-      state.projectType === 'neubau' &&
-      state.brand === 'uponor' &&
-      selection.system === 'Klett' &&
-      selection.wlg === '040' &&
-      selection.insulationThickness === '30-2 mm' &&
-      selection.pipeType === 'PE-Xa'
-    ) {
-      addArticle(products, '100BIE031', heatedArea);
-    }
+  // Berechnung 14: Sanierung + Klett 3mm
+  if (
+    state.projectType === 'sanierung' &&
+    selection.system === 'Klett 3mm'
+  ) {
+    addArticle(products, 'H54NO020001', heatedArea);
+  }
 
-    if (!selection) return;
-
-    const heatedArea = getHeatedAreaForFloor(floor);
-    const heatedAreaVa100 = getHeatedAreaForFloorBySpacing(floor, 'VA 100');
+  // Berechnung 15: Neubau + Uponor + Klett
+  if (
+    state.projectType === 'neubau' &&
+    state.brand === 'uponor' &&
+    selection.system === 'Klett' &&
+    selection.wlg === '040' &&
+    selection.insulationThickness === '30-2 mm' &&
+    selection.pipeType === 'PE-Xa'
+  ) {
+    addArticle(products, '100BIE031', heatedArea);
+  }
 
     if (
       state.projectType === 'neubau' &&
