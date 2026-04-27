@@ -159,12 +159,16 @@ function hasNonGroundFloorWithHeatedRooms() {
 
 function getCurrentSystemSelection() {
   return {
-    system: getSystemValue(),
-    systemAddon: getSystemAddonValue(),
-    wlg: getCheckedValue('wlg'),
-    insulationThickness: getCheckedValue('insulationThickness'),
-    pipeType: getCheckedValue('pipeType')
-  };
+  system: getSystemValue(),
+  systemAddon: getSystemAddonValue(),
+  wlg: getCheckedValue('wlg'),
+  insulationThickness: getCheckedValue('insulationThickness'),
+  pipeType: getCheckedValue('pipeType'),
+  milling: Array.from(millingSystemCheckboxes).filter(cb => cb.checked).map(cb => cb.value),
+  estrichRange: getEstrichRangeEntries(),
+  estrichAdditives: getEstrichAdditiveEntries(),
+  dryConstruction: getDryConstructionEntries()
+};
 }
 
 function clearSystemSelection() {
@@ -220,7 +224,7 @@ function currentSystemSelectionIsComplete() {
   const selection = getCurrentSystemSelection();
 
   if (state.projectType === 'sanierung') {
-    return selection.system !== '';
+    return sanierungHasAnySystemSelection();
   }
 
   return (
@@ -231,7 +235,7 @@ function currentSystemSelectionIsComplete() {
   );
 }
 
-function allHeatedFloorsHaveSystemAssignment() {
+function allRelevantFloorsHaveSystemAssignment() {
   return state.floors.every((floor) => {
     if (!floorHasHeatedRooms(floor)) return true;
     return !!floor.systemAssignment;
@@ -422,12 +426,12 @@ function canProceedToNextStep() {
     return /^\d{5}$/.test(document.getElementById('plz').value.trim());
   }
   if (state.currentStep === 5) {
-    if (state.projectType === 'sanierung') {
-      return sanierungHasAnySystemSelection();
-    }
-
-    return allHeatedFloorsHaveSystemAssignment();
+  if (state.projectType === 'sanierung') {
+    return sanierungHasAnySystemSelection();
   }
+
+  return allHeatedFloorsHaveSystemAssignment();
+}
 
   if (state.currentStep === 6) {
     if (state.thermostatEnabled === 'nein') {
@@ -1158,6 +1162,7 @@ function updateSummary() {
     document.getElementById('summaryExtraInsulationThickness').textContent = getCheckedValue('extraInsulationThickness') || 'Keine Auswahl';
   }
 
+  syncEstrichRangeByArea();
   syncEstrichRangeRules();
   syncEstrichAdditivesRules();
   syncMillingSystemRules();
@@ -1299,6 +1304,37 @@ function getTotalAreaAllRooms() {
       return roomSum + area;
     }, 0);
   }, 0);
+}
+
+function getAllowedEstrichRangeByArea() {
+  const area = getTotalAreaAllRooms();
+
+  if (area >= 10 && area <= 69) return 'Flächen von 10 bis 69 m²';
+  if (area >= 70 && area <= 109) return 'Flächen von 70 bis 109 m²';
+  if (area >= 110 && area <= 119) return 'Flächen von 110 bis 119 m²';
+  if (area >= 120 && area <= 129) return 'Flächen von 120 bis 129 m²';
+  if (area >= 130 && area <= 139) return 'Flächen von 130 bis 139 m²';
+  if (area >= 140 && area <= 149) return 'Flächen von 140 bis 149 m²';
+  if (area >= 150) return 'Flächen ab 150 m²';
+
+  return '';
+}
+
+function syncEstrichRangeByArea() {
+  const allowedRange = getAllowedEstrichRangeByArea();
+
+  estrichRangeCheckboxes.forEach((checkbox) => {
+    const label = checkbox.closest('.check-option');
+    const isAllowed = checkbox.value === allowedRange;
+
+    checkbox.disabled = !isAllowed;
+
+    if (!isAllowed) {
+      checkbox.checked = false;
+    }
+
+    label?.classList.toggle('disabled-option', !isAllowed);
+  });
 }
 
 function getTotalAreaHeatedRooms() {
