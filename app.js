@@ -117,7 +117,11 @@ function setupSingleChoiceCheckboxGroup(name) {
         });
       }
 
-      if (name === 'system') syncSystemOptionsByBrand();
+      if (name === 'system') {
+        syncSystemOptionsByBrand();
+        syncSanierungSystemRules();
+      }
+
       updateSummary();
     });
   });
@@ -418,6 +422,10 @@ function canProceedToNextStep() {
     return /^\d{5}$/.test(document.getElementById('plz').value.trim());
   }
   if (state.currentStep === 5) {
+    if (state.projectType === 'sanierung') {
+      return sanierungHasAnySystemSelection();
+    }
+
     return allHeatedFloorsHaveSystemAssignment();
   }
 
@@ -854,6 +862,66 @@ function getDryConstructionEntries() {
     .map((checkbox) => checkbox.value);
 }
 
+function sanierungHasAnySystemSelection() {
+  const hasKlett3mm = getSystemValue() === 'Klett 3mm';
+  const hasMilling = Array.from(millingSystemCheckboxes).some(cb => cb.checked);
+  const hasEstrich = getEstrichRangeEntries().length > 0 || getEstrichAdditiveEntries().length > 0;
+  const hasDryConstruction = getDryConstructionEntries().length > 0;
+
+  return hasKlett3mm || hasMilling || hasEstrich || hasDryConstruction;
+}
+
+function syncSanierungSystemRules() {
+  if (state.projectType !== 'sanierung') {
+    millingBlock.classList.remove('disabled-block');
+    dryConstructionBlock.classList.remove('disabled-block');
+
+    document.querySelectorAll('#systemSanierungBlock input, #millingBlock input, #dryConstructionBlock input')
+      .forEach(input => input.disabled = false);
+
+    return;
+  }
+
+  const hasKlett3mm = getSystemValue() === 'Klett 3mm';
+  const hasMilling = Array.from(millingSystemCheckboxes).some(cb => cb.checked);
+  const hasDryConstruction = getDryConstructionEntries().length > 0;
+
+  const klettInput = document.querySelector('#systemSanierungBlock input[name="system"][value="Klett 3mm"]');
+  const klettLabel = klettInput?.closest('.radio-option');
+
+  const disableKlett = hasMilling || hasDryConstruction;
+  const disableMilling = hasKlett3mm || hasDryConstruction;
+  const disableDryConstruction = hasKlett3mm || hasMilling;
+
+  if (klettInput) {
+    klettInput.disabled = disableKlett;
+
+    if (disableKlett) {
+      klettInput.checked = false;
+    }
+
+    klettLabel?.classList.toggle('disabled-radio-option', disableKlett);
+  }
+
+  millingBlock.classList.toggle('disabled-block', disableMilling);
+  millingBlock.querySelectorAll('input').forEach((input) => {
+    input.disabled = disableMilling;
+
+    if (disableMilling) {
+      input.checked = false;
+    }
+  });
+
+  dryConstructionBlock.classList.toggle('disabled-block', disableDryConstruction);
+  dryConstructionBlock.querySelectorAll('input').forEach((input) => {
+    input.disabled = disableDryConstruction;
+
+    if (disableDryConstruction) {
+      input.checked = false;
+    }
+  });
+}
+
 function syncEstrichAdditivesRules() {
   const additiveCheckboxes = Array.from(estrichAdditiveCheckboxes);
 
@@ -1093,6 +1161,7 @@ function updateSummary() {
   syncEstrichRangeRules();
   syncEstrichAdditivesRules();
   syncMillingSystemRules();
+  syncSanierungSystemRules();
   updateAssignFloorSystemButton();
 
   const roomTexts = [];
@@ -1998,11 +2067,17 @@ estrichAdditiveCheckboxes.forEach((field) => {
 });
 
 dryConstructionCheckboxes.forEach((field) => {
-  field.addEventListener('change', updateSummary);
+  field.addEventListener('change', () => {
+    syncSanierungSystemRules();
+    updateSummary();
+  });
 });
 
 millingSystemCheckboxes.forEach((field) => {
-  field.addEventListener('change', updateSummary);
+  field.addEventListener('change', () => {
+    syncSanierungSystemRules();
+    updateSummary();
+  });
 });
 
 serviceCheckboxes.forEach((checkbox) => {
