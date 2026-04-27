@@ -1260,6 +1260,29 @@ const BASE_SYSTEM_ARTICLES = [
 
 const BASE_ARTICLE_NUMBERS = BASE_SYSTEM_ARTICLES.map(rule => rule.articleNumber);
 
+const ROTH_SYSTEM_ARTICLES = [
+  {
+    wlg: '035',
+    insulationThickness: '20-2 mm',
+    articleNumber: '100BHW046'
+  },
+  {
+    wlg: '040',
+    insulationThickness: '20-2 mm',
+    articleNumber: '100BHW047'
+  },
+  {
+    wlg: '040',
+    insulationThickness: '30-2 mm',
+    articleNumber: '100BHW048'
+  },
+  {
+    wlg: '045',
+    insulationThickness: '30-3 mm',
+    articleNumber: '100BHW049'
+  }
+];
+
 function getHeatedAreaForFloor(floor) {
   return floor.rooms.reduce((sum, room) => {
     const isRelevantRoom = room.function === 'Wohnraum' || room.function === 'Bad';
@@ -1343,6 +1366,38 @@ function calculateProducts() {
 
         if (heatedAreaVa100 > 0) {
           addArticle(products, 'H54NO501501', heatedAreaVa100);
+        }
+      }
+    }
+
+    if (
+      state.projectType === 'neubau' &&
+      state.brand === 'roth'
+    ) {
+      const rothRule = ROTH_SYSTEM_ARTICLES.find(rule =>
+        rule.wlg === selection.wlg &&
+        rule.insulationThickness === selection.insulationThickness
+      );
+
+      if (selection.system === 'Tacker' && rothRule) {
+        if (addon === SYSTEM_FLIPFIX) {
+          addArticle(products, '100BHW045', heatedArea);
+        } else if (addon === SYSTEM_PIPE_ONLY) {
+          addArticle(products, '100BHW050', heatedArea);
+        } else {
+          addArticle(products, rothRule.articleNumber, heatedArea);
+        }
+
+        if (selection.pipeType === 'X-PERT S5+') {
+          addArticle(products, '100BHW051', heatedArea);
+        }
+
+        if (selection.pipeType === 'DUOPEX S5') {
+          addArticle(products, '100BHW052', heatedArea);
+        }
+
+        if (heatedAreaVa100 > 0) {
+          addArticle(products, '100BHW053', heatedAreaVa100);
         }
       }
     }
