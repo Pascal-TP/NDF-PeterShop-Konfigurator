@@ -1669,14 +1669,20 @@ function calculateProducts() {
   const totalAreaAllRooms = getTotalAreaAllRooms();
   const totalAreaHeatedRooms = getTotalAreaHeatedRooms();
 
-  // Estrich Berechnung 58–64
-  getEstrichRangeEntries().forEach((entry) => {
-    const estrichRule = ESTRICH_RANGE_ARTICLES.find(rule => rule.value === entry);
+// Estrich Berechnung 58–64
+getEstrichRangeEntries().forEach((entry) => {
+  const estrichRule = ESTRICH_RANGE_ARTICLES.find(rule => rule.value === entry);
 
-    if (estrichRule) {
-      addArticle(products, estrichRule.articleNumber, totalAreaAllRooms);
-    }
-  });
+  if (estrichRule) {
+    const isFlatRate =
+      entry === 'Flächen von 10 bis 69 m²' ||
+      entry === 'Flächen von 70 bis 109 m²';
+
+    const quantity = isFlatRate ? 1 : totalAreaAllRooms;
+
+    addArticle(products, estrichRule.articleNumber, quantity);
+  }
+});
 
   // Estrich Zusatzmittel Berechnung 65–69
   getEstrichAdditiveEntries().forEach((entry) => {
