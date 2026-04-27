@@ -1467,6 +1467,24 @@ const DRY_CONSTRUCTION_ARTICLES = [
   }
 ];
 
+const ESTRICH_RANGE_ARTICLES = [
+  { value: 'Flächen von 10 bis 69 m²', articleNumber: 'H54NO050001' },
+  { value: 'Flächen von 70 bis 109 m²', articleNumber: 'H54NO050501' },
+  { value: 'Flächen von 110 bis 119 m²', articleNumber: 'H54NO051001' },
+  { value: 'Flächen von 120 bis 129 m²', articleNumber: 'H54NO051501' },
+  { value: 'Flächen von 130 bis 139 m²', articleNumber: 'H54NO052001' },
+  { value: 'Flächen von 140 bis 149 m²', articleNumber: 'H54NO052501' },
+  { value: 'Flächen ab 150 m²', articleNumber: '100BIE023' }
+];
+
+const ESTRICH_ADDITIVE_ARTICLES = [
+  { value: 'Einbringung Polyprophylenfasern', articleNumber: 'H54NO055501' },
+  { value: 'Zulage Schnellbinder 18-20 Tage', articleNumber: 'H54NO056001' },
+  { value: 'Zulage Schnellbinder 10-14 Tage', articleNumber: 'H54NO056501' },
+  { value: 'Zulage Schnellbinder 5- 7 Tage', articleNumber: 'H54NO057001' },
+  { value: 'Retanol XTREME 3 - 7 Tage', articleNumber: 'H54NO057501' }
+];
+
 function getHeatedAreaForFloor(floor) {
   return floor.rooms.reduce((sum, room) => {
     const isRelevantRoom = room.function === 'Wohnraum' || room.function === 'Bad';
@@ -1619,6 +1637,24 @@ function calculateProducts() {
   const heatedRoomCount = getHeatedRoomCount();
   const totalAreaAllRooms = getTotalAreaAllRooms();
   const totalAreaHeatedRooms = getTotalAreaHeatedRooms();
+
+  // Estrich Berechnung 58–64
+  getEstrichRangeEntries().forEach((entry) => {
+    const estrichRule = ESTRICH_RANGE_ARTICLES.find(rule => rule.value === entry);
+
+    if (estrichRule) {
+      addArticle(products, estrichRule.articleNumber, totalAreaAllRooms);
+    }
+  });
+
+  // Estrich Zusatzmittel Berechnung 65–69
+  getEstrichAdditiveEntries().forEach((entry) => {
+    const additiveRule = ESTRICH_ADDITIVE_ARTICLES.find(rule => rule.value === entry);
+
+    if (additiveRule) {
+      addArticle(products, additiveRule.articleNumber, totalAreaAllRooms);
+    }
+  });
 
   // Trockenbau Berechnung 52–57
   const dryConstructionEntriesForCalc = getDryConstructionEntries();
