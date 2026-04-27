@@ -487,7 +487,32 @@ function renderBrand() {
         'Handelsmarke';
 
   syncSystemOptionsByBrand();
+  renderPipeOptionsByBrand();
   updateSystemInfoTextsByBrand();
+}
+
+function renderPipeOptionsByBrand() {
+  const isRoth = state.brand === 'roth';
+
+  document.querySelectorAll('.pipe-standard-option').forEach((option) => {
+    option.classList.toggle('hidden', isRoth);
+
+    const input = option.querySelector('input');
+    if (input) {
+      input.disabled = isRoth;
+      if (isRoth) input.checked = false;
+    }
+  });
+
+  document.querySelectorAll('.pipe-roth-option').forEach((option) => {
+    option.classList.toggle('hidden', !isRoth);
+
+    const input = option.querySelector('input');
+    if (input) {
+      input.disabled = !isRoth;
+      if (!isRoth) input.checked = false;
+    }
+  });
 }
 
 function syncSystemOptionsByBrand() {
@@ -1258,34 +1283,34 @@ function calculateProducts() {
   const products = [];
 
   state.floors.forEach((floor) => {
-  if (!floorHasHeatedRooms(floor)) return;
+    if (!floorHasHeatedRooms(floor)) return;
 
-  const selection = floor.systemAssignment;
-  if (!selection) return;
+    const selection = floor.systemAssignment;
+    if (!selection) return;
 
-  const addon = selection.systemAddon || '';
-  const heatedArea = getHeatedAreaForFloor(floor);
-  const heatedAreaVa100 = getHeatedAreaForFloorBySpacing(floor, 'VA 100');
+    const addon = selection.systemAddon || '';
+    const heatedArea = getHeatedAreaForFloor(floor);
+    const heatedAreaVa100 = getHeatedAreaForFloorBySpacing(floor, 'VA 100');
 
-  // Berechnung 14: Sanierung + Klett 3mm
-  if (
-    state.projectType === 'sanierung' &&
-    selection.system === 'Klett 3mm'
-  ) {
-    addArticle(products, 'H54NO020001', heatedArea);
-  }
+    // Berechnung 14: Sanierung + Klett 3mm
+    if (
+      state.projectType === 'sanierung' &&
+      selection.system === 'Klett 3mm'
+    ) {
+      addArticle(products, 'H54NO020001', heatedArea);
+    }
 
-  // Berechnung 15: Neubau + Uponor + Klett
-  if (
-    state.projectType === 'neubau' &&
-    state.brand === 'uponor' &&
-    selection.system === 'Klett' &&
-    selection.wlg === '040' &&
-    selection.insulationThickness === '30-2 mm' &&
-    selection.pipeType === 'PE-Xa'
-  ) {
-    addArticle(products, '100BIE031', heatedArea);
-  }
+    // Berechnung 15: Neubau + Uponor + Klett
+    if (
+      state.projectType === 'neubau' &&
+      state.brand === 'uponor' &&
+      selection.system === 'Klett' &&
+      selection.wlg === '040' &&
+      selection.insulationThickness === '30-2 mm' &&
+      selection.pipeType === 'PE-Xa'
+    ) {
+      addArticle(products, '100BIE031', heatedArea);
+    }
 
     if (
       state.projectType === 'neubau' &&
@@ -1821,6 +1846,7 @@ state.floors = [createFloor()];
 renderProjectType();
 renderSystemBlocksByProjectType();
 renderBrand();
+renderPipeOptionsByBrand();
 updateSystemInfoTextsByBrand();
 renderHeatSource();
 renderThermostat();
