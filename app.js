@@ -493,14 +493,16 @@ function renderBrand() {
 
 function renderPipeOptionsByBrand() {
   const isRoth = state.brand === 'roth';
+  const isUponor = state.brand === 'uponor';
+  const isStandard = !isRoth && !isUponor;
 
   document.querySelectorAll('.pipe-standard-option').forEach((option) => {
-    option.classList.toggle('hidden', isRoth);
+    option.classList.toggle('hidden', !isStandard);
 
     const input = option.querySelector('input');
     if (input) {
-      input.disabled = isRoth;
-      if (isRoth) input.checked = false;
+      input.disabled = !isStandard;
+      if (!isStandard) input.checked = false;
     }
   });
 
@@ -511,6 +513,16 @@ function renderPipeOptionsByBrand() {
     if (input) {
       input.disabled = !isRoth;
       if (!isRoth) input.checked = false;
+    }
+  });
+
+  document.querySelectorAll('.pipe-uponor-option').forEach((option) => {
+    option.classList.toggle('hidden', !isUponor);
+
+    const input = option.querySelector('input');
+    if (input) {
+      input.disabled = !isUponor;
+      if (!isUponor) input.checked = false;
     }
   });
 }
@@ -1283,6 +1295,29 @@ const ROTH_SYSTEM_ARTICLES = [
   }
 ];
 
+const UPONOR_TACKER_ARTICLES = [
+  {
+    wlg: '040',
+    insulationThickness: '20-2 mm',
+    articleNumber: '100BHW039'
+  },
+  {
+    wlg: '040',
+    insulationThickness: '30-2 mm',
+    articleNumber: '100BIE040'
+  },
+  {
+    wlg: '045',
+    insulationThickness: '30-3 mm',
+    articleNumber: '100BHW040'
+  },
+  {
+    wlg: '045',
+    insulationThickness: '35-3 mm',
+    articleNumber: '100BIE041'
+  }
+];
+
 function getHeatedAreaForFloor(floor) {
   return floor.rooms.reduce((sum, room) => {
     const isRelevantRoom = room.function === 'Wohnraum' || room.function === 'Bad';
@@ -1398,6 +1433,35 @@ function calculateProducts() {
 
         if (heatedAreaVa100 > 0) {
           addArticle(products, '100BHW053', heatedAreaVa100);
+        }
+      }
+    }
+    if (
+      state.projectType === 'neubau' &&
+      state.brand === 'uponor'
+    ) {
+      const uponorRule = UPONOR_TACKER_ARTICLES.find(rule =>
+        rule.wlg === selection.wlg &&
+        rule.insulationThickness === selection.insulationThickness
+      );
+
+      if (selection.system === 'Tacker' && uponorRule) {
+        if (addon === SYSTEM_PIPE_ONLY) {
+          addArticle(products, '100BHW041', heatedArea);
+        } else {
+          addArticle(products, uponorRule.articleNumber, heatedArea);
+        }
+
+        if (selection.pipeType === 'MLCP Red Aluverbundrohr') {
+          addArticle(products, '100BHW042', heatedArea);
+        }
+
+        if (selection.pipeType === 'Comfort Pipe Plus Xa-Rohr') {
+          addArticle(products, '100BHW043', heatedArea);
+        }
+
+        if (heatedAreaVa100 > 0) {
+          addArticle(products, '100BHW044', heatedAreaVa100);
         }
       }
     }
