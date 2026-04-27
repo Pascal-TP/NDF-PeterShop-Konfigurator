@@ -1662,6 +1662,34 @@ const REGULATION_ARTICLES = {
   'Stellantrieb Premium 230V AC': '100BIE019'
 };
 
+const ISLAND_POSTCODES = [
+  // Hiddensee
+  '18565',
+
+  // Ostfriesische Inseln
+  '26465', '26474', '26486', '26548', '26571', '26579', '26757',
+
+  // Helgoland / Neuwerk
+  '27498', '27499',
+
+  // Nordfriesische Inseln / Halligen
+  '25845', '25846', '25847', '25849', '25859', '25863', '25869',
+  '25929', '25930', '25931', '25932', '25933',
+  '25938', '25939', '25940', '25941', '25942',
+  '25946', '25947', '25948', '25949',
+  '25952', '25953', '25954', '25955',
+  '25961', '25962', '25963', '25964', '25965', '25966', '25967', '25968', '25969', '25970',
+  '25980',
+  '25985', '25986',
+  '25988', '25989', '25990',
+  '25992', '25993', '25994',
+  '25996', '25997', '25998', '25999'
+];
+
+function isIslandPostcode(plz) {
+  return ISLAND_POSTCODES.includes(String(plz).trim());
+}
+
 function getHeatedAreaForFloor(floor) {
   return floor.rooms.reduce((sum, room) => {
     const isRelevantRoom = room.function === 'Wohnraum' || room.function === 'Bad';
@@ -1814,6 +1842,13 @@ function calculateProducts() {
   const heatedRoomCount = getHeatedRoomCount();
   const totalAreaAllRooms = getTotalAreaAllRooms();
   const totalAreaHeatedRooms = getTotalAreaHeatedRooms();
+
+  // Inselzuschlag
+  const plz = document.getElementById('plz').value.trim();
+
+  if (isIslandPostcode(plz)) {
+    addArticle(products, 'DEINE_ARTIKELNUMMER_INSELZUSCHLAG', 1);
+  }
 
   // Verteilertechnik Berechnung 70–91
   if (state.distributionEnabled === 'ja') {
