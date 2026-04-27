@@ -469,6 +469,50 @@ function canProceedToNextStep() {
   return true;
 }
 
+function syncInsulationThicknessByRules() {
+  const system = getSystemValue();
+  const wlg = getCheckedValue('wlg');
+
+  if (state.projectType !== 'neubau' || system !== 'Tacker' || !wlg) {
+    document.querySelectorAll('input[name="insulationThickness"]').forEach((input) => {
+      input.disabled = false;
+      input.closest('.radio-option')?.classList.remove('disabled-radio-option');
+    });
+    return;
+  }
+
+  const allowedMap = {
+    handelsmarke: {
+      '035': ['30 mm'],
+      '040': ['30-2 mm'],
+      '045': ['20-2 mm', '30-3 mm']
+    },
+    roth: {
+      '035': ['20-2 mm'],
+      '040': ['20-2 mm', '30-2 mm'],
+      '045': ['30-3 mm']
+    },
+    uponor: {
+      '040': ['20-2 mm', '30-2 mm'],
+      '045': ['30-3 mm', '35-3 mm']
+    }
+  };
+
+  const allowed = allowedMap[state.brand]?.[wlg] || [];
+
+  document.querySelectorAll('input[name="insulationThickness"]').forEach((input) => {
+    const isAllowed = allowed.includes(input.value);
+
+    input.disabled = !isAllowed;
+
+    if (!isAllowed) {
+      input.checked = false;
+    }
+
+    input.closest('.radio-option')?.classList.toggle('disabled-radio-option', !isAllowed);
+  });
+}
+
 function renderProjectType() {
   document.querySelectorAll('#projectTypeChoices .choice-card').forEach((card) => {
     card.classList.toggle('active', card.dataset.type === state.projectType);
@@ -1214,6 +1258,7 @@ function updateSummary() {
   syncSanierungSystemRules();
   syncRegulationRules();
   updateAssignFloorSystemButton();
+  syncInsulationThicknessByRules();
 
   const roomTexts = [];
   state.floors.forEach((floor, floorIndex) => {
