@@ -898,8 +898,6 @@ function renderFloors() {
     const removeFloorBtn = floorNode.querySelector('.remove-floor-btn');
     const roomsContainer = floorNode.querySelector('.rooms-container');
 
-    const floorNameInput = floorNode.querySelector('.floor-name');
-
     floorNameInput.outerHTML = `
   <select class="floor-name">
     <option value="Kellergeschoss">Kellergeschoss</option>
