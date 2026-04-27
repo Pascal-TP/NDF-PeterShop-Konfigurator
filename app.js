@@ -442,10 +442,16 @@ function canProceedToNextStep() {
   }
 
   if (state.currentStep === 7) {
-    return state.distributionEnabled !== '';
-  }
+    if (state.distributionEnabled === 'nein') {
+      return true;
+    }
 
-  return true;
+    if (state.distributionEnabled === 'ja') {
+      return getCheckedValue('cabinetMounting') !== '';
+    }
+
+    return false;
+  }
 }
 
 function renderProjectType() {
@@ -796,20 +802,20 @@ function renderExtraInsulationToggle() {
 }
 
 function renderDistributionMode() {
-  document.querySelectorAll('#distributionModeChoices .choice-card').forEach((card) => {
-    card.classList.toggle('active', card.dataset.distributionMode === state.distributionMode);
-  });
-
-  const disabled = state.distributionMode !== 'manual';
-  distributionManualFields.classList.toggle('disabled-block', disabled);
+  distributionManualFields.classList.remove('disabled-block');
 
   distributionTypeFields.forEach((field) => {
-    field.disabled = disabled;
+    field.disabled = state.distributionEnabled !== 'ja';
   });
 
   distributionQtyFields.forEach((field) => {
-    field.disabled = disabled;
+    field.disabled = state.distributionEnabled !== 'ja';
   });
+
+  summaryDistributionMode.textContent =
+    state.distributionEnabled === 'ja'
+      ? 'Manuelle Eingabe'
+      : 'Keine';
 }
 
 function getManualDistributionEntries() {
@@ -842,6 +848,35 @@ function getRegulationEntries() {
   });
 
   return entries;
+}
+
+function syncRegulationRules() {
+  const voltage = getCheckedValue('regulationVoltage');
+
+  regulationCheckboxes.forEach((checkbox, index) => {
+    const qtyField = regulationQtyFields[index];
+    const label = checkbox.closest('.regulation-row');
+    const itemName = checkbox.dataset.label;
+
+    let allowed = true;
+
+    if (itemName === 'Regelklemmleiste bis zu 10 Zonen' && voltage !== '230V AC') {
+      allowed = false;
+    }
+
+    checkbox.disabled = !allowed;
+
+    if (qtyField) {
+      qtyField.disabled = !allowed || !checkbox.checked;
+    }
+
+    if (!allowed) {
+      checkbox.checked = false;
+      if (qtyField) qtyField.value = '';
+    }
+
+    label?.classList.toggle('disabled-option', !allowed);
+  });
 }
 
 function getEstrichRangeEntries() {
@@ -1162,6 +1197,7 @@ function updateSummary() {
   syncEstrichAdditivesRules();
   syncMillingSystemRules();
   syncSanierungSystemRules();
+  syncRegulationRules();
   updateAssignFloorSystemButton();
 
   const roomTexts = [];
@@ -1516,6 +1552,27 @@ const ESTRICH_ADDITIVE_ARTICLES = [
   { value: 'Retanol XTREME 3 - 7 Tage', articleNumber: 'H54NO057501' }
 ];
 
+const DISTRIBUTION_ARTICLES = {
+  'HKV-D2': { base: 'H54NO100001', aufputz: 'H54NO110001', unterputz: 'H54NO120001' },
+  'HKV-D3': { base: 'H54NO100501', aufputz: 'H54NO110001', unterputz: 'H54NO120001' },
+  'HKV-D4': { base: 'H54NO101001', aufputz: 'H54NO110501', unterputz: 'H54NO120501' },
+  'HKV-D5': { base: 'H54NO101501', aufputz: 'H54NO110501', unterputz: 'H54NO120501' },
+  'HKV-D6': { base: 'H54NO102001', aufputz: 'H54NO111001', unterputz: 'H54NO121001' },
+  'HKV-D7': { base: 'H54NO102501', aufputz: 'H54NO111001', unterputz: 'H54NO121001' },
+  'HKV-D8': { base: 'H54NO103001', aufputz: 'H54NO111001', unterputz: 'H54NO121001' },
+  'HKV-D9': { base: 'H54NO103501', aufputz: 'H54NO111501', unterputz: 'H54NO121501' },
+  'HKV-D10': { base: 'H54NO104001', aufputz: 'H54NO111501', unterputz: 'H54NO121501' },
+  'HKV-D11': { base: 'H54NO104501', aufputz: 'H54NO111501', unterputz: 'H54NO121501' },
+  'HKV-D12': { base: 'H54NO105001', aufputz: 'H54NO112001', unterputz: 'H54NO122001' }
+};
+
+const REGULATION_ARTICLES = {
+  'Regelklemmleiste bis zu 6 Zonen': '100BIE017',
+  'Regelklemmleiste bis zu 10 Zonen': '100BIE018',
+  'Stellantrieb Premium 24V DC': '100BIE020',
+  'Stellantrieb Premium 230V AC': '100BIE019'
+};
+
 function getHeatedAreaForFloor(floor) {
   return floor.rooms.reduce((sum, room) => {
     const isRelevantRoom = room.function === 'Wohnraum' || room.function === 'Bad';
@@ -1669,20 +1726,73 @@ function calculateProducts() {
   const totalAreaAllRooms = getTotalAreaAllRooms();
   const totalAreaHeatedRooms = getTotalAreaHeatedRooms();
 
-// Estrich Berechnung 58–64
-getEstrichRangeEntries().forEach((entry) => {
-  const estrichRule = ESTRICH_RANGE_ARTICLES.find(rule => rule.value === entry);
+  // Verteilertechnik Berechnung 70–91
+  if (state.distributionEnabled === 'ja') {
+    const cabinetMounting = getCheckedValue('cabinetMounting');
 
-  if (estrichRule) {
-    const isFlatRate =
-      entry === 'Flächen von 10 bis 69 m²' ||
-      entry === 'Flächen von 70 bis 109 m²';
+    distributionTypeFields.forEach((typeField, index) => {
+      const typeValue = typeField.value;
+      const qtyValue = Number(distributionQtyFields[index]?.value || 0);
 
-    const quantity = isFlatRate ? 1 : totalAreaAllRooms;
+      if (!typeValue || qtyValue <= 0) return;
 
-    addArticle(products, estrichRule.articleNumber, quantity);
+      const rule = DISTRIBUTION_ARTICLES[typeValue];
+      if (!rule) return;
+
+      addArticle(products, rule.base, qtyValue);
+
+      if (cabinetMounting === 'Aufputz') {
+        addArticle(products, rule.aufputz, qtyValue);
+      }
+
+      if (cabinetMounting === 'Unterputz') {
+        addArticle(products, rule.unterputz, qtyValue);
+      }
+    });
+
+    // Regeltechnik Berechnung 92–95
+    const voltage = getCheckedValue('regulationVoltage');
+
+    regulationCheckboxes.forEach((checkbox, index) => {
+      if (!checkbox.checked) return;
+
+      const qtyValue = Number(regulationQtyFields[index]?.value || 0);
+      if (qtyValue <= 0) return;
+
+      const label = checkbox.dataset.label;
+
+      if (label === 'Regelklemmleiste bis zu 6 Zonen') {
+        addArticle(products, REGULATION_ARTICLES['Regelklemmleiste bis zu 6 Zonen'], qtyValue);
+      }
+
+      if (label === 'Regelklemmleiste bis zu 10 Zonen' && voltage === '230V AC') {
+        addArticle(products, REGULATION_ARTICLES['Regelklemmleiste bis zu 10 Zonen'], qtyValue);
+      }
+
+      if (label === 'Stellantrieb Premium' && voltage === '24V DC') {
+        addArticle(products, REGULATION_ARTICLES['Stellantrieb Premium 24V DC'], qtyValue);
+      }
+
+      if (label === 'Stellantrieb Premium' && voltage === '230V AC') {
+        addArticle(products, REGULATION_ARTICLES['Stellantrieb Premium 230V AC'], qtyValue);
+      }
+    });
   }
-});
+
+  // Estrich Berechnung 58–64
+  getEstrichRangeEntries().forEach((entry) => {
+    const estrichRule = ESTRICH_RANGE_ARTICLES.find(rule => rule.value === entry);
+
+    if (estrichRule) {
+      const isFlatRate =
+        entry === 'Flächen von 10 bis 69 m²' ||
+        entry === 'Flächen von 70 bis 109 m²';
+
+      const quantity = isFlatRate ? 1 : totalAreaAllRooms;
+
+      addArticle(products, estrichRule.articleNumber, quantity);
+    }
+  });
 
   // Estrich Zusatzmittel Berechnung 65–69
   getEstrichAdditiveEntries().forEach((entry) => {
@@ -2047,14 +2157,6 @@ document.querySelectorAll('#extraInsulationToggleChoices .choice-card').forEach(
   });
 });
 
-document.querySelectorAll('#distributionModeChoices .choice-card').forEach((card) => {
-  card.addEventListener('click', () => {
-    state.distributionMode = card.dataset.distributionMode;
-    renderDistributionMode();
-    updateSummary();
-  });
-});
-
 document.querySelectorAll('#distributionToggleChoices .choice-card').forEach((card) => {
   card.addEventListener('click', () => {
     state.distributionEnabled = card.dataset.distributionToggle;
@@ -2164,7 +2266,10 @@ distributionQtyFields.forEach((field) => {
 });
 
 regulationCheckboxes.forEach((field) => {
-  field.addEventListener('change', updateSummary);
+  field.addEventListener('change', () => {
+    syncRegulationRules();
+    updateSummary();
+  });
 });
 
 regulationQtyFields.forEach((field) => {
