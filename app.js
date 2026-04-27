@@ -1440,6 +1440,33 @@ const EXTRA_INSULATION_ARTICLES = [
   { material: 'PUR', wlg: '023/024', thickness: '60 mm', articleNumber: 'H54NO207001' }
 ];
 
+const DRY_CONSTRUCTION_ARTICLES = [
+  {
+    value: 'Aufbau 50mm',
+    articleNumber: '100BIE036'
+  },
+  {
+    value: 'Aufbau 20mm + 3mm Deckschicht',
+    articleNumber: '100BIE034'
+  },
+  {
+    value: 'Aufbau 30mm + 3mm Deckschicht',
+    articleNumber: '100BIE035'
+  },
+  {
+    value: 'Aufbau 25mm (XPS)',
+    articleNumber: '100BIE036'
+  },
+  {
+    value: 'Trockenestrich als schwimmende Estrichkonstruktion',
+    articleNumber: '100BIE037'
+  },
+  {
+    value: 'XPS500-Ausgleichsplatte',
+    articleNumber: '100BIE039'
+  }
+];
+
 function getHeatedAreaForFloor(floor) {
   return floor.rooms.reduce((sum, room) => {
     const isRelevantRoom = room.function === 'Wohnraum' || room.function === 'Bad';
@@ -1592,6 +1619,17 @@ function calculateProducts() {
   const heatedRoomCount = getHeatedRoomCount();
   const totalAreaAllRooms = getTotalAreaAllRooms();
   const totalAreaHeatedRooms = getTotalAreaHeatedRooms();
+
+  // Trockenbau Berechnung 52–57
+  const dryConstructionEntriesForCalc = getDryConstructionEntries();
+
+  dryConstructionEntriesForCalc.forEach((entry) => {
+    const dryRule = DRY_CONSTRUCTION_ARTICLES.find(rule => rule.value === entry);
+
+    if (dryRule) {
+      addArticle(products, dryRule.articleNumber, totalAreaHeatedRooms);
+    }
+  });
 
   const millingEntries = Array.from(millingSystemCheckboxes)
     .filter((checkbox) => checkbox.checked)
