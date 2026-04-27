@@ -413,18 +413,31 @@ function canProceedToNextStep() {
   if (state.currentStep === 0) {
     return true;
   }
+
   if (state.currentStep === 1) {
     if (state.projectType === 'neubau') {
       return state.brand !== '';
     }
     return state.projectType !== '';
   }
+
   if (state.currentStep === 2) {
     return state.heatSource !== '';
   }
+
   if (state.currentStep === 3) {
     return /^\d{5}$/.test(document.getElementById('plz').value.trim());
   }
+
+  if (state.currentStep === 4) {
+    return state.floors.some((floor) =>
+      floor.rooms.some((room) => {
+        const area = Number(String(room.area).replace(',', '.'));
+        return area > 0;
+      })
+    );
+  }
+
   if (state.currentStep === 5) {
     return allRelevantFloorsHaveSystemAssignment();
   }
@@ -452,6 +465,8 @@ function canProceedToNextStep() {
 
     return false;
   }
+
+  return true;
 }
 
 function renderProjectType() {
