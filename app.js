@@ -309,7 +309,7 @@ function createRoom() {
   return {
     name: '',
     function: 'Wohnraum',
-    spacing: 'VA 100',
+    spacing: 'VA 150',
     area: ''
   };
 }
