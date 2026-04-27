@@ -223,8 +223,16 @@ function renderSystemFloorSelect() {
 function currentSystemSelectionIsComplete() {
   const selection = getCurrentSystemSelection();
 
+  const hasEstrich =
+    getEstrichRangeEntries().length > 0 ||
+    getEstrichAdditiveEntries().length > 0;
+
   if (state.projectType === 'sanierung') {
     return sanierungHasAnySystemSelection();
+  }
+
+  if (hasEstrich) {
+    return true;
   }
 
   return (
@@ -469,39 +477,60 @@ function canProceedToNextStep() {
   return true;
 }
 
-function syncInsulationThicknessByRules() {
+function syncSystemInsulationRules() {
   const system = getSystemValue();
   const wlg = getCheckedValue('wlg');
+  const thickness = getCheckedValue('insulationThickness');
 
-  if (state.projectType !== 'neubau' || system !== 'Tacker' || !wlg) {
-    document.querySelectorAll('input[name="insulationThickness"]').forEach((input) => {
+  const ruleMap = {
+    handelsmarke: [
+      { wlg: '035', thickness: '30 mm' },
+      { wlg: '040', thickness: '30-2 mm' },
+      { wlg: '045', thickness: '20-2 mm' },
+      { wlg: '045', thickness: '30-3 mm' }
+    ],
+    roth: [
+      { wlg: '035', thickness: '20-2 mm' },
+      { wlg: '040', thickness: '20-2 mm' },
+      { wlg: '040', thickness: '30-2 mm' },
+      { wlg: '045', thickness: '30-3 mm' }
+    ],
+    uponor: [
+      { wlg: '040', thickness: '20-2 mm' },
+      { wlg: '040', thickness: '30-2 mm' },
+      { wlg: '045', thickness: '30-3 mm' },
+      { wlg: '045', thickness: '35-3 mm' }
+    ]
+  };
+
+  if (state.projectType !== 'neubau' || system !== 'Tacker') {
+    document.querySelectorAll('input[name="wlg"], input[name="insulationThickness"]').forEach((input) => {
       input.disabled = false;
       input.closest('.radio-option')?.classList.remove('disabled-radio-option');
     });
     return;
   }
 
-  const allowedMap = {
-    handelsmarke: {
-      '035': ['30 mm'],
-      '040': ['30-2 mm'],
-      '045': ['20-2 mm', '30-3 mm']
-    },
-    roth: {
-      '035': ['20-2 mm'],
-      '040': ['20-2 mm', '30-2 mm'],
-      '045': ['30-3 mm']
-    },
-    uponor: {
-      '040': ['20-2 mm', '30-2 mm'],
-      '045': ['30-3 mm', '35-3 mm']
-    }
-  };
+  const rules = ruleMap[state.brand] || [];
 
-  const allowed = allowedMap[state.brand]?.[wlg] || [];
+  document.querySelectorAll('input[name="wlg"]').forEach((input) => {
+    const isAllowed = !thickness || rules.some(rule =>
+      rule.wlg === input.value && rule.thickness === thickness
+    );
+
+    input.disabled = !isAllowed;
+
+    if (!isAllowed) {
+      input.checked = false;
+    }
+
+    input.closest('.radio-option')?.classList.toggle('disabled-radio-option', !isAllowed);
+  });
 
   document.querySelectorAll('input[name="insulationThickness"]').forEach((input) => {
-    const isAllowed = allowed.includes(input.value);
+    const isAllowed = !wlg || rules.some(rule =>
+      rule.thickness === input.value && rule.wlg === wlg
+    );
 
     input.disabled = !isAllowed;
 
@@ -1258,7 +1287,7 @@ function updateSummary() {
   syncSanierungSystemRules();
   syncRegulationRules();
   updateAssignFloorSystemButton();
-  syncInsulationThicknessByRules();
+  syncSystemInsulationRules();
 
   const roomTexts = [];
   state.floors.forEach((floor, floorIndex) => {
