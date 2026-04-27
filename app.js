@@ -1786,23 +1786,31 @@ function updateResultTotal() {
 }
 
 function renderResultTable(products) {
-  resultTableBody.innerHTML = products.map((item, index) => `
-    <tr>
-      <td>
-        <input 
-          type="checkbox" 
-          class="result-select-checkbox" 
-          data-result-index="${index}" 
-          ${item.selected !== false ? 'checked' : ''}
-        />
-      </td>
-      <td>${item.articleNumber}</td>
-      <td>${item.description}</td>
-      <td>${formatQuantity(item.quantity)} ${item.unit}</td>
-      <td>${formatEuro(item.unitPrice)} / ${item.unit}</td> 
-      <td>${formatEuro(item.totalPrice)}</td>
-    </tr>
-  `).join('');
+  resultTableBody.innerHTML = products.map((item, index) => {
+    const isFlatRate = item.unit && item.unit.toLowerCase().includes('pauschal');
+
+    const quantityDisplay = isFlatRate
+      ? `${formatQuantity(item.quantity)}`
+      : `${formatQuantity(item.quantity)} ${item.unit}`;
+
+    return `
+      <tr>
+        <td>
+          <input 
+            type="checkbox" 
+            class="result-select-checkbox" 
+            data-result-index="${index}" 
+            ${item.selected !== false ? 'checked' : ''}
+          />
+        </td>
+        <td>${item.articleNumber}</td>
+        <td>${item.description}</td>
+        <td>${quantityDisplay}</td>
+        <td>${formatEuro(item.unitPrice)} / ${item.unit}</td> 
+        <td>${formatEuro(item.totalPrice)}</td>
+      </tr>
+    `;
+  }).join('');
 
   document.querySelectorAll('.result-select-checkbox').forEach((checkbox) => {
     checkbox.addEventListener('change', () => {
