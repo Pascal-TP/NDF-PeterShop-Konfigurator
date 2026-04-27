@@ -1844,11 +1844,11 @@ function calculateProducts() {
   const totalAreaHeatedRooms = getTotalAreaHeatedRooms();
 
   // Inselzuschlag
-  const plz = document.getElementById('plz').value.trim();
+const plz = document.getElementById('plz').value.trim();
 
-  if (isIslandPostcode(plz)) {
-    addArticle(products, 'DEINE_ARTIKELNUMMER_INSELZUSCHLAG', 1);
-  }
+if (isIslandPostcode(plz)) {
+  addArticle(products, '100BIE016', 1);
+}
 
   // Verteilertechnik Berechnung 70–91
   if (state.distributionEnabled === 'ja') {
