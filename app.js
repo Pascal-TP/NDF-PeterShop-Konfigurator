@@ -159,16 +159,16 @@ function hasNonGroundFloorWithHeatedRooms() {
 
 function getCurrentSystemSelection() {
   return {
-  system: getSystemValue(),
-  systemAddon: getSystemAddonValue(),
-  wlg: getCheckedValue('wlg'),
-  insulationThickness: getCheckedValue('insulationThickness'),
-  pipeType: getCheckedValue('pipeType'),
-  milling: Array.from(millingSystemCheckboxes).filter(cb => cb.checked).map(cb => cb.value),
-  estrichRange: getEstrichRangeEntries(),
-  estrichAdditives: getEstrichAdditiveEntries(),
-  dryConstruction: getDryConstructionEntries()
-};
+    system: getSystemValue(),
+    systemAddon: getSystemAddonValue(),
+    wlg: getCheckedValue('wlg'),
+    insulationThickness: getCheckedValue('insulationThickness'),
+    pipeType: getCheckedValue('pipeType'),
+    milling: Array.from(millingSystemCheckboxes).filter(cb => cb.checked).map(cb => cb.value),
+    estrichRange: getEstrichRangeEntries(),
+    estrichAdditives: getEstrichAdditiveEntries(),
+    dryConstruction: getDryConstructionEntries()
+  };
 }
 
 function clearSystemSelection() {
@@ -426,12 +426,8 @@ function canProceedToNextStep() {
     return /^\d{5}$/.test(document.getElementById('plz').value.trim());
   }
   if (state.currentStep === 5) {
-  if (state.projectType === 'sanierung') {
-    return sanierungHasAnySystemSelection();
+    return allRelevantFloorsHaveSystemAssignment();
   }
-
-  return allHeatedFloorsHaveSystemAssignment();
-}
 
   if (state.currentStep === 6) {
     if (state.thermostatEnabled === 'nein') {
@@ -1163,7 +1159,6 @@ function updateSummary() {
   }
 
   syncEstrichRangeByArea();
-  syncEstrichRangeRules();
   syncEstrichAdditivesRules();
   syncMillingSystemRules();
   syncSanierungSystemRules();
