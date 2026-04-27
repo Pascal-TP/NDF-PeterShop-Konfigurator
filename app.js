@@ -146,6 +146,13 @@ function floorHasHeatedRooms(floor) {
   return floor.rooms.some((room) => room.function === 'Wohnraum' || room.function === 'Bad');
 }
 
+function hasNonGroundFloorWithHeatedRooms() {
+  return state.floors.some((floor) => {
+    const isNotGroundFloor = floor.name !== 'Erdgeschoss';
+    return isNotGroundFloor && floorHasHeatedRooms(floor);
+  });
+}
+
 function getCurrentSystemSelection() {
   return {
     system: getSystemValue(),
@@ -308,7 +315,7 @@ function showAppModal({ title = 'Hinweis', message = '', confirmText = 'OK', can
 
 function createFloor() {
   return {
-    name: '',
+    name: 'Erdgeschoss',
     systemAssignment: null,
     rooms: [createRoom()]
   };
@@ -891,9 +898,26 @@ function renderFloors() {
     const removeFloorBtn = floorNode.querySelector('.remove-floor-btn');
     const roomsContainer = floorNode.querySelector('.rooms-container');
 
-    floorNameInput.value = floor.name;
-    floorNameInput.addEventListener('input', (e) => {
+    const floorNameInput = floorNode.querySelector('.floor-name');
+
+    floorNameInput.outerHTML = `
+  <select class="floor-name">
+    <option value="Kellergeschoss">Kellergeschoss</option>
+    <option value="Erdgeschoss">Erdgeschoss</option>
+    <option value="Obergeschoss 1">Obergeschoss 1</option>
+    <option value="Obergeschoss 2">Obergeschoss 2</option>
+    <option value="Obergeschoss 3">Obergeschoss 3</option>
+    <option value="Obergeschoss 4">Obergeschoss 4</option>
+    <option value="Dachgeschoss">Dachgeschoss</option>
+  </select>
+`;
+
+    const floorNameSelect = floorNode.querySelector('.floor-name');
+    floorNameSelect.value = floor.name || 'Erdgeschoss';
+
+    floorNameSelect.addEventListener('change', (e) => {
       state.floors[floorIndex].name = e.target.value;
+      syncMillingSystemRules();
       updateSummary();
     });
 
@@ -963,20 +987,28 @@ function syncMillingSystemRules() {
   const millingCheckbox = Array.from(millingSystemCheckboxes)
     .find(cb => cb.value === 'Fräsen');
 
-  // Regel 1: Fräsen → Baustelleneinrichtung Pflicht
-  if (millingCheckbox && millingCheckbox.checked) {
-    millingSetupCheckbox.checked = true;
-    millingSetupCheckbox.disabled = true;
-  } else {
-    millingSetupCheckbox.disabled = false;
+  const isMillingSelected = millingCheckbox && millingCheckbox.checked;
+
+  // Fräsen → Baustelleneinrichtung Pflicht
+  if (millingSetupCheckbox) {
+    if (isMillingSelected) {
+      millingSetupCheckbox.checked = true;
+      millingSetupCheckbox.disabled = true;
+    } else {
+      millingSetupCheckbox.checked = false;
+      millingSetupCheckbox.disabled = false;
+    }
   }
 
-  // Regel 2: mehr als 1 Etage → Etagenzuschuss Pflicht
-  if (state.floors.length > 1) {
-    floorSurchargeCheckbox.checked = true;
-    floorSurchargeCheckbox.disabled = true;
-  } else {
-    floorSurchargeCheckbox.disabled = false;
+  // Fräsen + beheizte Fläche außerhalb Erdgeschoss → Etagenzuschuss Pflicht
+  if (floorSurchargeCheckbox) {
+    if (isMillingSelected && hasNonGroundFloorWithHeatedRooms()) {
+      floorSurchargeCheckbox.checked = true;
+      floorSurchargeCheckbox.disabled = true;
+    } else {
+      floorSurchargeCheckbox.checked = false;
+      floorSurchargeCheckbox.disabled = false;
+    }
   }
 }
 
@@ -1493,6 +1525,37 @@ function calculateProducts() {
   const heatedRoomCount = getHeatedRoomCount();
   const totalAreaAllRooms = getTotalAreaAllRooms();
   const totalAreaHeatedRooms = getTotalAreaHeatedRooms();
+
+  const millingEntries = Array.from(millingSystemCheckboxes)
+    .filter((checkbox) => checkbox.checked)
+    .map((checkbox) => checkbox.value);
+
+  const millingSelected = millingEntries.includes('Fräsen');
+  const millingDisposalSelected = millingEntries.includes('Entsorgungspauschale');
+  const millingSealingSelected = millingEntries.includes('Versiegelungspauschale');
+
+  if (millingSelected) {
+    // Fräsen nach beheizter Fläche
+    addArticle(products, 'H54NO010001', totalAreaHeatedRooms);
+
+    // Baustelleneinrichtung einmalig
+    addArticle(products, 'H54NO600001', 1);
+
+    // Etagenzuschuss einmalig, sobald eine beheizte Etage nicht Erdgeschoss ist
+    if (hasNonGroundFloorWithHeatedRooms()) {
+      addArticle(products, 'H54NO600501', 1);
+    }
+
+    // Entsorgungspauschale einmalig
+    if (millingDisposalSelected) {
+      addArticle(products, 'H54NO601001', 1);
+    }
+
+    // Versiegelungspauschale nach beheizter Fläche
+    if (millingSealingSelected) {
+      addArticle(products, 'H54NO601501', totalAreaHeatedRooms);
+    }
+  }
 
   // Zusatzdämmung Berechnung 36–50
   if (state.extraInsulationEnabled === 'ja') {
