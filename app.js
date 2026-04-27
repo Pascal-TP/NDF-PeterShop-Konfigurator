@@ -1318,6 +1318,29 @@ const UPONOR_TACKER_ARTICLES = [
   }
 ];
 
+const EXTRA_INSULATION_ARTICLES = [
+  // EPS DEO / WLG 035
+  { material: 'EPS DEO', wlg: '035', thickness: '20 mm', articleNumber: 'H54NO200001' },
+  { material: 'EPS DEO', wlg: '035', thickness: '30 mm', articleNumber: 'H54NO200501' },
+  { material: 'EPS DEO', wlg: '035', thickness: '40 mm', articleNumber: 'H54NO201001' },
+  { material: 'EPS DEO', wlg: '035', thickness: '50 mm', articleNumber: 'H54NO201501' },
+  { material: 'EPS DEO', wlg: '035', thickness: '60 mm', articleNumber: 'H54NO202001' },
+
+  // EPS DEO / WLG 032
+  { material: 'EPS DEO', wlg: '032', thickness: '20 mm', articleNumber: 'H54NO202501' },
+  { material: 'EPS DEO', wlg: '032', thickness: '30 mm', articleNumber: 'H54NO203001' },
+  { material: 'EPS DEO', wlg: '032', thickness: '40 mm', articleNumber: 'H54NO203501' },
+  { material: 'EPS DEO', wlg: '032', thickness: '50 mm', articleNumber: 'H54NO204001' },
+  { material: 'EPS DEO', wlg: '032', thickness: '60 mm', articleNumber: 'H54NO204501' },
+
+  // PUR / WLG 023/024
+  { material: 'PUR', wlg: '023/024', thickness: '20 mm', articleNumber: 'H54NO205001' },
+  { material: 'PUR', wlg: '023/024', thickness: '30 mm', articleNumber: 'H54NO205501' },
+  { material: 'PUR', wlg: '023/024', thickness: '40 mm', articleNumber: 'H54NO206001' },
+  { material: 'PUR', wlg: '023/024', thickness: '50 mm', articleNumber: 'H54NO206501' },
+  { material: 'PUR', wlg: '023/024', thickness: '60 mm', articleNumber: 'H54NO207001' }
+];
+
 function getHeatedAreaForFloor(floor) {
   return floor.rooms.reduce((sum, room) => {
     const isRelevantRoom = room.function === 'Wohnraum' || room.function === 'Bad';
@@ -1470,6 +1493,19 @@ function calculateProducts() {
   const heatedRoomCount = getHeatedRoomCount();
   const totalAreaAllRooms = getTotalAreaAllRooms();
   const totalAreaHeatedRooms = getTotalAreaHeatedRooms();
+
+  // Zusatzdämmung Berechnung 36–50
+  if (state.extraInsulationEnabled === 'ja') {
+    const extraInsulationRule = EXTRA_INSULATION_ARTICLES.find(rule =>
+      rule.material === getCheckedValue('extraInsulation') &&
+      rule.wlg === getCheckedValue('extraInsulationWlg') &&
+      rule.thickness === getCheckedValue('extraInsulationThickness')
+    );
+
+    if (extraInsulationRule) {
+      addArticle(products, extraInsulationRule.articleNumber, totalAreaAllRooms);
+    }
+  }
 
   // Thermostate
   if (state.thermostatEnabled === 'ja' && state.thermostat === 'Analog') {
