@@ -90,6 +90,10 @@ const distributionFloorSelect = document.getElementById('distributionFloorSelect
 const distributionRoomSelect = document.getElementById('distributionRoomSelect');
 const assignDistributionBtn = document.getElementById('assignDistributionBtn');
 const assignDistributionNoneBtn = document.getElementById('assignDistributionNoneBtn');
+const extraInsulationFloorSelect = document.getElementById('extraInsulationFloorSelect');
+const extraInsulationRoomSelect = document.getElementById('extraInsulationRoomSelect');
+const assignExtraInsulationBtn = document.getElementById('assignExtraInsulationBtn');
+const assignExtraInsulationNoneBtn = document.getElementById('assignExtraInsulationNoneBtn');
 
 const appModal = document.getElementById('appModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -624,6 +628,7 @@ function showStep(step) {
   const isSystemStep = state.currentStep === 5;
   const isThermostatStep = state.currentStep === 6;
   const isDistributionStep = state.currentStep === 7;
+  const isExtraInsulationStep = state.currentStep === 8;
 
   assignFloorSystemBtn.classList.toggle('hidden', !isSystemStep);
 
@@ -643,6 +648,14 @@ function showStep(step) {
     assignDistributionNoneBtn.classList.toggle('hidden', !isDistributionStep || state.distributionEnabled !== 'ja');
   }
 
+  if (assignExtraInsulationBtn) {
+    assignExtraInsulationBtn.classList.toggle('hidden', !isExtraInsulationStep || state.extraInsulationEnabled !== 'ja');
+  }
+
+  if (assignExtraInsulationNoneBtn) {
+    assignExtraInsulationNoneBtn.classList.toggle('hidden', !isExtraInsulationStep || state.extraInsulationEnabled !== 'ja');
+  }
+
   if (stepHint) {
     stepHint.classList.toggle('hidden', !isSystemStep);
   }
@@ -659,6 +672,11 @@ function showStep(step) {
   if (isDistributionStep) {
     renderDistributionFloorSelect();
     updateAssignDistributionButton();
+  }
+
+  if (isExtraInsulationStep) {
+    renderExtraInsulationFloorSelect();
+    updateAssignExtraInsulationButton();
   }
 
   scrollToTop();
@@ -716,6 +734,18 @@ function canProceedToNextStep() {
 
     if (state.distributionEnabled === 'ja') {
       return hasAnyDistributionAssignment();
+    }
+
+    return false;
+  }
+
+  if (state.currentStep === 8) {
+    if (state.extraInsulationEnabled === 'nein') {
+      return true;
+    }
+
+    if (state.extraInsulationEnabled === 'ja') {
+      return hasAnyExtraInsulationAssignment();
     }
 
     return false;
@@ -1167,6 +1197,200 @@ function getManualDistributionEntries() {
   });
 
   return entries;
+}
+
+function getSelectedExtraInsulationRoom() {
+  const floorIndex = Number(extraInsulationFloorSelect.value || 0);
+  const roomIndex = Number(extraInsulationRoomSelect.value || 0);
+
+  return state.floors[floorIndex]?.rooms[roomIndex] || null;
+}
+
+function hasAnyExtraInsulationAssignment() {
+  return state.floors.some((floor) => {
+    return floor.rooms.some((room) => {
+      return roomIsHeated(room) && !!room.assignments?.extraInsulation;
+    });
+  });
+}
+
+function renderExtraInsulationFloorSelect() {
+  if (!extraInsulationFloorSelect || !extraInsulationRoomSelect) return;
+
+  extraInsulationFloorSelect.innerHTML = state.floors.map((floor, index) => {
+    const label = getFloorLabel(floor, index);
+    const heatedRooms = floor.rooms.filter(roomIsHeated);
+    const assignedRooms = heatedRooms.filter(room => room.assignments?.extraInsulation).length;
+    const check = heatedRooms.length > 0 && assignedRooms === heatedRooms.length ? ' ✅' : '';
+
+    return `<option value="${index}">${label}${check}</option>`;
+  }).join('');
+
+  extraInsulationFloorSelect.value = extraInsulationFloorSelect.value || '0';
+
+  renderExtraInsulationRoomSelect();
+}
+
+function renderExtraInsulationRoomSelect() {
+  if (!extraInsulationFloorSelect || !extraInsulationRoomSelect) return;
+
+  const floorIndex = Number(extraInsulationFloorSelect.value || 0);
+  const floor = state.floors[floorIndex];
+
+  if (!floor) return;
+
+  extraInsulationRoomSelect.innerHTML = floor.rooms.map((room, index) => {
+    const label = getRoomLabel(room, index);
+    const functionText = room.function || 'ohne Funktion';
+    const check = room.assignments?.extraInsulation ? ' ✅' : '';
+    const disabledText = roomIsHeated(room) ? '' : ' (unbeheizt)';
+
+    return `<option value="${index}">${label} / ${functionText}${disabledText}${check}</option>`;
+  }).join('');
+
+  extraInsulationRoomSelect.value = extraInsulationRoomSelect.value || '0';
+
+  setExtraInsulationSelection(getSelectedExtraInsulationRoom()?.assignments?.extraInsulation || null);
+  updateAssignExtraInsulationButton();
+}
+
+function clearExtraInsulationSelection() {
+  document.querySelectorAll('input[name="extraInsulation"], input[name="extraInsulationWlg"], input[name="extraInsulationThickness"]').forEach((input) => {
+    input.checked = false;
+  });
+}
+
+function getCurrentExtraInsulationSelection() {
+  const material = getCheckedValue('extraInsulation');
+  const wlg = getCheckedValue('extraInsulationWlg');
+  const thickness = getCheckedValue('extraInsulationThickness');
+
+  if (!material || !wlg || !thickness) return null;
+
+  return {
+    material,
+    wlg,
+    thickness
+  };
+}
+
+function setExtraInsulationSelection(selection) {
+  clearExtraInsulationSelection();
+
+  if (!selection) {
+    updateAssignExtraInsulationButton();
+    return;
+  }
+
+  if (selection.none) {
+    updateAssignExtraInsulationButton();
+    return;
+  }
+
+  const values = {
+    extraInsulation: selection.material,
+    extraInsulationWlg: selection.wlg,
+    extraInsulationThickness: selection.thickness
+  };
+
+  Object.entries(values).forEach(([name, value]) => {
+    const input = document.querySelector(`input[name="${name}"][value="${value}"]`);
+    if (input) input.checked = true;
+  });
+
+  updateAssignExtraInsulationButton();
+}
+
+function updateAssignExtraInsulationButton() {
+  if (!assignExtraInsulationBtn || !assignExtraInsulationNoneBtn) return;
+
+  const room = getSelectedExtraInsulationRoom();
+
+  if (state.extraInsulationEnabled !== 'ja') {
+    assignExtraInsulationBtn.classList.add('hidden');
+    assignExtraInsulationNoneBtn.classList.add('hidden');
+    return;
+  }
+
+  assignExtraInsulationBtn.classList.remove('hidden');
+  assignExtraInsulationNoneBtn.classList.remove('hidden');
+
+  if (!room || !roomIsHeated(room)) {
+    assignExtraInsulationBtn.disabled = true;
+    assignExtraInsulationNoneBtn.disabled = true;
+    return;
+  }
+
+  const selection = getCurrentExtraInsulationSelection();
+
+  assignExtraInsulationBtn.disabled = !selection;
+  assignExtraInsulationNoneBtn.disabled = false;
+
+  assignExtraInsulationBtn.textContent = room.assignments?.extraInsulation && !room.assignments.extraInsulation.none
+    ? 'Zusatzdämmung des Raumes aktualisieren'
+    : 'Zusatzdämmung dem Raum zuweisen';
+
+  assignExtraInsulationNoneBtn.textContent = room.assignments?.extraInsulation?.none
+    ? 'Nicht erforderlich (gesetzt)'
+    : 'Nicht für diesen Raum erforderlich';
+}
+
+async function assignExtraInsulationToRoom() {
+  const room = getSelectedExtraInsulationRoom();
+
+  if (!room) return;
+
+  if (!roomIsHeated(room)) {
+    await showAppModal({
+      title: 'Hinweis',
+      message: 'Dieser Raum ist unbeheizt und benötigt keine Zusatzdämmung-Zuweisung.',
+      confirmText: 'OK'
+    });
+    return;
+  }
+
+  const selection = getCurrentExtraInsulationSelection();
+
+  if (!selection) {
+    await showAppModal({
+      title: 'Auswahl unvollständig',
+      message: 'Bitte wählen Sie Material, Wärmeleitgruppe und Dicke der Zusatzdämmung aus.',
+      confirmText: 'OK'
+    });
+    return;
+  }
+
+  room.assignments.extraInsulation = selection;
+
+  await showAppModal({
+    title: 'Gespeichert',
+    message: `Die Zusatzdämmung wurde dem Raum "${getRoomLabel(room, Number(extraInsulationRoomSelect.value))}" zugewiesen.`,
+    confirmText: 'OK'
+  });
+
+  renderExtraInsulationFloorSelect();
+  updateAssignExtraInsulationButton();
+  updateSummary();
+}
+
+async function assignExtraInsulationNoneToRoom() {
+  const room = getSelectedExtraInsulationRoom();
+
+  if (!room) return;
+
+  room.assignments.extraInsulation = { none: true };
+
+  clearExtraInsulationSelection();
+
+  await showAppModal({
+    title: 'Gespeichert',
+    message: `Für den Raum "${getRoomLabel(room, Number(extraInsulationRoomSelect.value))}" wurde keine Zusatzdämmung hinterlegt.`,
+    confirmText: 'OK'
+  });
+
+  renderExtraInsulationFloorSelect();
+  updateAssignExtraInsulationButton();
+  updateSummary();
 }
 
 function getRegulationEntries() {
@@ -2230,17 +2454,28 @@ function calculateProducts() {
     }
   }
 
-  // Zusatzdämmung Berechnung 36–50
+  // Zusatzdämmung Berechnung 36–50, jetzt raumbezogen
   if (state.extraInsulationEnabled === 'ja') {
-    const extraInsulationRule = EXTRA_INSULATION_ARTICLES.find(rule =>
-      rule.material === getCheckedValue('extraInsulation') &&
-      rule.wlg === getCheckedValue('extraInsulationWlg') &&
-      rule.thickness === getCheckedValue('extraInsulationThickness')
-    );
+    state.floors.forEach((floor) => {
+      floor.rooms.forEach((room) => {
+        const extra = room.assignments?.extraInsulation;
 
-    if (extraInsulationRule) {
-      addArticle(products, extraInsulationRule.articleNumber, totalAreaAllRooms);
-    }
+        if (!extra || extra.none) return;
+
+        const area = getHeatedAreaForRoom(room);
+        if (area <= 0) return;
+
+        const rule = EXTRA_INSULATION_ARTICLES.find(article =>
+          article.material === extra.material &&
+          article.wlg === extra.wlg &&
+          article.thickness === extra.thickness
+        );
+
+        if (rule) {
+          addArticle(products, rule.articleNumber, area);
+        }
+      });
+    });
   }
 
   // Thermostate
@@ -3129,6 +3364,38 @@ if (distributionRoomSelect) {
     updateSummary();
   });
 }
+
+if (extraInsulationFloorSelect) {
+  extraInsulationFloorSelect.addEventListener('change', () => {
+    extraInsulationRoomSelect.value = '0';
+    renderExtraInsulationRoomSelect();
+    updateSummary();
+  });
+}
+
+if (extraInsulationRoomSelect) {
+  extraInsulationRoomSelect.addEventListener('change', () => {
+    const room = getSelectedExtraInsulationRoom();
+    setExtraInsulationSelection(room?.assignments?.extraInsulation || null);
+    updateAssignExtraInsulationButton();
+    updateSummary();
+  });
+}
+
+if (assignExtraInsulationBtn) {
+  assignExtraInsulationBtn.addEventListener('click', assignExtraInsulationToRoom);
+}
+
+if (assignExtraInsulationNoneBtn) {
+  assignExtraInsulationNoneBtn.addEventListener('click', assignExtraInsulationNoneToRoom);
+}
+
+document.querySelectorAll('input[name="extraInsulation"], input[name="extraInsulationWlg"], input[name="extraInsulationThickness"]').forEach((input) => {
+  input.addEventListener('change', () => {
+    updateAssignExtraInsulationButton();
+    updateSummary();
+  });
+});
 
 if (assignDistributionBtn) {
   assignDistributionBtn.addEventListener('click', assignDistributionToRoom);
