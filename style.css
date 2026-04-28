@@ -939,3 +939,31 @@ td {
   padding-top: 6px;
   border-top: 1px dashed #cbd5e1;
 }
+
+.summary-floor-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.summary-floor-tab {
+  border: 1px solid #dbe3ea;
+  background: #f8fafc;
+  color: var(--primary);
+  padding: 6px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.summary-floor-tab.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.summary-floor-tab:hover {
+  transform: none;
+}
