@@ -85,6 +85,7 @@ const stepHint = document.getElementById('stepHint');
 const thermostatFloorSelect = document.getElementById('thermostatFloorSelect');
 const thermostatRoomSelect = document.getElementById('thermostatRoomSelect');
 const assignThermostatBtn = document.getElementById('assignThermostatBtn');
+const assignThermostatNoneBtn = document.getElementById('assignThermostatNoneBtn');
 const distributionFloorSelect = document.getElementById('distributionFloorSelect');
 const distributionRoomSelect = document.getElementById('distributionRoomSelect');
 const assignDistributionBtn = document.getElementById('assignDistributionBtn');
@@ -185,14 +186,6 @@ function allHeatedRoomsHaveSystemAssignment() {
     return floor.rooms.every((room) => {
       if (!roomIsHeated(room)) return true;
       return !!room.assignments?.system;
-    });
-  });
-}
-
-function hasAnyThermostatAssignment() {
-  return state.floors.some((floor) => {
-    return floor.rooms.some((room) => {
-      return roomIsHeated(room) && !!room.assignments?.thermostat;
     });
   });
 }
@@ -402,27 +395,35 @@ function getCurrentThermostatSelection() {
 }
 
 function updateAssignThermostatButton() {
-  if (!assignThermostatBtn) return;
+  if (!assignThermostatBtn || !assignThermostatNoneBtn) return;
 
   const room = getSelectedThermostatRoom();
 
   if (state.thermostatEnabled !== 'ja') {
     assignThermostatBtn.classList.add('hidden');
+    assignThermostatNoneBtn.classList.add('hidden');
     return;
   }
 
   assignThermostatBtn.classList.remove('hidden');
+  assignThermostatNoneBtn.classList.remove('hidden');
 
   if (!room || !roomIsHeated(room)) {
     assignThermostatBtn.disabled = true;
-    assignThermostatBtn.textContent = 'Raum benötigt keine Zuweisung';
+    assignThermostatNoneBtn.disabled = true;
     return;
   }
 
-  assignThermostatBtn.disabled = !getCurrentThermostatSelection();
-  assignThermostatBtn.textContent = room.assignments?.thermostat
-    ? 'Thermostat des Raumes aktualisieren'
-    : 'Thermostat dem Raum zuweisen';
+  const selection = getCurrentThermostatSelection();
+
+  assignThermostatBtn.disabled = !selection;
+  assignThermostatNoneBtn.disabled = false;
+
+  if (room.assignments?.thermostat?.none) {
+    assignThermostatNoneBtn.textContent = 'Nicht erforderlich (gesetzt)';
+  } else {
+    assignThermostatNoneBtn.textContent = 'Für diesen Raum nicht erforderlich';
+  }
 }
 
 function currentSystemSelectionIsComplete() {
@@ -2233,7 +2234,7 @@ function calculateProducts() {
   state.floors.forEach((floor) => {
     floor.rooms.forEach((room) => {
       const thermo = room.assignments?.thermostat;
-      if (!thermo) return;
+if (!thermo || thermo.none) return;
 
       if (thermo.analog > 0) {
         addArticle(products, '100BIE021', thermo.analog);
@@ -2465,6 +2466,22 @@ async function assignThermostatToRoom() {
   await showAppModal({
     title: 'Gespeichert',
     message: `Das Thermostat wurde dem Raum "${getRoomLabel(room, Number(thermostatRoomSelect.value))}" zugewiesen.`,
+    confirmText: 'OK'
+  });
+
+  renderThermostatFloorSelect();
+  updateSummary();
+}
+
+async function assignThermostatNoneToRoom() {
+  const room = getSelectedThermostatRoom();
+  if (!room) return;
+
+  room.assignments.thermostat = { none: true };
+
+  await showAppModal({
+    title: 'Gespeichert',
+    message: `Für den Raum "${getRoomLabel(room, Number(thermostatRoomSelect.value))}" wurde kein Thermostat hinterlegt.`,
     confirmText: 'OK'
   });
 
@@ -3060,6 +3077,10 @@ if (distributionRoomSelect) {
 
 if (assignDistributionBtn) {
   assignDistributionBtn.addEventListener('click', assignDistributionToRoom);
+}
+
+if (assignThermostatNoneBtn) {
+  assignThermostatNoneBtn.addEventListener('click', assignThermostatNoneToRoom);
 }
 
 distributionTypeFields.forEach((field) => {
