@@ -421,7 +421,6 @@ function createRoom() {
 
 function resetFromProjectTypeForward() {
   state.heatSource = '';
-  state.thermostat = '';
   state.thermostatEnabled = '';
   state.extraInsulationEnabled = '';
   state.distributionMode = '';
@@ -1786,134 +1785,146 @@ function getHeatedAreaForFloorBySpacing(floor, spacing) {
   }, 0);
 }
 
+function getHeatedAreaForRoom(room) {
+  if (!roomIsHeated(room)) return 0;
+
+  return Number(String(room.area).replace(',', '.')) || 0;
+}
+
+function roomHasSpacing(room, spacing) {
+  return roomIsHeated(room) && room.spacing === spacing;
+}
+
 function calculateProducts() {
   const products = [];
 
   state.floors.forEach((floor) => {
-    if (!floorHasHeatedRooms(floor)) return;
+    floor.rooms.forEach((room) => {
+      if (!roomIsHeated(room)) return;
 
-    const selection = floor.systemAssignment;
-    if (!selection) return;
+      const selection = room.assignments?.system;
+      if (!selection) return;
 
-    const addon = selection.systemAddon || '';
-    const heatedArea = getHeatedAreaForFloor(floor);
-    const heatedAreaVa100 = getHeatedAreaForFloorBySpacing(floor, 'VA 100');
+      const addon = selection.systemAddon || '';
+      const heatedArea = getHeatedAreaForRoom(room);
+      const heatedAreaVa100 = roomHasSpacing(room, 'VA 100') ? heatedArea : 0;
 
-    // Berechnung 14: Sanierung + Klett 3mm
-    if (
-      state.projectType === 'sanierung' &&
-      selection.system === 'Klett 3mm'
-    ) {
-      addArticle(products, 'H54NO020001', heatedArea);
-    }
+      // Berechnung 14: Sanierung + Klett 3mm
+      if (
+        state.projectType === 'sanierung' &&
+        selection.system === 'Klett 3mm'
+      ) {
+        addArticle(products, 'H54NO020001', heatedArea);
+      }
 
-    // Berechnung 15: Neubau + Uponor + Klett
-    if (
-      state.projectType === 'neubau' &&
-      state.brand === 'uponor' &&
-      selection.system === 'Klett' &&
-      selection.wlg === '040' &&
-      selection.insulationThickness === '30-2 mm' &&
-      selection.pipeType === 'PE-Xa'
-    ) {
-      addArticle(products, '100BIE031', heatedArea);
-    }
+      // Berechnung 15: Neubau + Uponor + Klett
+      if (
+        state.projectType === 'neubau' &&
+        state.brand === 'uponor' &&
+        selection.system === 'Klett' &&
+        selection.wlg === '040' &&
+        selection.insulationThickness === '30-2 mm' &&
+        selection.pipeType === 'PE-Xa'
+      ) {
+        addArticle(products, '100BIE031', heatedArea);
+      }
 
-    if (
-      state.projectType === 'neubau' &&
-      state.brand === 'handelsmarke'
-    ) {
-      const baseRule = BASE_SYSTEM_ARTICLES.find(rule =>
-        rule.wlg === selection.wlg &&
-        rule.insulationThickness === selection.insulationThickness
-      );
+      if (
+        state.projectType === 'neubau' &&
+        state.brand === 'handelsmarke'
+      ) {
+        const baseRule = BASE_SYSTEM_ARTICLES.find(rule =>
+          rule.wlg === selection.wlg &&
+          rule.insulationThickness === selection.insulationThickness
+        );
 
-      if (selection.system === 'Tacker' && baseRule) {
-        // Standard: PE-RT ist im Grundartikel enthalten.
-        // Wenn ein anderes Rohr gewählt wurde, bleibt der Grundartikel trotzdem bestehen,
-        // zusätzlich kommt der Rohr-Aufpreis dazu.
-        if (addon === SYSTEM_FLIPFIX) {
-          addArticle(products, '100BIE032', heatedArea);
-        } else if (addon === SYSTEM_PIPE_ONLY) {
-          addArticle(products, '100BIE033', heatedArea);
-        } else {
-          addArticle(products, baseRule.articleNumber, heatedArea);
-        }
+        if (selection.system === 'Tacker' && baseRule) {
+          // Standard: PE-RT ist im Grundartikel enthalten.
+          // Wenn ein anderes Rohr gewählt wurde, bleibt der Grundartikel trotzdem bestehen,
+          // zusätzlich kommt der Rohr-Aufpreis dazu.
+          if (addon === SYSTEM_FLIPFIX) {
+            addArticle(products, '100BIE032', heatedArea);
+          } else if (addon === SYSTEM_PIPE_ONLY) {
+            addArticle(products, '100BIE033', heatedArea);
+          } else {
+            addArticle(products, baseRule.articleNumber, heatedArea);
+          }
 
-        if (selection.pipeType === 'PE-Xc' || selection.pipeType === 'PE-Xa') {
-          addArticle(products, 'H54NO500001', heatedArea);
-        }
+          if (selection.pipeType === 'PE-Xc' || selection.pipeType === 'PE-Xa') {
+            addArticle(products, 'H54NO500001', heatedArea);
+          }
 
-        if (selection.pipeType === 'Alu-Verbund') {
-          addArticle(products, 'H54NO500501', heatedArea);
-        }
+          if (selection.pipeType === 'Alu-Verbund') {
+            addArticle(products, 'H54NO500501', heatedArea);
+          }
 
-        if (heatedAreaVa100 > 0) {
-          addArticle(products, 'H54NO501501', heatedAreaVa100);
+          if (heatedAreaVa100 > 0) {
+            addArticle(products, 'H54NO501501', heatedAreaVa100);
+          }
         }
       }
-    }
 
-    if (
-      state.projectType === 'neubau' &&
-      state.brand === 'roth'
-    ) {
-      const rothRule = ROTH_SYSTEM_ARTICLES.find(rule =>
-        rule.wlg === selection.wlg &&
-        rule.insulationThickness === selection.insulationThickness
-      );
+      if (
+        state.projectType === 'neubau' &&
+        state.brand === 'roth'
+      ) {
+        const rothRule = ROTH_SYSTEM_ARTICLES.find(rule =>
+          rule.wlg === selection.wlg &&
+          rule.insulationThickness === selection.insulationThickness
+        );
 
-      if (selection.system === 'Tacker' && rothRule) {
-        if (addon === SYSTEM_FLIPFIX) {
-          addArticle(products, '100BHW045', heatedArea);
-        } else if (addon === SYSTEM_PIPE_ONLY) {
-          addArticle(products, '100BHW050', heatedArea);
-        } else {
-          addArticle(products, rothRule.articleNumber, heatedArea);
-        }
+        if (selection.system === 'Tacker' && rothRule) {
+          if (addon === SYSTEM_FLIPFIX) {
+            addArticle(products, '100BHW045', heatedArea);
+          } else if (addon === SYSTEM_PIPE_ONLY) {
+            addArticle(products, '100BHW050', heatedArea);
+          } else {
+            addArticle(products, rothRule.articleNumber, heatedArea);
+          }
 
-        if (selection.pipeType === 'X-PERT S5+') {
-          addArticle(products, '100BHW051', heatedArea);
-        }
+          if (selection.pipeType === 'X-PERT S5+') {
+            addArticle(products, '100BHW051', heatedArea);
+          }
 
-        if (selection.pipeType === 'DUOPEX S5') {
-          addArticle(products, '100BHW052', heatedArea);
-        }
+          if (selection.pipeType === 'DUOPEX S5') {
+            addArticle(products, '100BHW052', heatedArea);
+          }
 
-        if (heatedAreaVa100 > 0) {
-          addArticle(products, '100BHW053', heatedAreaVa100);
-        }
-      }
-    }
-    if (
-      state.projectType === 'neubau' &&
-      state.brand === 'uponor'
-    ) {
-      const uponorRule = UPONOR_TACKER_ARTICLES.find(rule =>
-        rule.wlg === selection.wlg &&
-        rule.insulationThickness === selection.insulationThickness
-      );
-
-      if (selection.system === 'Tacker' && uponorRule) {
-        if (addon === SYSTEM_PIPE_ONLY) {
-          addArticle(products, '100BHW041', heatedArea);
-        } else {
-          addArticle(products, uponorRule.articleNumber, heatedArea);
-        }
-
-        if (selection.pipeType === 'MLCP Red Aluverbundrohr') {
-          addArticle(products, '100BHW042', heatedArea);
-        }
-
-        if (selection.pipeType === 'Comfort Pipe Plus Xa-Rohr') {
-          addArticle(products, '100BHW043', heatedArea);
-        }
-
-        if (heatedAreaVa100 > 0) {
-          addArticle(products, '100BHW044', heatedAreaVa100);
+          if (heatedAreaVa100 > 0) {
+            addArticle(products, '100BHW053', heatedAreaVa100);
+          }
         }
       }
-    }
+      if (
+        state.projectType === 'neubau' &&
+        state.brand === 'uponor'
+      ) {
+        const uponorRule = UPONOR_TACKER_ARTICLES.find(rule =>
+          rule.wlg === selection.wlg &&
+          rule.insulationThickness === selection.insulationThickness
+        );
+
+        if (selection.system === 'Tacker' && uponorRule) {
+          if (addon === SYSTEM_PIPE_ONLY) {
+            addArticle(products, '100BHW041', heatedArea);
+          } else {
+            addArticle(products, uponorRule.articleNumber, heatedArea);
+          }
+
+          if (selection.pipeType === 'MLCP Red Aluverbundrohr') {
+            addArticle(products, '100BHW042', heatedArea);
+          }
+
+          if (selection.pipeType === 'Comfort Pipe Plus Xa-Rohr') {
+            addArticle(products, '100BHW043', heatedArea);
+          }
+
+          if (heatedAreaVa100 > 0) {
+            addArticle(products, '100BHW044', heatedAreaVa100);
+          }
+        }
+      }
+    });
   });
 
   const heatedRoomCount = getHeatedRoomCount();
@@ -2060,13 +2071,20 @@ function calculateProducts() {
   }
 
   // Thermostate
-  if (state.thermostatEnabled === 'ja' && state.thermostat === 'Analog') {
-    addArticle(products, '100BIE021', heatedRoomCount);
-  }
+  state.floors.forEach((floor) => {
+    floor.rooms.forEach((room) => {
+      const thermo = room.assignments?.thermostat;
+      if (!thermo) return;
 
-  if (state.thermostatEnabled === 'ja' && state.thermostat === 'LCD') {
-    addArticle(products, '100BIE022', heatedRoomCount);
-  }
+      if (thermo.analog > 0) {
+        addArticle(products, '100BIE021', thermo.analog);
+      }
+
+      if (thermo.lcd > 0) {
+        addArticle(products, '100BIE022', thermo.lcd);
+      }
+    });
+  });
 
   // Dienstleistungen
   if (state.services.includes('Beratungspauschale')) {
@@ -2171,7 +2189,6 @@ function resetAllInputsAfterHandover() {
   state.projectType = '';
   state.brand = '';
   state.heatSource = '';
-  state.thermostat = '';
   state.thermostatEnabled = '';
   state.extraInsulationEnabled = '';
   state.distributionMode = '';
@@ -2251,6 +2268,35 @@ function getRelevantAreaForHeatingSystem() {
       return isRelevantRoom ? roomSum + area : roomSum;
     }, 0);
   }, 0);
+}
+
+function getThermostatQty(type) {
+  const input = document.querySelector(`.thermostat-qty[data-type="${type}"]`);
+  return Number(input?.value || 0);
+}
+
+function assignThermostatToRoom() {
+  const room = getSelectedSystemRoom();
+  if (!room) return;
+
+  const analogQty = getThermostatQty('analog');
+  const lcdQty = getThermostatQty('lcd');
+
+  if (analogQty <= 0 && lcdQty <= 0) {
+    showAppModal({
+      title: 'Hinweis',
+      message: 'Bitte mindestens eine Thermostat-Menge eingeben.',
+      confirmText: 'OK'
+    });
+    return;
+  }
+
+  room.assignments.thermostat = {
+    analog: analogQty,
+    lcd: lcdQty
+  };
+
+  updateSummary();
 }
 
 function updateFinalCheck() {
