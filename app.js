@@ -428,9 +428,13 @@ function updateAssignThermostatButton() {
     ? 'Thermostat des Raumes aktualisieren'
     : 'Thermostat dem Raum zuweisen';
 
-  assignThermostatNoneBtn.textContent = room.assignments?.thermostat?.none
-    ? 'Nicht erforderlich (gesetzt)'
-    : 'Nicht für diesen Raum erforderlich';
+  if (room.assignments?.thermostat?.none) {
+    assignThermostatNoneBtn.textContent = 'Nicht erforderlich (gesetzt)';
+    assignThermostatNoneBtn.classList.add('room-none-active');
+  } else {
+    assignThermostatNoneBtn.textContent = 'Nicht für diesen Raum erforderlich';
+    assignThermostatNoneBtn.classList.remove('room-none-active');
+  }
 }
 
 function currentSystemSelectionIsComplete() {
@@ -1330,9 +1334,13 @@ function updateAssignExtraInsulationButton() {
     ? 'Zusatzdämmung des Raumes aktualisieren'
     : 'Zusatzdämmung dem Raum zuweisen';
 
-  assignExtraInsulationNoneBtn.textContent = room.assignments?.extraInsulation?.none
-    ? 'Nicht erforderlich (gesetzt)'
-    : 'Nicht für diesen Raum erforderlich';
+  if (room.assignments?.extraInsulation?.none) {
+    assignExtraInsulationNoneBtn.textContent = 'Nicht erforderlich (gesetzt)';
+    assignExtraInsulationNoneBtn.classList.add('room-none-active');
+  } else {
+    assignExtraInsulationNoneBtn.textContent = 'Nicht für diesen Raum erforderlich';
+    assignExtraInsulationNoneBtn.classList.remove('room-none-active');
+  }
 }
 
 async function assignExtraInsulationToRoom() {
@@ -2936,9 +2944,13 @@ function updateAssignDistributionButton() {
     ? 'Verteilertechnik des Raumes aktualisieren'
     : 'Verteilertechnik dem Raum zuweisen';
 
-  assignDistributionNoneBtn.textContent = room.assignments?.distribution?.none
-    ? 'Nicht erforderlich (gesetzt)'
-    : 'Nicht für diesen Raum erforderlich';
+  if (room.assignments?.distribution?.none) {
+    assignDistributionNoneBtn.textContent = 'Nicht erforderlich (gesetzt)';
+    assignDistributionNoneBtn.classList.add('room-none-active');
+  } else {
+    assignDistributionNoneBtn.textContent = 'Nicht für diesen Raum erforderlich';
+    assignDistributionNoneBtn.classList.remove('room-none-active');
+  }
 }
 
 async function assignDistributionToRoom() {
