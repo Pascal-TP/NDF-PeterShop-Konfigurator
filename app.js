@@ -89,6 +89,7 @@ const assignThermostatNoneBtn = document.getElementById('assignThermostatNoneBtn
 const distributionFloorSelect = document.getElementById('distributionFloorSelect');
 const distributionRoomSelect = document.getElementById('distributionRoomSelect');
 const assignDistributionBtn = document.getElementById('assignDistributionBtn');
+const assignDistributionNoneBtn = document.getElementById('assignDistributionNoneBtn');
 
 const appModal = document.getElementById('appModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -419,11 +420,13 @@ function updateAssignThermostatButton() {
   assignThermostatBtn.disabled = !selection;
   assignThermostatNoneBtn.disabled = false;
 
-  if (room.assignments?.thermostat?.none) {
-    assignThermostatNoneBtn.textContent = 'Nicht erforderlich (gesetzt)';
-  } else {
-    assignThermostatNoneBtn.textContent = 'Für diesen Raum nicht erforderlich';
-  }
+  assignThermostatBtn.textContent = room.assignments?.thermostat && !room.assignments.thermostat.none
+    ? 'Thermostat des Raumes aktualisieren'
+    : 'Thermostat dem Raum zuweisen';
+
+  assignThermostatNoneBtn.textContent = room.assignments?.thermostat?.none
+    ? 'Nicht erforderlich (gesetzt)'
+    : 'Nicht für diesen Raum erforderlich';
 }
 
 function currentSystemSelectionIsComplete() {
@@ -634,6 +637,10 @@ function showStep(step) {
 
   if (assignDistributionBtn) {
     assignDistributionBtn.classList.toggle('hidden', !isDistributionStep || state.distributionEnabled !== 'ja');
+  }
+
+  if (assignDistributionNoneBtn) {
+    assignDistributionNoneBtn.classList.toggle('hidden', !isDistributionStep || state.distributionEnabled !== 'ja');
   }
 
   if (stepHint) {
@@ -2102,59 +2109,61 @@ function calculateProducts() {
     addArticle(products, '100BIE016', 1);
   }
 
-  // Verteilertechnik Berechnung 70–91
+  // Verteilertechnik Berechnung 70–95, jetzt raumbezogen
   if (state.distributionEnabled === 'ja') {
-    const cabinetMounting = getCheckedValue('cabinetMounting');
+    state.floors.forEach((floor) => {
+      floor.rooms.forEach((room) => {
+        const distribution = room.assignments?.distribution;
 
-    distributionTypeFields.forEach((typeField, index) => {
-      const typeValue = typeField.value;
-      const qtyValue = Number(distributionQtyFields[index]?.value || 0);
+        if (!distribution || distribution.none) return;
 
-      if (!typeValue || qtyValue <= 0) return;
+        const cabinetMounting = distribution.cabinetMounting;
+        const voltage = distribution.regulationVoltage;
 
-      const rule = DISTRIBUTION_ARTICLES[typeValue];
-      if (!rule) return;
+        // Verteiler + Schrank
+        distribution.distributionRows?.forEach((row) => {
+          const rule = DISTRIBUTION_ARTICLES[row.type];
+          const qtyValue = Number(row.quantity || 0);
 
-      addArticle(products, rule.base, qtyValue);
+          if (!rule || qtyValue <= 0) return;
 
-      if (cabinetMounting === 'Aufputz') {
-        addArticle(products, rule.aufputz, qtyValue);
-      }
+          addArticle(products, rule.base, qtyValue);
 
-      if (cabinetMounting === 'Unterputz') {
-        addArticle(products, rule.unterputz, qtyValue);
-      }
-    });
+          if (cabinetMounting === 'Aufputz') {
+            addArticle(products, rule.aufputz, qtyValue);
+          }
 
-    // Regeltechnik Berechnung 92–95
-    const voltage = getCheckedValue('regulationVoltage');
+          if (cabinetMounting === 'Unterputz') {
+            addArticle(products, rule.unterputz, qtyValue);
+          }
+        });
 
-    regulationCheckboxes.forEach((checkbox, index) => {
-      if (!checkbox.checked) return;
+        // Regeltechnik
+        distribution.regulationRows?.forEach((row) => {
+          const qtyValue = Number(row.quantity || 0);
+          const label = row.label;
 
-      const qtyValue = Number(regulationQtyFields[index]?.value || 0);
-      if (qtyValue <= 0) return;
+          if (qtyValue <= 0) return;
 
-      const label = checkbox.dataset.label;
+          if (label === 'Regelklemmleiste bis zu 6 Zonen') {
+            addArticle(products, REGULATION_ARTICLES['Regelklemmleiste bis zu 6 Zonen'], qtyValue);
+          }
 
-      if (label === 'Regelklemmleiste bis zu 6 Zonen') {
-        addArticle(products, REGULATION_ARTICLES['Regelklemmleiste bis zu 6 Zonen'], qtyValue);
-      }
+          if (label === 'Regelklemmleiste bis zu 10 Zonen' && voltage === '230V AC') {
+            addArticle(products, REGULATION_ARTICLES['Regelklemmleiste bis zu 10 Zonen'], qtyValue);
+          }
 
-      if (label === 'Regelklemmleiste bis zu 10 Zonen' && voltage === '230V AC') {
-        addArticle(products, REGULATION_ARTICLES['Regelklemmleiste bis zu 10 Zonen'], qtyValue);
-      }
+          if (label === 'Stellantrieb Premium' && voltage === '24V DC') {
+            addArticle(products, REGULATION_ARTICLES['Stellantrieb Premium 24V DC'], qtyValue);
+          }
 
-      if (label === 'Stellantrieb Premium' && voltage === '24V DC') {
-        addArticle(products, REGULATION_ARTICLES['Stellantrieb Premium 24V DC'], qtyValue);
-      }
-
-      if (label === 'Stellantrieb Premium' && voltage === '230V AC') {
-        addArticle(products, REGULATION_ARTICLES['Stellantrieb Premium 230V AC'], qtyValue);
-      }
+          if (label === 'Stellantrieb Premium' && voltage === '230V AC') {
+            addArticle(products, REGULATION_ARTICLES['Stellantrieb Premium 230V AC'], qtyValue);
+          }
+        });
+      });
     });
   }
-
   // Estrich Berechnung 58–64
   getEstrichRangeEntries().forEach((entry) => {
     const estrichRule = ESTRICH_RANGE_ARTICLES.find(rule => rule.value === entry);
@@ -2239,6 +2248,8 @@ function calculateProducts() {
     floor.rooms.forEach((room) => {
       const thermo = room.assignments?.thermostat;
       if (!thermo || thermo.none) return;
+      const distribution = room.assignments?.distribution;
+      if (!distribution || distribution.none) return;
 
       if (thermo.analog > 0) {
         addArticle(products, '100BIE021', thermo.analog);
@@ -2624,6 +2635,12 @@ function setDistributionSelection(selection) {
     return;
   }
 
+  if (selection.none) {
+    syncRegulationRules();
+    updateAssignDistributionButton();
+    return;
+  }
+
   if (selection.cabinetMounting) {
     const input = document.querySelector(`input[name="cabinetMounting"][value="${selection.cabinetMounting}"]`);
     if (input) input.checked = true;
@@ -2656,27 +2673,37 @@ function setDistributionSelection(selection) {
 }
 
 function updateAssignDistributionButton() {
-  if (!assignDistributionBtn) return;
+  if (!assignDistributionBtn || !assignDistributionNoneBtn) return;
 
   const room = getSelectedDistributionRoom();
 
   if (state.distributionEnabled !== 'ja') {
     assignDistributionBtn.classList.add('hidden');
+    assignDistributionNoneBtn.classList.add('hidden');
     return;
   }
 
   assignDistributionBtn.classList.remove('hidden');
+  assignDistributionNoneBtn.classList.remove('hidden');
 
   if (!room || !roomIsHeated(room)) {
     assignDistributionBtn.disabled = true;
-    assignDistributionBtn.textContent = 'Raum benötigt keine Zuweisung';
+    assignDistributionNoneBtn.disabled = true;
     return;
   }
 
-  assignDistributionBtn.disabled = !getCurrentDistributionSelection();
-  assignDistributionBtn.textContent = room.assignments?.distribution
+  const selection = getCurrentDistributionSelection();
+
+  assignDistributionBtn.disabled = !selection;
+  assignDistributionNoneBtn.disabled = false;
+
+  assignDistributionBtn.textContent = room.assignments?.distribution && !room.assignments.distribution.none
     ? 'Verteilertechnik des Raumes aktualisieren'
     : 'Verteilertechnik dem Raum zuweisen';
+
+  assignDistributionNoneBtn.textContent = room.assignments?.distribution?.none
+    ? 'Nicht erforderlich (gesetzt)'
+    : 'Nicht für diesen Raum erforderlich';
 }
 
 async function assignDistributionToRoom() {
@@ -2713,6 +2740,26 @@ async function assignDistributionToRoom() {
   });
 
   renderDistributionFloorSelect();
+  updateSummary();
+}
+
+async function assignDistributionNoneToRoom() {
+  const room = getSelectedDistributionRoom();
+
+  if (!room) return;
+
+  room.assignments.distribution = { none: true };
+
+  clearDistributionSelection();
+
+  await showAppModal({
+    title: 'Gespeichert',
+    message: `Für den Raum "${getRoomLabel(room, Number(distributionRoomSelect.value))}" wurde keine Verteilertechnik hinterlegt.`,
+    confirmText: 'OK'
+  });
+
+  renderDistributionFloorSelect();
+  updateAssignDistributionButton();
   updateSummary();
 }
 
@@ -3089,6 +3136,10 @@ if (assignDistributionBtn) {
 
 if (assignThermostatNoneBtn) {
   assignThermostatNoneBtn.addEventListener('click', assignThermostatNoneToRoom);
+}
+
+if (assignDistributionNoneBtn) {
+  assignDistributionNoneBtn.addEventListener('click', assignDistributionNoneToRoom);
 }
 
 distributionTypeFields.forEach((field) => {
