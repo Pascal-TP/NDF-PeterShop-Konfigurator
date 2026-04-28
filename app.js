@@ -194,6 +194,14 @@ function hasAnyThermostatAssignment() {
   });
 }
 
+function hasAnyThermostatAssignment() {
+  return state.floors.some((floor) => {
+    return floor.rooms.some((room) => {
+      return roomIsHeated(room) && !!room.assignments?.thermostat;
+    });
+  });
+}
+
 function hasNonGroundFloorWithHeatedRooms() {
   return state.floors.some((floor) => {
     const isNotGroundFloor = floor.name !== 'Erdgeschoss';
@@ -370,7 +378,8 @@ function setThermostatSelection(selection) {
     });
   }
 
-  const qtyInput = document.querySelector(`.thermostat-qty[data-type="${selection.type}"]`);
+  const normalizedType = String(selection.type || '').toLowerCase();
+  const qtyInput = document.querySelector(`.thermostat-qty[data-type="${normalizedType}"]`);
   if (qtyInput) {
     qtyInput.value = selection.quantity || '';
   }
@@ -2408,7 +2417,8 @@ function getRelevantAreaForHeatingSystem() {
 }
 
 function getThermostatQty(type) {
-  const input = document.querySelector(`.thermostat-qty[data-type="${type}"]`);
+  const normalizedType = String(type || '').toLowerCase();
+  const input = document.querySelector(`.thermostat-qty[data-type="${normalizedType}"]`);
   return Number(input?.value || 0);
 }
 
