@@ -1696,6 +1696,163 @@ function updateLayerPreview() {
     .join('');
 }
 
+function parseSpacingMm(spacing) {
+  const match = String(spacing || '').match(/\d+/);
+  return match ? Number(match[0]) : 150;
+}
+
+function getRoomPipeLength(room) {
+  const area = Number(String(room.area).replace(',', '.')) || 0;
+  const spacingMm = parseSpacingMm(room.spacing);
+
+  if (area <= 0 || spacingMm <= 0) return 0;
+
+  return (area / spacingMm) * 1000;
+}
+
+function getRoomHeatingCircuits(room) {
+  const pipeLength = getRoomPipeLength(room);
+
+  if (pipeLength <= 0) return 0;
+
+  return Math.ceil(pipeLength / 120);
+}
+
+function getRoomThermostatRecommendation(room) {
+  const circuits = getRoomHeatingCircuits(room);
+
+  if (circuits <= 0) return 0;
+
+  return Math.ceil(circuits / 6);
+}
+
+function formatAssignmentText(value) {
+  if (!value) return 'Noch nicht zugewiesen';
+  if (value.none) return 'Nicht erforderlich';
+
+  return '';
+}
+
+function getSystemSummaryText(room) {
+  const system = room.assignments?.system;
+
+  if (!system) return 'Noch nicht zugewiesen';
+
+  const parts = [];
+
+  if (system.system) parts.push(system.system);
+  if (system.systemAddon) parts.push(system.systemAddon);
+  if (system.wlg) parts.push(`WLG ${system.wlg}`);
+  if (system.insulationThickness) parts.push(system.insulationThickness);
+  if (system.pipeType) parts.push(system.pipeType);
+
+  if (system.milling?.length) parts.push(`Fräsen: ${system.milling.join(', ')}`);
+  if (system.estrichRange?.length) parts.push(`Estrich: ${system.estrichRange.join(', ')}`);
+  if (system.estrichAdditives?.length) parts.push(`Zusatzmittel: ${system.estrichAdditives.join(', ')}`);
+  if (system.dryConstruction?.length) parts.push(`Trockenbau: ${system.dryConstruction.join(', ')}`);
+
+  return parts.length ? parts.join(' / ') : 'Noch nicht zugewiesen';
+}
+
+function getThermostatSummaryText(room) {
+  const thermostat = room.assignments?.thermostat;
+
+  if (!thermostat) return 'Noch nicht zugewiesen';
+  if (thermostat.none) return 'Nicht erforderlich';
+
+  return `${thermostat.type} x ${thermostat.quantity}`;
+}
+
+function getDistributionSummaryText(room) {
+  const distribution = room.assignments?.distribution;
+
+  if (!distribution) return 'Noch nicht zugewiesen';
+  if (distribution.none) return 'Nicht erforderlich';
+
+  const parts = [];
+
+  if (distribution.cabinetMounting) {
+    parts.push(distribution.cabinetMounting);
+  }
+
+  if (distribution.distributionRows?.length) {
+    parts.push(
+      distribution.distributionRows
+        .map(row => `${row.type} x ${row.quantity}`)
+        .join(', ')
+    );
+  }
+
+  if (distribution.regulationVoltage) {
+    parts.push(distribution.regulationVoltage);
+  }
+
+  if (distribution.regulationRows?.length) {
+    parts.push(
+      distribution.regulationRows
+        .map(row => `${row.label} x ${row.quantity}`)
+        .join(', ')
+    );
+  }
+
+  return parts.length ? parts.join(' / ') : 'Noch nicht zugewiesen';
+}
+
+function getExtraInsulationSummaryText(room) {
+  const extra = room.assignments?.extraInsulation;
+
+  if (!extra) return 'Noch nicht zugewiesen';
+  if (extra.none) return 'Nicht erforderlich';
+
+  return `${extra.material} / WLG ${extra.wlg} / ${extra.thickness}`;
+}
+
+function renderRoomSummaryCards() {
+  const html = state.floors.map((floor, floorIndex) => {
+    const floorLabel = getFloorLabel(floor, floorIndex);
+
+    const roomsHtml = floor.rooms.map((room, roomIndex) => {
+      const roomLabel = getRoomLabel(room, roomIndex);
+      const area = Number(String(room.area).replace(',', '.')) || 0;
+      const pipeLength = getRoomPipeLength(room);
+      const circuits = getRoomHeatingCircuits(room);
+      const thermostatReco = getRoomThermostatRecommendation(room);
+
+      return `
+        <div class="summary-room-card">
+          <div class="summary-room-title">${roomLabel}</div>
+
+          <div class="summary-room-line"><span>Funktion</span><strong>${room.function || '-'}</strong></div>
+          <div class="summary-room-line"><span>VA</span><strong>${room.spacing || '-'}</strong></div>
+          <div class="summary-room-line"><span>Fläche</span><strong>${formatQuantity(area)} m²</strong></div>
+
+          <div class="summary-room-calc">
+            <div class="summary-room-line"><span>Rohrlänge</span><strong>${formatQuantity(pipeLength)} m</strong></div>
+            <div class="summary-room-line"><span>Heizkreise</span><strong>${circuits}</strong></div>
+            <div class="summary-room-line"><span>Raumtherm.</span><strong>${thermostatReco}</strong></div>
+          </div>
+
+          <div class="summary-room-calc">
+            <div class="summary-room-line"><span>System</span><strong>${getSystemSummaryText(room)}</strong></div>
+            <div class="summary-room-line"><span>Thermostat</span><strong>${getThermostatSummaryText(room)}</strong></div>
+            <div class="summary-room-line"><span>Verteiler</span><strong>${getDistributionSummaryText(room)}</strong></div>
+            <div class="summary-room-line"><span>Zusatzdämm.</span><strong>${getExtraInsulationSummaryText(room)}</strong></div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="summary-floor-card">
+        <div class="summary-floor-title">${floorLabel}</div>
+        ${roomsHtml}
+      </div>
+    `;
+  }).join('');
+
+  summaryRooms.innerHTML = html || 'Noch keine Räume angelegt.';
+}
+
 function updateSummary() {
   summaryPlz.textContent = document.getElementById('plz').value.trim() || 'PLZ offen';
   document.getElementById('summarySystem').textContent =
@@ -1768,19 +1925,7 @@ function updateSummary() {
   updateAssignFloorSystemButton();
   syncSystemInsulationRules();
 
-  const roomTexts = [];
-  state.floors.forEach((floor, floorIndex) => {
-    floor.rooms.forEach((room, roomIndex) => {
-      const floorLabel = floor.name || `Etage ${floorIndex + 1}`;
-      const roomLabel = room.name || `Raum ${roomIndex + 1}`;
-      const areaText = room.area ? ` – ${room.area} m²` : '';
-      roomTexts.push(`${floorLabel}: ${roomLabel} / ${room.function} / ${room.spacing}${areaText}`);
-    });
-  });
-
-  summaryRooms.innerHTML = roomTexts.length
-    ? roomTexts.map((text) => `<div class="tag" style="display:block; margin:0 0 8px 0; border-radius:10px;">${text}</div>`).join('')
-    : 'Noch keine Räume angelegt.';
+  renderRoomSummaryCards();
 
   state.services = Array.from(serviceCheckboxes)
     .filter((checkbox) => checkbox.checked)

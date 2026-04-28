@@ -872,3 +872,70 @@ td {
   background: #fef2f2; /* leicht roter Hintergrund */
   color: #7f1d1d;
 }
+
+.summary-compact-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.summary-compact-item {
+  display: grid;
+  grid-template-columns: 85px 1fr;
+  gap: 8px;
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+.summary-compact-item span {
+  color: var(--muted);
+}
+
+.summary-floor-card {
+  border: 1px solid #dbe3ea;
+  border-radius: 12px;
+  padding: 10px;
+  background: #ffffff;
+  margin-bottom: 10px;
+}
+
+.summary-floor-title {
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.summary-room-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 9px;
+  background: #f8fafc;
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+
+.summary-room-card:last-child {
+  margin-bottom: 0;
+}
+
+.summary-room-title {
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.summary-room-line {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+
+.summary-room-line span {
+  color: var(--muted);
+}
+
+.summary-room-calc {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed #cbd5e1;
+}
