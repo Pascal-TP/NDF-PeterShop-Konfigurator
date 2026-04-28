@@ -206,9 +206,22 @@ function clearSystemSelection() {
 }
 
 function setSystemSelection(selection) {
+  // Erst alle Systemfelder entsperren, damit gespeicherte Werte wieder gesetzt werden können
+  document.querySelectorAll(
+    'input[name="system"], input[name="systemAddon"], input[name="wlg"], input[name="insulationThickness"], input[name="pipeType"]'
+  ).forEach((input) => {
+    input.disabled = false;
+    input.closest('.radio-option')?.classList.remove('disabled-radio-option');
+  });
+
   clearSystemSelection();
 
-  if (!selection) return;
+  if (!selection) {
+    syncSystemOptionsByBrand();
+    syncSystemInsulationRules();
+    updateAssignFloorSystemButton();
+    return;
+  }
 
   Object.entries({
     system: selection.system,
@@ -218,11 +231,17 @@ function setSystemSelection(selection) {
     pipeType: selection.pipeType
   }).forEach(([name, value]) => {
     if (!value) return;
+
     const input = document.querySelector(`input[name="${name}"][value="${value}"]`);
-    if (input && !input.disabled) {
+
+    if (input) {
       input.checked = true;
     }
   });
+
+  syncSystemOptionsByBrand();
+  syncSystemInsulationRules();
+  updateAssignFloorSystemButton();
 }
 
 function renderSystemFloorSelect() {
@@ -232,7 +251,7 @@ function renderSystemFloorSelect() {
     const label = getFloorLabel(floor, index);
     const heatedRooms = floor.rooms.filter(roomIsHeated);
     const assignedRooms = heatedRooms.filter(room => room.assignments?.system).length;
-    const check = heatedRooms.length > 0 && assignedRooms === heatedRooms.length ? ' ✓' : '';
+    const check = heatedRooms.length > 0 && assignedRooms === heatedRooms.length ? ' ✅' : '';
 
     return `<option value="${index}">${label}${check}</option>`;
   }).join('');
@@ -254,7 +273,7 @@ function renderSystemRoomSelect() {
   systemRoomSelect.innerHTML = floor.rooms.map((room, index) => {
     const label = getRoomLabel(room, index);
     const functionText = room.function || 'ohne Funktion';
-    const check = room.assignments?.system ? ' ✓' : '';
+    const check = room.assignments?.system ? ' ✅' : '';
     const disabledText = roomIsHeated(room) ? '' : ' (unbeheizt)';
 
     return `<option value="${index}">${label} / ${functionText}${disabledText}${check}</option>`;
