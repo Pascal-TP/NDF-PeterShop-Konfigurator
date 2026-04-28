@@ -857,3 +857,7 @@ td {
     grid-template-columns: 1fr;
   }
 }
+
+.floor-select-field select {
+  background: #eef6ff;
+}

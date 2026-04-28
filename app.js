@@ -186,6 +186,14 @@ function allHeatedRoomsHaveSystemAssignment() {
   });
 }
 
+function hasAnyThermostatAssignment() {
+  return state.floors.some((floor) => {
+    return floor.rooms.some((room) => {
+      return roomIsHeated(room) && !!room.assignments?.thermostat;
+    });
+  });
+}
+
 function hasNonGroundFloorWithHeatedRooms() {
   return state.floors.some((floor) => {
     const isNotGroundFloor = floor.name !== 'Erdgeschoss';
@@ -661,7 +669,7 @@ function canProceedToNextStep() {
     }
 
     if (state.thermostatEnabled === 'ja') {
-      return state.thermostat !== '';
+      return hasAnyThermostatAssignment();
     }
 
     return false;
@@ -2531,6 +2539,7 @@ document.querySelectorAll('#thermostatChoices .choice-card').forEach((card) => {
   card.addEventListener('click', () => {
     state.thermostat = card.dataset.thermostat;
     renderThermostat();
+    updateAssignThermostatButton();
     updateSummary();
   });
 });
@@ -2538,7 +2547,18 @@ document.querySelectorAll('#thermostatChoices .choice-card').forEach((card) => {
 document.querySelectorAll('#thermostatToggleChoices .choice-card').forEach((card) => {
   card.addEventListener('click', () => {
     state.thermostatEnabled = card.dataset.thermostatToggle;
+
+    if (state.thermostatEnabled === 'nein') {
+      state.floors.forEach((floor) => {
+        floor.rooms.forEach((room) => {
+          room.assignments.thermostat = null;
+        });
+      });
+    }
+
     renderThermostatToggle();
+    renderThermostatFloorSelect();
+    updateAssignThermostatButton();
     updateSummary();
   });
 });
