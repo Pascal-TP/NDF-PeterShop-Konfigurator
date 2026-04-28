@@ -861,3 +861,8 @@ td {
 .floor-select-field select {
   background: #eef6ff;
 }
+
+.room-none-btn {
+  margin-top: 12px;
+  width: 100%;
+}

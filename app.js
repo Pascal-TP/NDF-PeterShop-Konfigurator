@@ -628,6 +628,10 @@ function showStep(step) {
     assignThermostatBtn.classList.toggle('hidden', !isThermostatStep || state.thermostatEnabled !== 'ja');
   }
 
+  if (assignThermostatNoneBtn) {
+    assignThermostatNoneBtn.classList.toggle('hidden', !isThermostatStep || state.thermostatEnabled !== 'ja');
+  }
+
   if (assignDistributionBtn) {
     assignDistributionBtn.classList.toggle('hidden', !isDistributionStep || state.distributionEnabled !== 'ja');
   }
@@ -2234,7 +2238,7 @@ function calculateProducts() {
   state.floors.forEach((floor) => {
     floor.rooms.forEach((room) => {
       const thermo = room.assignments?.thermostat;
-if (!thermo || thermo.none) return;
+      if (!thermo || thermo.none) return;
 
       if (thermo.analog > 0) {
         addArticle(products, '100BIE021', thermo.analog);
@@ -2470,6 +2474,7 @@ async function assignThermostatToRoom() {
   });
 
   renderThermostatFloorSelect();
+  updateAssignThermostatButton();
   updateSummary();
 }
 
@@ -2479,6 +2484,8 @@ async function assignThermostatNoneToRoom() {
 
   room.assignments.thermostat = { none: true };
 
+  clearThermostatSelection();
+
   await showAppModal({
     title: 'Gespeichert',
     message: `Für den Raum "${getRoomLabel(room, Number(thermostatRoomSelect.value))}" wurde kein Thermostat hinterlegt.`,
@@ -2486,6 +2493,7 @@ async function assignThermostatNoneToRoom() {
   });
 
   renderThermostatFloorSelect();
+  updateAssignThermostatButton();
   updateSummary();
 }
 
