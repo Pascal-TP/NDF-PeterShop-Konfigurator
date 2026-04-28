@@ -15,6 +15,7 @@ const state = {
   articleCatalog: [],
   selectedSystemFloorIndex: 0,
   activeSummaryFloorIndex: 0,
+  activeSummaryRoomIndex: 0,
   isLocked: false
 };
 
@@ -1818,6 +1819,12 @@ function renderRoomSummaryCards() {
     state.activeSummaryFloorIndex = 0;
   }
 
+  const activeFloor = state.floors[state.activeSummaryFloorIndex];
+
+  if (state.activeSummaryRoomIndex >= activeFloor.rooms.length) {
+    state.activeSummaryRoomIndex = 0;
+  }
+
   const tabsHtml = `
     <div class="summary-floor-tabs">
       ${state.floors.map((floor, index) => {
@@ -1833,18 +1840,38 @@ function renderRoomSummaryCards() {
     </div>
   `;
 
-  const activeFloor = state.floors[state.activeSummaryFloorIndex];
-  const floorLabel = getFloorLabel(activeFloor, state.activeSummaryFloorIndex);
-
-  const roomsHtml = activeFloor.rooms.map((room, roomIndex) => {
-    const roomLabel = getRoomLabel(room, roomIndex);
-    const area = Number(String(room.area).replace(',', '.')) || 0;
-    const pipeLength = getRoomPipeLength(room);
-    const circuits = getRoomHeatingCircuits(room);
-    const thermostatReco = getRoomThermostatRecommendation(room);
+  const roomTabsHtml = `
+    <div class="summary-room-tabs">
+      ${activeFloor.rooms.map((room, index) => {
+    const roomLabel = getRoomLabel(room, index);
+    const activeClass = index === state.activeSummaryRoomIndex ? 'active' : '';
 
     return `
-      <div class="summary-room-card">
+          <button type="button" class="summary-room-tab ${activeClass}" data-summary-room-index="${index}">
+            ${roomLabel}
+          </button>
+        `;
+  }).join('')}
+    </div>
+  `;
+
+  const room = activeFloor.rooms[state.activeSummaryRoomIndex];
+  const roomLabel = getRoomLabel(room, state.activeSummaryRoomIndex);
+  const floorLabel = getFloorLabel(activeFloor, state.activeSummaryFloorIndex);
+  const area = Number(String(room.area).replace(',', '.')) || 0;
+  const pipeLength = getRoomPipeLength(room);
+  const circuits = getRoomHeatingCircuits(room);
+  const thermostatReco = getRoomThermostatRecommendation(room);
+
+  summaryRooms.innerHTML = `
+    ${tabsHtml}
+
+    <div class="summary-floor-card">
+      <div class="summary-floor-title">${floorLabel}</div>
+
+      ${roomTabsHtml}
+
+      <div class="summary-room-card active-room-card">
         <div class="summary-room-title">${roomLabel}</div>
 
         <div class="summary-room-line"><span>Funktion</span><strong>${room.function || '-'}</strong></div>
@@ -1864,20 +1891,20 @@ function renderRoomSummaryCards() {
           <div class="summary-room-line"><span>Zusatzdämm.</span><strong>${getExtraInsulationSummaryText(room)}</strong></div>
         </div>
       </div>
-    `;
-  }).join('');
-
-  summaryRooms.innerHTML = `
-    ${tabsHtml}
-    <div class="summary-floor-card">
-      <div class="summary-floor-title">${floorLabel}</div>
-      ${roomsHtml}
     </div>
   `;
 
   document.querySelectorAll('.summary-floor-tab').forEach((button) => {
     button.addEventListener('click', () => {
       state.activeSummaryFloorIndex = Number(button.dataset.summaryFloorIndex);
+      state.activeSummaryRoomIndex = 0;
+      renderRoomSummaryCards();
+    });
+  });
+
+  document.querySelectorAll('.summary-room-tab').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.activeSummaryRoomIndex = Number(button.dataset.summaryRoomIndex);
       renderRoomSummaryCards();
     });
   });

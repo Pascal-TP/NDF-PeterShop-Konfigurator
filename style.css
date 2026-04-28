@@ -967,3 +967,35 @@ td {
 .summary-floor-tab:hover {
   transform: none;
 }
+
+.summary-room-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-bottom: 0;
+  position: relative;
+}
+
+.summary-room-tab {
+  border: 1px solid #dbe3ea;
+  background: #f8fafc;
+  color: var(--primary);
+  padding: 8px 10px;
+  border-radius: 10px 10px 0 0;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+  margin-bottom: -1px;
+}
+
+.summary-room-tab.active {
+  background: white;
+  border-bottom-color: white;
+  z-index: 2;
+}
+
+.summary-room-card.active-room-card {
+  border-top-left-radius: 0;
+  margin-top: 0;
+}
