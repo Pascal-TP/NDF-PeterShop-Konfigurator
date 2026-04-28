@@ -85,6 +85,9 @@ const stepHint = document.getElementById('stepHint');
 const thermostatFloorSelect = document.getElementById('thermostatFloorSelect');
 const thermostatRoomSelect = document.getElementById('thermostatRoomSelect');
 const assignThermostatBtn = document.getElementById('assignThermostatBtn');
+const distributionFloorSelect = document.getElementById('distributionFloorSelect');
+const distributionRoomSelect = document.getElementById('distributionRoomSelect');
+const assignDistributionBtn = document.getElementById('assignDistributionBtn');
 
 const appModal = document.getElementById('appModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -616,11 +619,16 @@ function showStep(step) {
 
   const isSystemStep = state.currentStep === 5;
   const isThermostatStep = state.currentStep === 6;
+  const isDistributionStep = state.currentStep === 7;
 
   assignFloorSystemBtn.classList.toggle('hidden', !isSystemStep);
 
   if (assignThermostatBtn) {
     assignThermostatBtn.classList.toggle('hidden', !isThermostatStep || state.thermostatEnabled !== 'ja');
+  }
+
+  if (assignDistributionBtn) {
+    assignDistributionBtn.classList.toggle('hidden', !isDistributionStep || state.distributionEnabled !== 'ja');
   }
 
   if (stepHint) {
@@ -634,6 +642,11 @@ function showStep(step) {
   if (isThermostatStep) {
     renderThermostatFloorSelect();
     updateAssignThermostatButton();
+  }
+
+  if (isDistributionStep) {
+    renderDistributionFloorSelect();
+    updateAssignDistributionButton();
   }
 
   scrollToTop();
@@ -690,7 +703,7 @@ function canProceedToNextStep() {
     }
 
     if (state.distributionEnabled === 'ja') {
-      return getCheckedValue('cabinetMounting') !== '';
+      return hasAnyDistributionAssignment();
     }
 
     return false;
@@ -2459,6 +2472,225 @@ async function assignThermostatToRoom() {
   updateSummary();
 }
 
+function getSelectedDistributionRoom() {
+  const floorIndex = Number(distributionFloorSelect.value || 0);
+  const roomIndex = Number(distributionRoomSelect.value || 0);
+
+  return state.floors[floorIndex]?.rooms[roomIndex] || null;
+}
+
+function hasAnyDistributionAssignment() {
+  return state.floors.some((floor) => {
+    return floor.rooms.some((room) => {
+      return roomIsHeated(room) && !!room.assignments?.distribution;
+    });
+  });
+}
+
+function renderDistributionFloorSelect() {
+  if (!distributionFloorSelect || !distributionRoomSelect) return;
+
+  distributionFloorSelect.innerHTML = state.floors.map((floor, index) => {
+    const label = getFloorLabel(floor, index);
+    const heatedRooms = floor.rooms.filter(roomIsHeated);
+    const assignedRooms = heatedRooms.filter(room => room.assignments?.distribution).length;
+    const check = heatedRooms.length > 0 && assignedRooms === heatedRooms.length ? ' ✅' : '';
+
+    return `<option value="${index}">${label}${check}</option>`;
+  }).join('');
+
+  distributionFloorSelect.value = distributionFloorSelect.value || '0';
+
+  renderDistributionRoomSelect();
+}
+
+function renderDistributionRoomSelect() {
+  if (!distributionFloorSelect || !distributionRoomSelect) return;
+
+  const floorIndex = Number(distributionFloorSelect.value || 0);
+  const floor = state.floors[floorIndex];
+
+  if (!floor) return;
+
+  distributionRoomSelect.innerHTML = floor.rooms.map((room, index) => {
+    const label = getRoomLabel(room, index);
+    const functionText = room.function || 'ohne Funktion';
+    const check = room.assignments?.distribution ? ' ✅' : '';
+    const disabledText = roomIsHeated(room) ? '' : ' (unbeheizt)';
+
+    return `<option value="${index}">${label} / ${functionText}${disabledText}${check}</option>`;
+  }).join('');
+
+  distributionRoomSelect.value = distributionRoomSelect.value || '0';
+
+  setDistributionSelection(getSelectedDistributionRoom()?.assignments?.distribution || null);
+  updateAssignDistributionButton();
+}
+
+function clearDistributionSelection() {
+  document.querySelectorAll('input[name="cabinetMounting"], input[name="regulationVoltage"]').forEach((input) => {
+    input.checked = false;
+  });
+
+  distributionTypeFields.forEach((field) => field.selectedIndex = 0);
+  distributionQtyFields.forEach((field) => field.value = '');
+
+  regulationCheckboxes.forEach((checkbox) => checkbox.checked = false);
+  regulationQtyFields.forEach((field) => field.value = '');
+}
+
+function getCurrentDistributionSelection() {
+  const cabinetMounting = getCheckedValue('cabinetMounting');
+  const regulationVoltage = getCheckedValue('regulationVoltage');
+
+  const distributionRows = [];
+
+  distributionTypeFields.forEach((typeField, index) => {
+    const typeValue = typeField.value;
+    const qtyValue = Number(distributionQtyFields[index]?.value || 0);
+
+    if (typeValue && qtyValue > 0) {
+      distributionRows.push({
+        type: typeValue,
+        quantity: qtyValue
+      });
+    }
+  });
+
+  const regulationRows = [];
+
+  regulationCheckboxes.forEach((checkbox, index) => {
+    const qtyValue = Number(regulationQtyFields[index]?.value || 0);
+
+    if (checkbox.checked && qtyValue > 0) {
+      regulationRows.push({
+        label: checkbox.dataset.label,
+        quantity: qtyValue
+      });
+    }
+  });
+
+  if (!cabinetMounting && distributionRows.length === 0 && regulationRows.length === 0) {
+    return null;
+  }
+
+  if (distributionRows.length > 0 && !cabinetMounting) {
+    return null;
+  }
+
+  if (regulationRows.length > 0 && !regulationVoltage) {
+    return null;
+  }
+
+  return {
+    cabinetMounting,
+    regulationVoltage,
+    distributionRows,
+    regulationRows
+  };
+}
+
+function setDistributionSelection(selection) {
+  clearDistributionSelection();
+
+  if (!selection) {
+    syncRegulationRules();
+    updateAssignDistributionButton();
+    return;
+  }
+
+  if (selection.cabinetMounting) {
+    const input = document.querySelector(`input[name="cabinetMounting"][value="${selection.cabinetMounting}"]`);
+    if (input) input.checked = true;
+  }
+
+  if (selection.regulationVoltage) {
+    const input = document.querySelector(`input[name="regulationVoltage"][value="${selection.regulationVoltage}"]`);
+    if (input) input.checked = true;
+  }
+
+  selection.distributionRows?.forEach((row, index) => {
+    if (distributionTypeFields[index]) distributionTypeFields[index].value = row.type;
+    if (distributionQtyFields[index]) distributionQtyFields[index].value = row.quantity;
+  });
+
+  selection.regulationRows?.forEach((row) => {
+    const checkbox = Array.from(regulationCheckboxes).find(cb => cb.dataset.label === row.label);
+    if (!checkbox) return;
+
+    const index = Array.from(regulationCheckboxes).indexOf(checkbox);
+    checkbox.checked = true;
+
+    if (regulationQtyFields[index]) {
+      regulationQtyFields[index].value = row.quantity;
+    }
+  });
+
+  syncRegulationRules();
+  updateAssignDistributionButton();
+}
+
+function updateAssignDistributionButton() {
+  if (!assignDistributionBtn) return;
+
+  const room = getSelectedDistributionRoom();
+
+  if (state.distributionEnabled !== 'ja') {
+    assignDistributionBtn.classList.add('hidden');
+    return;
+  }
+
+  assignDistributionBtn.classList.remove('hidden');
+
+  if (!room || !roomIsHeated(room)) {
+    assignDistributionBtn.disabled = true;
+    assignDistributionBtn.textContent = 'Raum benötigt keine Zuweisung';
+    return;
+  }
+
+  assignDistributionBtn.disabled = !getCurrentDistributionSelection();
+  assignDistributionBtn.textContent = room.assignments?.distribution
+    ? 'Verteilertechnik des Raumes aktualisieren'
+    : 'Verteilertechnik dem Raum zuweisen';
+}
+
+async function assignDistributionToRoom() {
+  const room = getSelectedDistributionRoom();
+
+  if (!room) return;
+
+  if (!roomIsHeated(room)) {
+    await showAppModal({
+      title: 'Hinweis',
+      message: 'Dieser Raum ist unbeheizt und benötigt keine Verteilertechnik-Zuweisung.',
+      confirmText: 'OK'
+    });
+    return;
+  }
+
+  const selection = getCurrentDistributionSelection();
+
+  if (!selection) {
+    await showAppModal({
+      title: 'Auswahl unvollständig',
+      message: 'Bitte wählen Sie die Verteilertechnik vollständig aus.',
+      confirmText: 'OK'
+    });
+    return;
+  }
+
+  room.assignments.distribution = selection;
+
+  await showAppModal({
+    title: 'Gespeichert',
+    message: `Die Verteilertechnik wurde dem Raum "${getRoomLabel(room, Number(distributionRoomSelect.value))}" zugewiesen.`,
+    confirmText: 'OK'
+  });
+
+  renderDistributionFloorSelect();
+  updateSummary();
+}
+
 function updateFinalCheck() {
   const roomsCount = state.floors.reduce((sum, floor) => sum + floor.rooms.length, 0);
   const servicesText = state.services.length ? state.services.join(', ') : 'Keine zusätzlichen Dienstleistungen gewählt';
@@ -2807,6 +3039,56 @@ document.getElementById('addFloorBtn').addEventListener('click', () => {
   state.floors.push(createFloor());
   renderFloors();
   updateSummary();
+});
+
+if (distributionFloorSelect) {
+  distributionFloorSelect.addEventListener('change', () => {
+    distributionRoomSelect.value = '0';
+    renderDistributionRoomSelect();
+    updateSummary();
+  });
+}
+
+if (distributionRoomSelect) {
+  distributionRoomSelect.addEventListener('change', () => {
+    const room = getSelectedDistributionRoom();
+    setDistributionSelection(room?.assignments?.distribution || null);
+    updateAssignDistributionButton();
+    updateSummary();
+  });
+}
+
+if (assignDistributionBtn) {
+  assignDistributionBtn.addEventListener('click', assignDistributionToRoom);
+}
+
+distributionTypeFields.forEach((field) => {
+  field.addEventListener('change', () => {
+    updateAssignDistributionButton();
+    updateSummary();
+  });
+});
+
+distributionQtyFields.forEach((field) => {
+  field.addEventListener('input', () => {
+    updateAssignDistributionButton();
+    updateSummary();
+  });
+});
+
+regulationCheckboxes.forEach((field) => {
+  field.addEventListener('change', () => {
+    syncRegulationRules();
+    updateAssignDistributionButton();
+    updateSummary();
+  });
+});
+
+regulationQtyFields.forEach((field) => {
+  field.addEventListener('input', () => {
+    updateAssignDistributionButton();
+    updateSummary();
+  });
 });
 
 state.floors = [createFloor()];

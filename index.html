@@ -449,7 +449,17 @@
         </section>
 
         <section class="step-panel" data-step-panel="7">
-          <h2 class="section-title">7. Verteilertechnik</h2>
+          <div class="section-title-row">
+            <h2 class="section-title">7. Verteilertechnik</h2>
+
+            <div class="field floor-select-field">
+              <label for="distributionFloorSelect">Etage</label>
+              <select id="distributionFloorSelect"></select>
+
+              <label for="distributionRoomSelect" style="margin-top:10px;">Raum</label>
+              <select id="distributionRoomSelect"></select>
+            </div>
+          </div>
           <p class="section-subtitle">Verteilerschrank-Art, Verteiler-Menge & Typ sowie Regeltechnik.</p>
 
           <div class="sub-block">
@@ -813,6 +823,7 @@
           <div class="btn-group">
             <button type="button" class="secondary hidden" id="assignFloorSystemBtn">System der Etage zuweisen</button>
             <button id="assignThermostatBtn" type="button" class="hidden">Thermostat dem Raum zuweisen</button>
+            <button id="assignDistributionBtn" type="button" class="hidden">Verteilertechnik dem Raum zuweisen</button>
           </div>
 
           <div class="btn-group"><button type="button" id="nextBtn">Weiter</button></div>
