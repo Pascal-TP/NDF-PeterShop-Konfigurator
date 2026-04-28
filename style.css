@@ -832,3 +832,15 @@ td {
 #systemOptionFlipfix {
   margin-top: 20px;
 }
+
+.step-hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.assignment-done {
+  color: #15803d;
+  font-weight: 700;
+}

@@ -79,7 +79,9 @@ const handoverShopBtn = document.getElementById('handoverShopBtn');
 const distributionToggleChoices = document.getElementById('distributionToggleChoices');
 const distributionOptions = document.getElementById('distributionOptions');
 const systemFloorSelect = document.getElementById('systemFloorSelect');
+const systemRoomSelect = document.getElementById('systemRoomSelect');
 const assignFloorSystemBtn = document.getElementById('assignFloorSystemBtn');
+const stepHint = document.getElementById('stepHint');
 
 const appModal = document.getElementById('appModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -150,6 +152,30 @@ function floorHasHeatedRooms(floor) {
   return floor.rooms.some((room) => room.function === 'Wohnraum' || room.function === 'Bad');
 }
 
+function roomIsHeated(room) {
+  return room.function === 'Wohnraum' || room.function === 'Bad';
+}
+
+function getRoomLabel(room, index) {
+  return room.name || `Raum ${index + 1}`;
+}
+
+function getSelectedSystemRoom() {
+  const floorIndex = Number(systemFloorSelect.value || 0);
+  const roomIndex = Number(systemRoomSelect.value || 0);
+
+  return state.floors[floorIndex]?.rooms[roomIndex] || null;
+}
+
+function allHeatedRoomsHaveSystemAssignment() {
+  return state.floors.every((floor) => {
+    return floor.rooms.every((room) => {
+      if (!roomIsHeated(room)) return true;
+      return !!room.assignments?.system;
+    });
+  });
+}
+
 function hasNonGroundFloorWithHeatedRooms() {
   return state.floors.some((floor) => {
     const isNotGroundFloor = floor.name !== 'Erdgeschoss';
@@ -200,12 +226,15 @@ function setSystemSelection(selection) {
 }
 
 function renderSystemFloorSelect() {
-  if (!systemFloorSelect) return;
+  if (!systemFloorSelect || !systemRoomSelect) return;
 
   systemFloorSelect.innerHTML = state.floors.map((floor, index) => {
     const label = getFloorLabel(floor, index);
-    const exemptText = floorHasHeatedRooms(floor) ? '' : ' (nur unbeheizt)';
-    return `<option value="${index}">${label}${exemptText}</option>`;
+    const heatedRooms = floor.rooms.filter(roomIsHeated);
+    const assignedRooms = heatedRooms.filter(room => room.assignments?.system).length;
+    const check = heatedRooms.length > 0 && assignedRooms === heatedRooms.length ? ' ✓' : '';
+
+    return `<option value="${index}">${label}${check}</option>`;
   }).join('');
 
   if (state.selectedSystemFloorIndex >= state.floors.length) {
@@ -214,8 +243,27 @@ function renderSystemFloorSelect() {
 
   systemFloorSelect.value = String(state.selectedSystemFloorIndex);
 
-  const selectedFloor = state.floors[state.selectedSystemFloorIndex];
-  setSystemSelection(selectedFloor?.systemAssignment || null);
+  renderSystemRoomSelect();
+}
+
+function renderSystemRoomSelect() {
+  const floor = state.floors[state.selectedSystemFloorIndex];
+
+  if (!floor || !systemRoomSelect) return;
+
+  systemRoomSelect.innerHTML = floor.rooms.map((room, index) => {
+    const label = getRoomLabel(room, index);
+    const functionText = room.function || 'ohne Funktion';
+    const check = room.assignments?.system ? ' ✓' : '';
+    const disabledText = roomIsHeated(room) ? '' : ' (unbeheizt)';
+
+    return `<option value="${index}">${label} / ${functionText}${disabledText}${check}</option>`;
+  }).join('');
+
+  systemRoomSelect.value = '0';
+
+  const room = getSelectedSystemRoom();
+  setSystemSelection(room?.assignments?.system || null);
 
   updateAssignFloorSystemButton();
 }
@@ -253,29 +301,29 @@ function allRelevantFloorsHaveSystemAssignment() {
 function updateAssignFloorSystemButton() {
   if (!assignFloorSystemBtn) return;
 
-  const floor = state.floors[state.selectedSystemFloorIndex];
+  const room = getSelectedSystemRoom();
 
-  if (!floor || !floorHasHeatedRooms(floor)) {
+  if (!room || !roomIsHeated(room)) {
     assignFloorSystemBtn.disabled = true;
-    assignFloorSystemBtn.textContent = 'Etage benötigt kein System';
+    assignFloorSystemBtn.textContent = 'Raum benötigt keine Zuweisung';
     return;
   }
 
   assignFloorSystemBtn.disabled = !currentSystemSelectionIsComplete();
-  assignFloorSystemBtn.textContent = floor.systemAssignment
-    ? 'System der Etage aktualisieren'
-    : 'System der Etage zuweisen';
+  assignFloorSystemBtn.textContent = room.assignments?.system
+    ? 'System des Raumes aktualisieren'
+    : 'System dem Raum zuweisen';
 }
 
 async function assignSystemToSelectedFloor() {
-  const floor = state.floors[state.selectedSystemFloorIndex];
+  const room = getSelectedSystemRoom();
 
-  if (!floor) return;
+  if (!room) return;
 
-  if (!floorHasHeatedRooms(floor)) {
+  if (!roomIsHeated(room)) {
     await showAppModal({
       title: 'Hinweis',
-      message: 'Diese Etage enthält nur unbeheizte Räume und benötigt keine Systemzuweisung.',
+      message: 'Dieser Raum ist unbeheizt und benötigt keine Systemzuweisung.',
       confirmText: 'OK'
     });
     return;
@@ -284,21 +332,21 @@ async function assignSystemToSelectedFloor() {
   if (!currentSystemSelectionIsComplete()) {
     await showAppModal({
       title: 'Auswahl unvollständig',
-      message: 'Bitte wählen Sie zuerst alle notwendigen Systemangaben für diese Etage aus.',
+      message: 'Bitte wählen Sie zuerst alle notwendigen Systemangaben für diesen Raum aus.',
       confirmText: 'OK'
     });
     return;
   }
 
-  floor.systemAssignment = getCurrentSystemSelection();
+  room.assignments.system = getCurrentSystemSelection();
 
   await showAppModal({
     title: 'Gespeichert',
-    message: `Das System wurde der Etage "${getFloorLabel(floor, state.selectedSystemFloorIndex)}" zugewiesen.`,
+    message: `Das System wurde dem Raum "${getRoomLabel(room, Number(systemRoomSelect.value))}" zugewiesen.`,
     confirmText: 'OK'
   });
 
-  updateAssignFloorSystemButton();
+  renderSystemFloorSelect();
   updateSummary();
 }
 
@@ -342,7 +390,13 @@ function createRoom() {
     name: '',
     function: 'Wohnraum',
     spacing: 'VA 150',
-    area: ''
+    area: '',
+    assignments: {
+      system: null,
+      thermostat: null,
+      distribution: null,
+      extraInsulation: null
+    }
   };
 }
 
@@ -410,6 +464,10 @@ function showStep(step) {
   const isSystemStep = state.currentStep === 5;
   assignFloorSystemBtn.classList.toggle('hidden', !isSystemStep);
 
+  if (stepHint) {
+    stepHint.classList.toggle('hidden', !isSystemStep);
+  }
+
   if (isSystemStep) {
     renderSystemFloorSelect();
   }
@@ -447,7 +505,7 @@ function canProceedToNextStep() {
   }
 
   if (state.currentStep === 5) {
-    return allRelevantFloorsHaveSystemAssignment();
+    return allHeatedRoomsHaveSystemAssignment();
   }
 
   if (state.currentStep === 6) {
@@ -1844,11 +1902,11 @@ function calculateProducts() {
   const totalAreaHeatedRooms = getTotalAreaHeatedRooms();
 
   // Inselzuschlag
-const plz = document.getElementById('plz').value.trim();
+  const plz = document.getElementById('plz').value.trim();
 
-if (isIslandPostcode(plz)) {
-  addArticle(products, '100BIE016', 1);
-}
+  if (isIslandPostcode(plz)) {
+    addArticle(products, '100BIE016', 1);
+  }
 
   // Verteilertechnik Berechnung 70–91
   if (state.distributionEnabled === 'ja') {
@@ -2206,8 +2264,13 @@ function updateFinalCheck() {
 
 systemFloorSelect.addEventListener('change', () => {
   state.selectedSystemFloorIndex = Number(systemFloorSelect.value);
-  const floor = state.floors[state.selectedSystemFloorIndex];
-  setSystemSelection(floor?.systemAssignment || null);
+  renderSystemRoomSelect();
+  updateSummary();
+});
+
+systemRoomSelect.addEventListener('change', () => {
+  const room = getSelectedSystemRoom();
+  setSystemSelection(room?.assignments?.system || null);
   updateAssignFloorSystemButton();
   updateSummary();
 });

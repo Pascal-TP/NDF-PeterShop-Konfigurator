@@ -130,6 +130,9 @@
             <div class="field floor-select-field">
               <label for="systemFloorSelect">Etage</label>
               <select id="systemFloorSelect"></select>
+
+              <label for="systemRoomSelect" style="margin-top:10px;">Raum</label>
+              <select id="systemRoomSelect"></select>
             </div>
           </div>
           <p class="section-subtitle">Treffen Sie hier Ihre Systemauswahl.</p>
@@ -794,6 +797,9 @@
 
           <div class="btn-group"><button type="button" id="nextBtn">Weiter</button></div>
         </div>
+        <p id="stepHint" class="step-hint hidden">
+          Alle beheizten Räume müssen zugewiesen werden, bevor Sie zum nächsten Schritt wechseln können.
+        </p>
       </main>
 
       <aside class="summary">
