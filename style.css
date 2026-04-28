@@ -990,8 +990,9 @@ td {
 }
 
 .summary-room-tab.active {
-  background: white;
-  border-bottom-color: white;
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
   z-index: 2;
 }
 
