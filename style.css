@@ -844,3 +844,16 @@ td {
   color: #15803d;
   font-weight: 700;
 }
+
+.step-select-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 240px));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 720px) {
+  .step-select-row {
+    grid-template-columns: 1fr;
+  }
+}
