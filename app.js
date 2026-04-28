@@ -82,6 +82,9 @@ const systemFloorSelect = document.getElementById('systemFloorSelect');
 const systemRoomSelect = document.getElementById('systemRoomSelect');
 const assignFloorSystemBtn = document.getElementById('assignFloorSystemBtn');
 const stepHint = document.getElementById('stepHint');
+const thermostatFloorSelect = document.getElementById('thermostatFloorSelect');
+const thermostatRoomSelect = document.getElementById('thermostatRoomSelect');
+const assignThermostatBtn = document.getElementById('assignThermostatBtn');
 
 const appModal = document.getElementById('appModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -163,6 +166,13 @@ function getRoomLabel(room, index) {
 function getSelectedSystemRoom() {
   const floorIndex = Number(systemFloorSelect.value || 0);
   const roomIndex = Number(systemRoomSelect.value || 0);
+
+  return state.floors[floorIndex]?.rooms[roomIndex] || null;
+}
+
+function getSelectedThermostatRoom() {
+  const floorIndex = Number(thermostatFloorSelect.value || 0);
+  const roomIndex = Number(thermostatRoomSelect.value || 0);
 
   return state.floors[floorIndex]?.rooms[roomIndex] || null;
 }
