@@ -182,6 +182,39 @@ function getAssignmentHintText(type) {
   return '';
 }
 
+function getAllAssignmentsDoneText(type) {
+  const hasOpen =
+    type === 'system' ? hasOpenSystemAssignments() :
+      type === 'thermostat' ? hasOpenThermostatAssignments() :
+        type === 'distribution' ? hasOpenDistributionAssignments() :
+          type === 'extraInsulation' ? hasOpenExtraInsulationAssignments() :
+            false;
+
+  return hasOpen
+    ? 'Wählen Sie den nächsten Raum.'
+    : 'Es wurden alle Räume zugewiesen. Sie können nun über "Weiter" zum nächsten Schritt wechseln.';
+}
+
+function scrollAfterAssignment(type) {
+  const hasOpen =
+    type === 'system' ? hasOpenSystemAssignments() :
+      type === 'thermostat' ? hasOpenThermostatAssignments() :
+        type === 'distribution' ? hasOpenDistributionAssignments() :
+          type === 'extraInsulation' ? hasOpenExtraInsulationAssignments() :
+            false;
+
+  if (hasOpen) {
+    scrollToTop();
+  } else {
+    setTimeout(() => {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: 'smooth'
+      });
+    }, 100);
+  }
+}
+
 function getCheckedValue(name) {
   const checked = document.querySelector(`input[name="${name}"]:checked`);
   return checked ? checked.value : '';
@@ -584,7 +617,7 @@ async function assignSystemToSelectedFloor() {
 
   room.assignments.system = getCurrentSystemSelection();
 
-  const hint = getAssignmentHintText('system');
+  const hint = getAllAssignmentsDoneText('system');
 
   await showAppModal({
     title: 'Gespeichert',
@@ -594,7 +627,7 @@ async function assignSystemToSelectedFloor() {
 
   renderSystemFloorSelect();
   updateAssignmentPointers();
-  scrollToTop();
+  scrollAfterAssignment('system');
   updateSummary();
 }
 
@@ -1467,7 +1500,7 @@ async function assignExtraInsulationToRoom() {
 
   room.assignments.extraInsulation = selection;
 
-  const hint = getAssignmentHintText('extraInsulation');
+  const hint = getAllAssignmentsDoneText('extraInsulation');
 
   await showAppModal({
     title: 'Gespeichert',
@@ -1477,7 +1510,7 @@ async function assignExtraInsulationToRoom() {
 
   renderExtraInsulationFloorSelect();
   updateAssignmentPointers();
-  scrollToTop();
+  scrollAfterAssignment('extraInsulation');
   updateAssignExtraInsulationButton();
   updateSummary();
 }
@@ -1491,7 +1524,7 @@ async function assignExtraInsulationNoneToRoom() {
 
   clearExtraInsulationSelection();
 
-  const hint = getAssignmentHintText('extraInsulation');
+  const hint = getAllAssignmentsDoneText('extraInsulation');
 
   await showAppModal({
     title: 'Gespeichert',
@@ -1501,7 +1534,7 @@ async function assignExtraInsulationNoneToRoom() {
 
   renderExtraInsulationFloorSelect();
   updateAssignmentPointers();
-  scrollToTop();
+  scrollAfterAssignment('extraInsulation');
   updateAssignExtraInsulationButton();
   updateSummary();
 }
@@ -3043,7 +3076,7 @@ async function assignThermostatToRoom() {
 
   room.assignments.thermostat = selection;
 
-  const hint = getAssignmentHintText('thermostat');
+  const hint = getAllAssignmentsDoneText('thermostat');
 
   await showAppModal({
     title: 'Gespeichert',
@@ -3053,7 +3086,7 @@ async function assignThermostatToRoom() {
 
   renderThermostatFloorSelect();
   updateAssignmentPointers();
-  scrollToTop();
+  scrollAfterAssignment('thermostat');
   updateAssignThermostatButton();
   updateSummary();
 }
@@ -3066,7 +3099,7 @@ async function assignThermostatNoneToRoom() {
 
   clearThermostatSelection();
 
-  const hint = getAssignmentHintText('thermostat');
+  const hint = getAllAssignmentsDoneText('thermostat');
 
   await showAppModal({
     title: 'Gespeichert',
@@ -3076,7 +3109,7 @@ async function assignThermostatNoneToRoom() {
 
   renderThermostatFloorSelect();
   updateAssignmentPointers();
-  scrollToTop();
+  scrollAfterAssignment('thermostat');
   updateAssignThermostatButton();
   updateSummary();
 }
@@ -3314,7 +3347,7 @@ async function assignDistributionToRoom() {
 
   room.assignments.distribution = selection;
 
-  const hint = getAssignmentHintText('distribution');
+  const hint = getAllAssignmentsDoneText('distribution');
 
   await showAppModal({
     title: 'Gespeichert',
@@ -3324,7 +3357,7 @@ async function assignDistributionToRoom() {
 
   renderDistributionFloorSelect();
   updateAssignmentPointers();
-  scrollToTop();
+  scrollAfterAssignment('distribution');
   updateSummary();
 }
 
@@ -3337,7 +3370,7 @@ async function assignDistributionNoneToRoom() {
 
   clearDistributionSelection();
 
-  const hint = getAssignmentHintText('distribution');
+  const hint = getAllAssignmentsDoneText('distribution');
 
   await showAppModal({
     title: 'Gespeichert',
@@ -3347,7 +3380,7 @@ async function assignDistributionNoneToRoom() {
 
   renderDistributionFloorSelect();
   updateAssignmentPointers();
-  scrollToTop();
+  scrollAfterAssignment('distribution');
   updateAssignDistributionButton();
   updateSummary();
 }
