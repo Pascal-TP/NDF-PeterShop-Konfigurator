@@ -3214,47 +3214,240 @@ async function assignDistributionNoneToRoom() {
 }
 
 async function exportPdf() {
-  const container = document.getElementById('pdfContent');
-  container.innerHTML = generatePdfHtml();
-  container.style.display = 'block';
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('p', 'mm', 'a4');
 
   const fileDate = new Date().toLocaleDateString('de-DE').replaceAll('.', '-');
+  const today = new Date().toLocaleDateString('de-DE');
   const logoDataUrl = await loadImageAsDataUrl('logo.png');
 
-  html2pdf().set({
-    margin: [24, 10, 12, 10],
-    filename: `Konfiguration-Fußbodenheizung ${fileDate}.pdf`,
-    html2canvas: { scale: 2, useCORS: true },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak: { mode: ['css', 'legacy'], avoid: ['.pdf-room-box', '.pdf-table-row'] }
-  })
-    .from(container)
-    .toPdf()
-    .get('pdf')
-    .then((pdf) => {
-      const pageCount = pdf.internal.getNumberOfPages();
+  const pageWidth = 210;
+  const pageHeight = 297;
+  const marginLeft = 15;
+  const marginRight = 15;
+  const contentWidth = pageWidth - marginLeft - marginRight;
 
-      for (let i = 1; i <= pageCount; i++) {
-        pdf.setPage(i);
+  let y = 52;
 
-        if (logoDataUrl) {
-          pdf.addImage(logoDataUrl, 'PNG', 155, 6, 40, 16);
-        }
+  function addHeader() {
+    if (logoDataUrl) {
+      pdf.addImage(logoDataUrl, 'PNG', 155, 8, 40, 16);
+    }
 
-        pdf.setFontSize(8);
-        pdf.text([
-          'PETER JENSEN GmbH',
-          'Borgfelder Straße 19',
-          '20537 Hamburg',
-          'Tel.: 040 / 25793 - 0',
-          'www.peterjensen.de'
-        ], 155, 25);
-      }
-    })
-    .save()
-    .then(() => {
-      container.style.display = 'none';
+    pdf.setFontSize(8);
+    pdf.text([
+      'PETER JENSEN GmbH',
+      'Borgfelder Straße 19',
+      '20537 Hamburg',
+      'Tel.: 040 / 25793 - 0',
+      'www.peterjensen.de'
+    ], 155, 28);
+
+    pdf.setDrawColor(220);
+    pdf.line(15, 45, 195, 45);
+  }
+
+  function newPage() {
+    pdf.addPage();
+    addHeader();
+    y = 52;
+  }
+
+  function ensureSpace(requiredHeight) {
+    if (y + requiredHeight > pageHeight - 18) {
+      newPage();
+    }
+  }
+
+  function addText(text, x, fontSize = 10, bold = false) {
+    pdf.setFont('helvetica', bold ? 'bold' : 'normal');
+    pdf.setFontSize(fontSize);
+    pdf.text(String(text), x, y);
+  }
+
+  function addWrappedText(text, x, maxWidth, fontSize = 9, bold = false) {
+    pdf.setFont('helvetica', bold ? 'bold' : 'normal');
+    pdf.setFontSize(fontSize);
+
+    const lines = pdf.splitTextToSize(String(text || '-'), maxWidth);
+    pdf.text(lines, x, y);
+    y += lines.length * 4.2;
+  }
+
+  function addRoom(room, roomIndex) {
+    const roomLabel = getRoomLabel(room, roomIndex);
+    const area = Number(String(room.area).replace(',', '.')) || 0;
+    const pipe = getRoomPipeLength(room);
+    const circuits = getRoomHeatingCircuits(room);
+    const thermo = getRoomThermostatRecommendation(room);
+
+    ensureSpace(58);
+
+    const startY = y;
+
+    pdf.setDrawColor(210);
+    pdf.rect(marginLeft, y, contentWidth, 52);
+
+    y += 6;
+    addText(roomLabel, marginLeft + 3, 10, true);
+    y += 5;
+
+    addWrappedText(`Funktion: ${room.function || '-'}`, marginLeft + 3, contentWidth - 6);
+    addWrappedText(`VA: ${room.spacing || '-'}`, marginLeft + 3, contentWidth - 6);
+    addWrappedText(`Fläche: ${formatQuantity(area)} m²`, marginLeft + 3, contentWidth - 6);
+
+    addWrappedText('Empfohlen:', marginLeft + 3, contentWidth - 6, 9, true);
+    addWrappedText(`Rohrlänge: ${formatQuantity(pipe)} m`, marginLeft + 3, contentWidth - 6);
+    addWrappedText(`Heizkreise: ${circuits}`, marginLeft + 3, contentWidth - 6);
+    addWrappedText(`Raumthermostat: ${thermo}`, marginLeft + 3, contentWidth - 6);
+
+    y += 2;
+    addWrappedText(`System: ${getSystemSummaryText(room)}`, marginLeft + 3, contentWidth - 6);
+    addWrappedText(`Thermostat: ${getThermostatSummaryText(room)}`, marginLeft + 3, contentWidth - 6);
+    addWrappedText(`Verteiler: ${getDistributionSummaryText(room)}`, marginLeft + 3, contentWidth - 6);
+    addWrappedText(`Zusatzdämmung: ${getExtraInsulationSummaryText(room)}`, marginLeft + 3, contentWidth - 6);
+
+    const endY = Math.max(y + 3, startY + 52);
+    y = endY + 5;
+  }
+
+  function getPdfProducts() {
+    if (state.calculatedProducts && state.calculatedProducts.length) {
+      return state.calculatedProducts.filter(p => p.selected !== false);
+    }
+
+    return calculateProducts().filter(p => p.selected !== false);
+  }
+
+  addHeader();
+
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(18);
+  pdf.text('Konfiguration Fußbodenheizung', marginLeft, y);
+  y += 9;
+
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(10);
+  pdf.text(`Datum: ${today}`, marginLeft, y);
+  y += 12;
+
+  const projectTypeText =
+    state.projectType === 'neubau' ? 'Neubau' :
+      state.projectType === 'sanierung' ? 'Sanierung' :
+        '-';
+
+  const brandText =
+    state.brand === 'handelsmarke' ? 'Handelsmarke' :
+      state.brand === 'uponor' ? 'Uponor' :
+        state.brand === 'roth' ? 'Roth' :
+          '-';
+
+  const plzValue = document.getElementById('plz').value.trim() || '-';
+
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(13);
+  pdf.text('Konfiguration', marginLeft, y);
+  y += 8;
+
+  pdf.setFontSize(9);
+  pdf.text(`Projektart: ${projectTypeText}`, marginLeft, y);
+  pdf.text(`Marke: ${brandText}`, 105, y);
+  y += 5;
+  pdf.text(`Wärmeerzeuger: ${state.heatSource || '-'}`, marginLeft, y);
+  pdf.text(`PLZ: ${plzValue}`, 105, y);
+  y += 12;
+
+  pdf.setFontSize(13);
+  pdf.text('Räume', marginLeft, y);
+  y += 8;
+
+  state.floors.forEach((floor, floorIndex) => {
+    ensureSpace(14);
+
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(11);
+    pdf.text(getFloorLabel(floor, floorIndex), marginLeft, y);
+    y += 7;
+
+    floor.rooms.forEach((room, roomIndex) => {
+      addRoom(room, roomIndex);
     });
+  });
+
+  const products = getPdfProducts();
+  ensureSpace(30);
+
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(13);
+  pdf.text('Artikel', marginLeft, y);
+  y += 8;
+
+  const colX = {
+    article: marginLeft,
+    description: 42,
+    qty: 132,
+    unitPrice: 152,
+    total: 174
+  };
+
+  function addTableHeader() {
+    ensureSpace(12);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(8);
+
+    pdf.text('Artikel-Nr.', colX.article, y);
+    pdf.text('Beschreibung', colX.description, y);
+    pdf.text('Menge', colX.qty, y);
+    pdf.text('EP', colX.unitPrice, y);
+    pdf.text('Gesamt', colX.total, y);
+
+    y += 3;
+    pdf.line(marginLeft, y, 195, y);
+    y += 5;
+  }
+
+  addTableHeader();
+
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(8);
+
+  products.forEach((p) => {
+    const descriptionLines = pdf.splitTextToSize(p.description || '-', 84);
+    const rowHeight = Math.max(7, descriptionLines.length * 4 + 3);
+
+    if (y + rowHeight > pageHeight - 22) {
+      newPage();
+      addTableHeader();
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(8);
+    }
+
+    pdf.text(p.articleNumber || '-', colX.article, y);
+    pdf.text(descriptionLines, colX.description, y);
+    pdf.text(`${formatQuantity(p.quantity)} ${p.unit}`, colX.qty, y);
+    pdf.text(formatEuro(p.unitPrice), colX.unitPrice, y);
+    pdf.text(formatEuro(p.totalPrice), colX.total, y);
+
+    y += rowHeight;
+  });
+
+  const total = products.reduce((sum, p) => sum + p.totalPrice, 0);
+
+  ensureSpace(18);
+  y += 4;
+  pdf.line(marginLeft, y, 195, y);
+  y += 7;
+
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(12);
+  pdf.text(`Gesamtsumme: ${formatEuro(total)}`, marginLeft, y);
+  y += 12;
+
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(8);
+  pdf.text('Alle Preise sind unverbindliche Verrechnungspreise ohne Mehrwertsteuer.', marginLeft, y);
+
+  pdf.save(`Konfiguration-Fußbodenheizung ${fileDate}.pdf`);
 }
 
 function loadImageAsDataUrl(src) {
