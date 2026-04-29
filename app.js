@@ -191,7 +191,7 @@ function getAllAssignmentsDoneText(type) {
             false;
 
   return hasOpen
-    ? 'Wählen Sie den nächsten Raum.'
+    ? 'Wählen Sie den nächsten Raum. 👉'
     : 'Es wurden alle Räume zugewiesen. Sie können nun über "Weiter" zum nächsten Schritt wechseln.';
 }
 
