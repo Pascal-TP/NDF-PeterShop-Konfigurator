@@ -1879,9 +1879,9 @@ function renderRoomSummaryCards() {
         <div class="summary-room-line"><span>Fläche</span><strong>${formatQuantity(area)} m²</strong></div>
 
         <div class="summary-room-calc">
-          <div class="summary-room-line"><span>Rohrlänge</span><strong>${formatQuantity(pipeLength)} m</strong></div>
-          <div class="summary-room-line"><span>Heizkreise</span><strong>${circuits}</strong></div>
-          <div class="summary-room-line"><span>Raumtherm.</span><strong>${thermostatReco}</strong></div>
+          <div class="summary-room-line"><span>Empfohlen: Rohrlänge</span><strong>${formatQuantity(pipeLength)} m</strong></div>
+<div class="summary-room-line"><span>Empfohlen: Heizkreise</span><strong>${circuits}</strong></div>
+<div class="summary-room-line"><span>Empfohlen: Raumtherm.</span><strong>${thermostatReco}</strong></div>
         </div>
 
         <div class="summary-room-calc">
@@ -3214,16 +3214,17 @@ async function assignDistributionNoneToRoom() {
 
 function exportPdf() {
   const container = document.getElementById('pdfContent');
-
   container.innerHTML = generatePdfHtml();
-
   container.style.display = 'block';
 
+  const fileDate = new Date().toLocaleDateString('de-DE').replaceAll('.', '-');
+
   html2pdf().set({
-    margin: 10,
-    filename: 'Angebot.pdf',
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    margin: [10, 10, 10, 10],
+    filename: `Konfiguration-Fußbodenheizung ${fileDate}.pdf`,
+    html2canvas: { scale: 2, useCORS: true },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+    pagebreak: { mode: ['css', 'legacy'], avoid: ['.pdf-room-box', '.pdf-table-row'] }
   }).from(container).save().then(() => {
     container.style.display = 'none';
   });
@@ -3231,35 +3232,38 @@ function exportPdf() {
 
 function generatePdfHtml() {
   const today = new Date().toLocaleDateString('de-DE');
+  const plzValue = document.getElementById('plz').value.trim() || '-';
 
-  const projectInfo = `
-    <h2>Konfiguration</h2>
-    <p><strong>Projektart:</strong> ${state.projectType || '-'}</p>
-    <p><strong>Marke:</strong> ${state.brand || '-'}</p>
-    <p><strong>Wärmeerzeuger:</strong> ${state.heatingSystem || '-'}</p>
-    <p><strong>PLZ:</strong> ${state.postalCode || '-'}</p>
-  `;
+  const projectTypeText =
+    state.projectType === 'neubau' ? 'Neubau' :
+      state.projectType === 'sanierung' ? 'Sanierung' :
+        '-';
+
+  const brandText =
+    state.brand === 'handelsmarke' ? 'Handelsmarke' :
+      state.brand === 'uponor' ? 'Uponor' :
+        state.brand === 'roth' ? 'Roth' :
+          '-';
 
   const floorsHtml = state.floors.map((floor, fIndex) => {
     const floorLabel = getFloorLabel(floor, fIndex);
 
     const roomsHtml = floor.rooms.map((room, rIndex) => {
       const roomLabel = getRoomLabel(room, rIndex);
-
       const area = Number(String(room.area).replace(',', '.')) || 0;
       const pipe = getRoomPipeLength(room);
       const circuits = getRoomHeatingCircuits(room);
       const thermo = getRoomThermostatRecommendation(room);
 
       return `
-        <div style="margin-bottom:10px; padding:8px; border:1px solid #ccc;">
+        <div class="pdf-room-box">
           <strong>${roomLabel}</strong><br>
           Funktion: ${room.function || '-'}<br>
           VA: ${room.spacing || '-'}<br>
           Fläche: ${formatQuantity(area)} m²<br>
-          Rohrlänge: ${formatQuantity(pipe)} m<br>
-          Heizkreise: ${circuits}<br>
-          Raumthermostat: ${thermo}<br><br>
+          Empfohlen: Rohrlänge: ${formatQuantity(pipe)} m<br>
+          Empfohlen: Heizkreise: ${circuits}<br>
+          Empfohlen: Raumthermostat: ${thermo}<br><br>
 
           System: ${getSystemSummaryText(room)}<br>
           Thermostat: ${getThermostatSummaryText(room)}<br>
@@ -3278,7 +3282,7 @@ function generatePdfHtml() {
   const products = calculateProducts().filter(p => p.selected !== false);
 
   const productRows = products.map(p => `
-    <tr>
+    <tr class="pdf-table-row">
       <td>${p.articleNumber}</td>
       <td>${p.description}</td>
       <td>${formatQuantity(p.quantity)} ${p.unit}</td>
@@ -3290,17 +3294,113 @@ function generatePdfHtml() {
   const total = products.reduce((sum, p) => sum + p.totalPrice, 0);
 
   return `
-    <div style="font-family:Arial; font-size:12px;">
-      <h1>Angebot</h1>
+    <style>
+      .pdf-wrapper {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+        color: #1f2937;
+        padding-top: 95px;
+      }
+
+      .pdf-header {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        height: 82px;
+        background: white;
+      }
+
+      .pdf-logo-box {
+        position: absolute;
+        top: 0;
+        right: 0;
+        text-align: right;
+        font-size: 10px;
+        line-height: 1.35;
+      }
+
+      .pdf-logo {
+        max-width: 135px;
+        max-height: 42px;
+        display: block;
+        margin-left: auto;
+        margin-bottom: 4px;
+      }
+
+      .pdf-title {
+        margin: 0 0 6px 0;
+        font-size: 22px;
+      }
+
+      .pdf-project-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px 18px;
+        margin: 12px 0 18px 0;
+      }
+
+      .pdf-room-box {
+        margin-bottom: 10px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      table {
+        border-collapse: collapse;
+        width: 100%;
+        page-break-inside: auto;
+      }
+
+      tr {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+
+      th, td {
+        border: 1px solid #777;
+        padding: 5px;
+        vertical-align: top;
+      }
+
+      th {
+        background: #f1f5f9;
+      }
+
+      h2, h3 {
+        page-break-after: avoid;
+      }
+    </style>
+
+    <div class="pdf-wrapper">
+      <div class="pdf-header">
+        <div class="pdf-logo-box">
+          <img src="logo.png" class="pdf-logo" />
+          <strong>PETER JENSEN GmbH</strong><br>
+          Borgfelder Straße 19, 20537 Hamburg<br>
+          Tel.: 040 / 25793 - 0<br>
+          www.peterjensen.de
+        </div>
+      </div>
+
+      <h1 class="pdf-title">Konfiguration Fußbodenheizung</h1>
       <p>Datum: ${today}</p>
 
-      ${projectInfo}
+      <h2>Konfiguration</h2>
+      <div class="pdf-project-grid">
+        <div><strong>Projektart:</strong> ${projectTypeText}</div>
+        <div><strong>Marke:</strong> ${brandText}</div>
+        <div><strong>Wärmeerzeuger:</strong> ${state.heatSource || '-'}</div>
+        <div><strong>PLZ:</strong> ${plzValue}</div>
+      </div>
 
       <h2>Räume</h2>
       ${floorsHtml}
 
       <h2>Artikel</h2>
-      <table border="1" cellspacing="0" cellpadding="5" width="100%">
+      <table>
         <thead>
           <tr>
             <th>Artikel-Nr.</th>
