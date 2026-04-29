@@ -1699,17 +1699,6 @@ function renderFloors() {
       scrollToElement(newRoomCard);
     });
 
-    addFloorBtn.addEventListener('click', () => {
-      state.floors.push(createFloor());
-      renderFloors();
-      updateSummary();
-
-      const floorCards = document.querySelectorAll('.floor-card');
-      const newFloorCard = floorCards[floorCards.length - 1];
-
-      scrollToElement(newFloorCard);
-    });
-
     floor.rooms.forEach((room, roomIndex) => {
       const roomNode = roomTemplate.content.firstElementChild.cloneNode(true);
       roomNode.querySelector('.room-title').textContent = `Raum ${roomIndex + 1}`;
@@ -3735,17 +3724,20 @@ document.querySelectorAll('#thermostatToggleChoices .choice-card').forEach((card
           room.assignments.thermostat = null;
         });
       });
+
+      renderThermostatToggle();
+      updateSummary();
+
+      state.maxUnlockedStep = Math.max(state.maxUnlockedStep, 7);
+      showStep(7);
+      return;
     }
 
     renderThermostatToggle();
     renderThermostatFloorSelect();
     updateAssignThermostatButton();
+    updateAssignmentPointers();
     updateSummary();
-
-    if (state.thermostatEnabled === 'nein') {
-      state.maxUnlockedStep = Math.max(state.maxUnlockedStep, 7);
-      showStep(7);
-    }
   });
 });
 
@@ -3988,11 +3980,20 @@ document.querySelectorAll('.thermostat-qty').forEach((input) => {
   });
 });
 
-document.getElementById('addFloorBtn').addEventListener('click', () => {
-  state.floors.push(createFloor());
-  renderFloors();
-  updateSummary();
-});
+const addFloorBtn = document.getElementById('addFloorBtn');
+
+if (addFloorBtn) {
+  addFloorBtn.onclick = () => {
+    state.floors.push(createFloor());
+    renderFloors();
+    updateSummary();
+
+    const floorCards = document.querySelectorAll('.floor-card');
+    const newFloorCard = floorCards[floorCards.length - 1];
+
+    scrollToElement(newFloorCard);
+  };
+}
 
 if (distributionFloorSelect) {
   distributionFloorSelect.addEventListener('change', () => {

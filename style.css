@@ -1125,10 +1125,23 @@ td {
 @keyframes pointerBlink {
   0%, 100% {
     opacity: 1;
-    transform: translateX(0);
+    transform: translateY(-50%) translateX(0);
   }
   50% {
     opacity: 0.25;
-    transform: translateX(-5px);
+    transform: translateY(-50%) translateX(-5px);
   }
+}
+
+.floor-select-field label {
+  position: relative;
+  padding-left: 36px;
+}
+
+.floor-select-field .assignment-pointer {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 0;
 }
