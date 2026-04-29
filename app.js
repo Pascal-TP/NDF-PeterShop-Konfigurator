@@ -3245,6 +3245,14 @@ async function exportPdf() {
 
     pdf.setDrawColor(220);
     pdf.line(15, 45, 195, 45);
+
+    pdf.setFontSize(9);
+    pdf.text(
+      `Seite ${i} von ${pageCount}`,
+      195,
+      290,
+      { align: 'right' }
+    );
   }
 
   function newPage() {
