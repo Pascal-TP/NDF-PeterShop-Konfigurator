@@ -162,26 +162,6 @@ function hasOpenExtraInsulationAssignments() {
   );
 }
 
-function getAssignmentHintText(type) {
-  if (type === 'system' && hasOpenSystemAssignments()) {
-    return 'Wählen Sie den nächsten Raum. 👉';
-  }
-
-  if (type === 'thermostat' && hasOpenThermostatAssignments()) {
-    return 'Wählen Sie den nächsten Raum. 👉';
-  }
-
-  if (type === 'distribution' && hasOpenDistributionAssignments()) {
-    return 'Wählen Sie den nächsten Raum. 👉';
-  }
-
-  if (type === 'extraInsulation' && hasOpenExtraInsulationAssignments()) {
-    return 'Wählen Sie den nächsten Raum. 👉';
-  }
-
-  return '';
-}
-
 function getAllAssignmentsDoneText(type) {
   const hasOpen =
     type === 'system' ? hasOpenSystemAssignments() :
@@ -751,6 +731,13 @@ function showStep(step) {
   nextBtn.style.display = state.currentStep === totalSteps - 1 ? 'none' : 'inline-flex';
   nextBtn.disabled = !canProceedToNextStep();
 
+  if (stepHint) {
+    const requirementText = getNextRequirementText();
+
+    stepHint.classList.toggle('hidden', !requirementText);
+    stepHint.textContent = requirementText;
+  }
+
   const isSystemStep = state.currentStep === 5;
   const isThermostatStep = state.currentStep === 6;
   const isDistributionStep = state.currentStep === 7;
@@ -780,10 +767,6 @@ function showStep(step) {
 
   if (assignExtraInsulationNoneBtn) {
     assignExtraInsulationNoneBtn.classList.toggle('hidden', !isExtraInsulationStep || state.extraInsulationEnabled !== 'ja');
-  }
-
-  if (stepHint) {
-    stepHint.classList.toggle('hidden', !isSystemStep);
   }
 
   if (isSystemStep) {
@@ -3679,6 +3662,47 @@ function updateAssignmentPointers() {
     extraInsulationPointerRoom,
     state.currentStep === 8 && hasOpenExtraInsulationAssignments()
   );
+}
+
+function getNextRequirementText() {
+  if (canProceedToNextStep()) return '';
+
+  if (state.currentStep === 1) {
+    if (state.projectType === 'neubau' && !state.brand) {
+      return 'Bitte wählen Sie eine Marke aus.';
+    }
+    return 'Bitte wählen Sie eine Projektart aus.';
+  }
+
+  if (state.currentStep === 2) {
+    return 'Bitte wählen Sie einen Wärmeerzeuger oder „Keine Angabe“ aus.';
+  }
+
+  if (state.currentStep === 3) {
+    return 'Bitte geben Sie eine gültige fünfstellige Postleitzahl ein.';
+  }
+
+  if (state.currentStep === 4) {
+    return 'Bitte legen Sie mindestens einen Raum mit einer Fläche größer 0 m² an.';
+  }
+
+  if (state.currentStep === 5) {
+    return 'Bitte weisen Sie allen beheizten Räumen ein System zu.';
+  }
+
+  if (state.currentStep === 6) {
+    return 'Bitte wählen Sie „Nein“ oder weisen Sie mindestens einem beheizten Raum ein Thermostat zu.';
+  }
+
+  if (state.currentStep === 7) {
+    return 'Bitte wählen Sie „Nein“ oder weisen Sie mindestens einem beheizten Raum Verteilertechnik zu.';
+  }
+
+  if (state.currentStep === 8) {
+    return 'Bitte wählen Sie „Nein“ oder weisen Sie mindestens einem beheizten Raum Zusatzdämmung zu.';
+  }
+
+  return 'Bitte vervollständigen Sie die Eingaben, bevor Sie fortfahren.';
 }
 
 function updateFinalCheck() {
