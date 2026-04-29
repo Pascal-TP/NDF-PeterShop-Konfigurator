@@ -76,7 +76,7 @@ const resultTableBody = document.getElementById('resultTableBody');
 const resultTotalNet = document.getElementById('resultTotalNet');
 const savePdfBtn = document.getElementById('savePdfBtn');
 const backToConfigBtn = document.getElementById('backToConfigBtn');
-const printResultBtn = document.getElementById('printResultBtn');
+const printResultBtn = document.getElementById('printResultBtn') || null;
 const handoverShopBtn = document.getElementById('handoverShopBtn');
 const distributionToggleChoices = document.getElementById('distributionToggleChoices');
 const distributionOptions = document.getElementById('distributionOptions');
@@ -3905,9 +3905,11 @@ if (savePdfBtn) {
   savePdfBtn.addEventListener('click', exportPdf);
 }
 
-printResultBtn.addEventListener('click', () => {
-  window.print();
-});
+if (printResultBtn) {
+  printResultBtn.addEventListener('click', () => {
+    window.print();
+  });
+}
 
 backToConfigBtn.addEventListener('click', () => {
   returnToConfiguration();
