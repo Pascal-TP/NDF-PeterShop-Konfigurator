@@ -1141,7 +1141,7 @@ td {
 .floor-select-field .assignment-pointer {
   position: absolute;
   left: 0;
-  top: 50%;
+  top: calc(50% - 3px);
   transform: translateY(-50%);
   margin-left: 0;
 }
