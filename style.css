@@ -1117,19 +1117,16 @@ td {
 
 .assignment-pointer {
   display: inline-block;
+  margin-left: 8px;
   font-size: 24px;
-  line-height: 1;
   animation: pointerBlink 0.8s infinite;
 }
 
 @keyframes pointerBlink {
-
-  0%,
-  100% {
+  0%, 100% {
     opacity: 1;
     transform: translateX(0);
   }
-
   50% {
     opacity: 0.25;
     transform: translateX(-5px);
@@ -1137,9 +1134,8 @@ td {
 }
 
 .floor-select-field label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  position: relative;
+  padding-left: 36px;
 }
 
 .floor-select-field .assignment-pointer {
