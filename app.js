@@ -397,7 +397,11 @@ function renderThermostatFloorSelect() {
     return `<option value="${index}">${label}${check}</option>`;
   }).join('');
 
-  thermostatFloorSelect.value = thermostatFloorSelect.value || '0';
+  const thermostatSafeFloorIndex = Number(thermostatFloorSelect.value || 0) < state.floors.length
+    ? Number(thermostatFloorSelect.value || 0)
+    : 0;
+
+  thermostatFloorSelect.value = String(thermostatSafeFloorIndex);
 
   renderThermostatRoomSelect();
 }
@@ -1319,7 +1323,11 @@ function renderExtraInsulationFloorSelect() {
     return `<option value="${index}">${label}${check}</option>`;
   }).join('');
 
-  extraInsulationFloorSelect.value = extraInsulationFloorSelect.value || '0';
+  const extraSafeFloorIndex = Number(extraInsulationFloorSelect.value || 0) < state.floors.length
+    ? Number(extraInsulationFloorSelect.value || 0)
+    : 0;
+
+  extraInsulationFloorSelect.value = String(extraSafeFloorIndex);
 
   renderExtraInsulationRoomSelect();
 }
@@ -3083,7 +3091,11 @@ function renderDistributionFloorSelect() {
     return `<option value="${index}">${label}${check}</option>`;
   }).join('');
 
-  distributionFloorSelect.value = distributionFloorSelect.value || '0';
+  const distributionSafeFloorIndex = Number(distributionFloorSelect.value || 0) < state.floors.length
+    ? Number(distributionFloorSelect.value || 0)
+    : 0;
+
+  distributionFloorSelect.value = String(distributionSafeFloorIndex);
 
   renderDistributionRoomSelect();
 }
@@ -3726,6 +3738,7 @@ document.querySelectorAll('#thermostatToggleChoices .choice-card').forEach((card
       });
 
       renderThermostatToggle();
+      updateAssignmentPointers();
       updateSummary();
 
       state.maxUnlockedStep = Math.max(state.maxUnlockedStep, 7);
@@ -3744,13 +3757,28 @@ document.querySelectorAll('#thermostatToggleChoices .choice-card').forEach((card
 document.querySelectorAll('#extraInsulationToggleChoices .choice-card').forEach((card) => {
   card.addEventListener('click', () => {
     state.extraInsulationEnabled = card.dataset.extraInsulationToggle;
-    renderExtraInsulationToggle();
-    updateSummary();
 
     if (state.extraInsulationEnabled === 'nein') {
+      state.floors.forEach((floor) => {
+        floor.rooms.forEach((room) => {
+          room.assignments.extraInsulation = null;
+        });
+      });
+
+      renderExtraInsulationToggle();
+      updateAssignmentPointers();
+      updateSummary();
+
       state.maxUnlockedStep = Math.max(state.maxUnlockedStep, 9);
       showStep(9);
+      return;
     }
+
+    renderExtraInsulationToggle();
+    renderExtraInsulationFloorSelect();
+    updateAssignExtraInsulationButton();
+    updateAssignmentPointers();
+    updateSummary();
   });
 });
 
@@ -3758,14 +3786,28 @@ document.querySelectorAll('#distributionToggleChoices .choice-card').forEach((ca
   card.addEventListener('click', () => {
     state.distributionEnabled = card.dataset.distributionToggle;
 
-    renderDistributionToggle();
-    renderDistributionMode();
-    updateSummary();
-
     if (state.distributionEnabled === 'nein') {
+      state.floors.forEach((floor) => {
+        floor.rooms.forEach((room) => {
+          room.assignments.distribution = null;
+        });
+      });
+
+      renderDistributionToggle();
+      updateAssignmentPointers();
+      updateSummary();
+
       state.maxUnlockedStep = Math.max(state.maxUnlockedStep, 8);
       showStep(8);
+      return;
     }
+
+    renderDistributionToggle();
+    renderDistributionMode();
+    renderDistributionFloorSelect();
+    updateAssignDistributionButton();
+    updateAssignmentPointers();
+    updateSummary();
   });
 });
 
