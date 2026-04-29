@@ -3246,13 +3246,6 @@ async function exportPdf() {
     pdf.setDrawColor(220);
     pdf.line(15, 45, 195, 45);
 
-    pdf.setFontSize(9);
-    pdf.text(
-      `Seite ${i} von ${pageCount}`,
-      195,
-      290,
-      { align: 'right' }
-    );
   }
 
   function newPage() {
@@ -3455,6 +3448,21 @@ async function exportPdf() {
   pdf.setFontSize(8);
   pdf.text('Alle Preise sind unverbindliche Verrechnungspreise ohne Mehrwertsteuer.', marginLeft, y);
 
+  const pageCount = pdf.internal.getNumberOfPages();
+
+  for (let i = 1; i <= pageCount; i++) {
+    pdf.setPage(i);
+
+    // Seitenzahl unten rechts
+    pdf.setFontSize(9);
+    pdf.text(
+      `Seite ${i} von ${pageCount}`,
+      195,
+      290,
+      { align: 'right' }
+    );
+  }
+
   pdf.save(`Konfiguration-Fußbodenheizung ${fileDate}.pdf`);
 }
 
@@ -3468,166 +3476,6 @@ function loadImageAsDataUrl(src) {
       reader.readAsDataURL(blob);
     }))
     .catch(() => '');
-}
-
-function generatePdfHtml() {
-  const today = new Date().toLocaleDateString('de-DE');
-  const plzValue = document.getElementById('plz').value.trim() || '-';
-
-  const projectTypeText =
-    state.projectType === 'neubau' ? 'Neubau' :
-      state.projectType === 'sanierung' ? 'Sanierung' :
-        '-';
-
-  const brandText =
-    state.brand === 'handelsmarke' ? 'Handelsmarke' :
-      state.brand === 'uponor' ? 'Uponor' :
-        state.brand === 'roth' ? 'Roth' :
-          '-';
-
-  const floorsHtml = state.floors.map((floor, fIndex) => {
-    const floorLabel = getFloorLabel(floor, fIndex);
-
-    const roomsHtml = floor.rooms.map((room, rIndex) => {
-      const roomLabel = getRoomLabel(room, rIndex);
-      const area = Number(String(room.area).replace(',', '.')) || 0;
-      const pipe = getRoomPipeLength(room);
-      const circuits = getRoomHeatingCircuits(room);
-      const thermo = getRoomThermostatRecommendation(room);
-
-      return `
-        <div class="pdf-room-box">
-          <strong>${roomLabel}</strong><br>
-          Funktion: ${room.function || '-'}<br>
-          VA: ${room.spacing || '-'}<br>
-          Fläche: ${formatQuantity(area)} m²<br>
-          <strong>Empfohlen:</strong><br>
-Rohrlänge: ${formatQuantity(pipe)} m<br>
-Heizkreise: ${circuits}<br>
-Raumthermostat: ${thermo}<br><br>
-
-          System: ${getSystemSummaryText(room)}<br>
-          Thermostat: ${getThermostatSummaryText(room)}<br>
-          Verteiler: ${getDistributionSummaryText(room)}<br>
-          Zusatzdämmung: ${getExtraInsulationSummaryText(room)}
-        </div>
-      `;
-    }).join('');
-
-    return `
-      <h3>${floorLabel}</h3>
-      ${roomsHtml}
-    `;
-  }).join('');
-
-  const products = calculateProducts().filter(p => p.selected !== false);
-
-  const productRows = products.map(p => `
-    <tr class="pdf-table-row">
-      <td>${p.articleNumber}</td>
-      <td>${p.description}</td>
-      <td>${formatQuantity(p.quantity)} ${p.unit}</td>
-      <td>${formatEuro(p.unitPrice)}</td>
-      <td>${formatEuro(p.totalPrice)}</td>
-    </tr>
-  `).join('');
-
-  const total = products.reduce((sum, p) => sum + p.totalPrice, 0);
-
-  return `
-    <style>
-      .pdf-wrapper {
-        font-family: Arial, sans-serif;
-        font-size: 12px;
-        color: #1f2937;
-      }
-
-      .pdf-title {
-        margin: 0 0 6px 0;
-        font-size: 22px;
-      }
-
-      .pdf-project-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 4px 18px;
-        margin: 12px 0 18px 0;
-      }
-
-      .pdf-room-box {
-        margin-bottom: 10px;
-        padding: 8px;
-        border: 1px solid #ccc;
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
-
-      table {
-        border-collapse: collapse;
-        width: 100%;
-        page-break-inside: auto;
-      }
-
-      tr {
-        page-break-inside: avoid;
-        break-inside: avoid;
-      }
-
-      th, td {
-        border: 1px solid #777;
-        padding: 5px;
-        vertical-align: top;
-      }
-
-      th {
-        background: #f1f5f9;
-      }
-
-      h2, h3 {
-        page-break-after: avoid;
-      }
-    </style>
-
-    <div class="pdf-wrapper">
-      
-
-      <h1 class="pdf-title">Konfiguration Fußbodenheizung</h1>
-      <p>Datum: ${today}</p>
-
-      <h2>Konfiguration</h2>
-      <div class="pdf-project-grid">
-        <div><strong>Projektart:</strong> ${projectTypeText}</div>
-        <div><strong>Marke:</strong> ${brandText}</div>
-        <div><strong>Wärmeerzeuger:</strong> ${state.heatSource || '-'}</div>
-        <div><strong>PLZ:</strong> ${plzValue}</div>
-      </div>
-
-      <h2>Räume</h2>
-      ${floorsHtml}
-
-      <h2>Artikel</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Artikel-Nr.</th>
-            <th>Beschreibung</th>
-            <th>Menge</th>
-            <th>EP</th>
-            <th>Gesamt</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${productRows}
-        </tbody>
-      </table>
-
-      <h3>Gesamtsumme: ${formatEuro(total)}</h3>
-
-      <p style="font-size:10px; margin-top:20px;">
-        Alle Preise sind unverbindliche Verrechnungspreise ohne Mehrwertsteuer.
-      </p>
-    </div>
-  `;
 }
 
 function updateFinalCheck() {
@@ -3646,12 +3494,12 @@ function updateFinalCheck() {
     <div><strong>System:</strong> ${getSystemValue() || 'Keine Auswahl'}, ${getCheckedValue('wlg')}, ${getCheckedValue('insulationThickness')}</div>
     <div><strong>Rohr:</strong> ${getCheckedValue('pipeType')} / ${getCheckedValue('pipeSize')}</div>
     <div><strong>Estrich:</strong> ${estrichRangeEntries.length ? estrichRangeEntries.join(', ') : 'Keine Auswahl'}</div>
-<div><strong>Zusatzmittel:</strong> ${estrichAdditiveEntries.length ? estrichAdditiveEntries.join(', ') : 'Keine Auswahl'}</div>
-<div><strong>Trockenbau:</strong> ${dryConstructionEntries.length ? dryConstructionEntries.join(', ') : 'Keine Auswahl'}</div>
+    <div><strong>Zusatzmittel:</strong> ${estrichAdditiveEntries.length ? estrichAdditiveEntries.join(', ') : 'Keine Auswahl'}</div>
+    <div><strong>Trockenbau:</strong> ${dryConstructionEntries.length ? dryConstructionEntries.join(', ') : 'Keine Auswahl'}</div>
     <div><strong>Thermostat:</strong> ${state.thermostatEnabled === 'nein' ? 'Kein Thermostat' : state.thermostat}</div>
     <div><strong>Verteilerschrank-Art:</strong> ${getCheckedValue('cabinetMounting')}</div>
-<div><strong>Verteiler Menge & Typ:</strong> ${state.distributionMode === 'auto' ? 'Automatische Ermittlung' : (manualDistributionEntries.length ? manualDistributionEntries.join(', ') : 'Keine manuelle Eingabe')}</div>
-<div><strong>Regeltechnik:</strong> ${getCheckedValue('regulationVoltage')} / ${regulationEntries.length ? regulationEntries.join(', ') : 'Keine Zusatzkomponenten'}</div>
+    <div><strong>Verteiler Menge & Typ:</strong> ${state.distributionMode === 'auto' ? 'Automatische Ermittlung' : (manualDistributionEntries.length ? manualDistributionEntries.join(', ') : 'Keine manuelle Eingabe')}</div>
+    <div><strong>Regeltechnik:</strong> ${getCheckedValue('regulationVoltage')} / ${regulationEntries.length ? regulationEntries.join(', ') : 'Keine Zusatzkomponenten'}</div>
     <div><strong>Zusatzdämmung:</strong> ${state.extraInsulationEnabled === 'nein' ? 'Keine' : `${getCheckedValue('extraInsulation')} / ${getCheckedValue('extraInsulationWlg')} / ${getCheckedValue('extraInsulationThickness')}`}</div>
     <div><strong>Etagen / Räume:</strong> ${state.floors.length} / ${roomsCount}</div>
     <div><strong>Dienstleistungen:</strong> ${servicesText}</div>
