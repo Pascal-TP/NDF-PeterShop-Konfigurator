@@ -1114,3 +1114,21 @@ td {
   margin-bottom: 4px;
   font-size: 12px;
 }
+
+.assignment-pointer {
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 24px;
+  animation: pointerBlink 0.8s infinite;
+}
+
+@keyframes pointerBlink {
+  0%, 100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  50% {
+    opacity: 0.25;
+    transform: translateX(-5px);
+  }
+}

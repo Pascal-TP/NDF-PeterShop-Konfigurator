@@ -96,6 +96,14 @@ const extraInsulationFloorSelect = document.getElementById('extraInsulationFloor
 const extraInsulationRoomSelect = document.getElementById('extraInsulationRoomSelect');
 const assignExtraInsulationBtn = document.getElementById('assignExtraInsulationBtn');
 const assignExtraInsulationNoneBtn = document.getElementById('assignExtraInsulationNoneBtn');
+const systemPointerFloor = document.getElementById('systemPointerFloor');
+const systemPointerRoom = document.getElementById('systemPointerRoom');
+const thermostatPointerFloor = document.getElementById('thermostatPointerFloor');
+const thermostatPointerRoom = document.getElementById('thermostatPointerRoom');
+const distributionPointerFloor = document.getElementById('distributionPointerFloor');
+const distributionPointerRoom = document.getElementById('distributionPointerRoom');
+const extraInsulationPointerFloor = document.getElementById('extraInsulationPointerFloor');
+const extraInsulationPointerRoom = document.getElementById('extraInsulationPointerRoom');
 
 const appModal = document.getElementById('appModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -111,6 +119,67 @@ function scrollToTop() {
     top: 0,
     behavior: 'smooth' // optional: 'auto' wenn du kein weiches Scrollen willst
   });
+}
+
+function scrollToElement(element) {
+  if (!element) return;
+
+  setTimeout(() => {
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start'
+    });
+  }, 100);
+}
+
+function hasOpenSystemAssignments() {
+  return state.floors.some(floor =>
+    floor.rooms.some(room => roomIsHeated(room) && !room.assignments?.system)
+  );
+}
+
+function hasOpenThermostatAssignments() {
+  if (state.thermostatEnabled !== 'ja') return false;
+
+  return state.floors.some(floor =>
+    floor.rooms.some(room => roomIsHeated(room) && !room.assignments?.thermostat)
+  );
+}
+
+function hasOpenDistributionAssignments() {
+  if (state.distributionEnabled !== 'ja') return false;
+
+  return state.floors.some(floor =>
+    floor.rooms.some(room => roomIsHeated(room) && !room.assignments?.distribution)
+  );
+}
+
+function hasOpenExtraInsulationAssignments() {
+  if (state.extraInsulationEnabled !== 'ja') return false;
+
+  return state.floors.some(floor =>
+    floor.rooms.some(room => roomIsHeated(room) && !room.assignments?.extraInsulation)
+  );
+}
+
+function getAssignmentHintText(type) {
+  if (type === 'system' && hasOpenSystemAssignments()) {
+    return 'Wählen Sie den nächsten Raum.';
+  }
+
+  if (type === 'thermostat' && hasOpenThermostatAssignments()) {
+    return 'Wählen Sie den nächsten Raum.';
+  }
+
+  if (type === 'distribution' && hasOpenDistributionAssignments()) {
+    return 'Wählen Sie den nächsten Raum.';
+  }
+
+  if (type === 'extraInsulation' && hasOpenExtraInsulationAssignments()) {
+    return 'Wählen Sie den nächsten Raum.';
+  }
+
+  return '';
 }
 
 function getCheckedValue(name) {
@@ -511,13 +580,17 @@ async function assignSystemToSelectedFloor() {
 
   room.assignments.system = getCurrentSystemSelection();
 
+  const hint = getAssignmentHintText('system');
+
   await showAppModal({
     title: 'Gespeichert',
-    message: `Das System wurde dem Raum "${getRoomLabel(room, Number(systemRoomSelect.value))}" zugewiesen.`,
+    message: `Das System wurde dem Raum "${getRoomLabel(room, Number(systemRoomSelect.value))}" zugewiesen.${hint ? '\n\n' + hint : ''}`,
     confirmText: 'OK'
   });
 
   renderSystemFloorSelect();
+  updateAssignmentPointers();
+  scrollToTop();
   updateSummary();
 }
 
@@ -601,12 +674,22 @@ function resetFromProjectTypeForward() {
 
 async function confirmReturnToProjectType(targetStep) {
   if (targetStep === 1 && state.currentStep > 1) {
-    return await showAppModal({
+    const confirmed = await showAppModal({
       title: 'Hinweis',
       message: 'Die Rückkehr zu diesem Schritt bewirkt ein Zurücksetzen sämtlicher Eingaben.',
       confirmText: 'Weiter',
       cancelText: 'Abbrechen'
     });
+
+    if (confirmed) {
+      state.projectType = '';
+      state.brand = '';
+      resetFromProjectTypeForward();
+      renderProjectType();
+      updateSummary();
+    }
+
+    return confirmed;
   }
 
   return true;
@@ -685,6 +768,7 @@ function showStep(step) {
     updateAssignExtraInsulationButton();
   }
 
+  updateAssignmentPointers();
   scrollToTop();
 }
 
@@ -866,6 +950,9 @@ function renderSystemBlocksByProjectType() {
   pipeTypeBlock.classList.toggle('hidden', isSanierung);
   pipeSizeBlock.classList.toggle('hidden', isSanierung);
 
+  if (state.projectType === 'neubau' && pipeTypeBlock && estrichBlock) {
+    pipeTypeBlock.insertAdjacentElement('afterend', estrichBlock);
+  }
 }
 
 function renderBrand() {
@@ -1372,13 +1459,17 @@ async function assignExtraInsulationToRoom() {
 
   room.assignments.extraInsulation = selection;
 
+  const hint = getAssignmentHintText('extraInsulation');
+
   await showAppModal({
     title: 'Gespeichert',
-    message: `Die Zusatzdämmung wurde dem Raum "${getRoomLabel(room, Number(extraInsulationRoomSelect.value))}" zugewiesen.`,
+    message: `Die Zusatzdämmung wurde dem Raum "${getRoomLabel(room, Number(extraInsulationRoomSelect.value))}" zugewiesen.${hint ? '\n\n' + hint : ''}`,
     confirmText: 'OK'
   });
 
   renderExtraInsulationFloorSelect();
+  updateAssignmentPointers();
+  scrollToTop();
   updateAssignExtraInsulationButton();
   updateSummary();
 }
@@ -1392,13 +1483,17 @@ async function assignExtraInsulationNoneToRoom() {
 
   clearExtraInsulationSelection();
 
+  const hint = getAssignmentHintText('extraInsulation');
+
   await showAppModal({
     title: 'Gespeichert',
-    message: `Für den Raum "${getRoomLabel(room, Number(extraInsulationRoomSelect.value))}" wurde keine Zusatzdämmung hinterlegt.`,
+    message: `Für den Raum "${getRoomLabel(room, Number(extraInsulationRoomSelect.value))}" wurde keine Zusatzdämmung hinterlegt.${hint ? '\n\n' + hint : ''}`,
     confirmText: 'OK'
   });
 
   renderExtraInsulationFloorSelect();
+  updateAssignmentPointers();
+  scrollToTop();
   updateAssignExtraInsulationButton();
   updateSummary();
 }
@@ -1595,14 +1690,24 @@ function renderFloors() {
       state.floors[floorIndex].rooms.push(createRoom());
       renderFloors();
       updateSummary();
+
+      const floorCards = document.querySelectorAll('.floor-card');
+      const currentFloorCard = floorCards[floorIndex];
+      const roomCards = currentFloorCard?.querySelectorAll('.room-card');
+      const newRoomCard = roomCards?.[roomCards.length - 1];
+
+      scrollToElement(newRoomCard);
     });
 
-    removeFloorBtn.disabled = state.floors.length === 1;
-    removeFloorBtn.addEventListener('click', () => {
-      if (state.floors.length === 1) return;
-      state.floors.splice(floorIndex, 1);
+    addFloorBtn.addEventListener('click', () => {
+      state.floors.push(createFloor());
       renderFloors();
       updateSummary();
+
+      const floorCards = document.querySelectorAll('.floor-card');
+      const newFloorCard = floorCards[floorCards.length - 1];
+
+      scrollToElement(newFloorCard);
     });
 
     floor.rooms.forEach((room, roomIndex) => {
@@ -2924,13 +3029,17 @@ async function assignThermostatToRoom() {
 
   room.assignments.thermostat = selection;
 
+  const hint = getAssignmentHintText('thermostat');
+
   await showAppModal({
     title: 'Gespeichert',
-    message: `Das Thermostat wurde dem Raum "${getRoomLabel(room, Number(thermostatRoomSelect.value))}" zugewiesen.`,
+    message: `Das Thermostat wurde dem Raum "${getRoomLabel(room, Number(thermostatRoomSelect.value))}" zugewiesen.${hint ? '\n\n' + hint : ''}`,
     confirmText: 'OK'
   });
 
   renderThermostatFloorSelect();
+  updateAssignmentPointers();
+  scrollToTop();
   updateAssignThermostatButton();
   updateSummary();
 }
@@ -2943,13 +3052,17 @@ async function assignThermostatNoneToRoom() {
 
   clearThermostatSelection();
 
+  const hint = getAssignmentHintText('thermostat');
+
   await showAppModal({
     title: 'Gespeichert',
-    message: `Für den Raum "${getRoomLabel(room, Number(thermostatRoomSelect.value))}" wurde kein Thermostat hinterlegt.`,
+    message: `Für den Raum "${getRoomLabel(room, Number(thermostatRoomSelect.value))}" wurde kein Thermostat hinterlegt.${hint ? '\n\n' + hint : ''}`,
     confirmText: 'OK'
   });
 
   renderThermostatFloorSelect();
+  updateAssignmentPointers();
+  scrollToTop();
   updateAssignThermostatButton();
   updateSummary();
 }
@@ -3183,13 +3296,17 @@ async function assignDistributionToRoom() {
 
   room.assignments.distribution = selection;
 
+  const hint = getAssignmentHintText('distribution');
+
   await showAppModal({
     title: 'Gespeichert',
-    message: `Die Verteilertechnik wurde dem Raum "${getRoomLabel(room, Number(distributionRoomSelect.value))}" zugewiesen.`,
+    message: `Die Verteilertechnik wurde dem Raum "${getRoomLabel(room, Number(distributionRoomSelect.value))}" zugewiesen.${hint ? '\n\n' + hint : ''}`,
     confirmText: 'OK'
   });
 
   renderDistributionFloorSelect();
+  updateAssignmentPointers();
+  scrollToTop();
   updateSummary();
 }
 
@@ -3202,13 +3319,17 @@ async function assignDistributionNoneToRoom() {
 
   clearDistributionSelection();
 
+  const hint = getAssignmentHintText('distribution');
+
   await showAppModal({
     title: 'Gespeichert',
-    message: `Für den Raum "${getRoomLabel(room, Number(distributionRoomSelect.value))}" wurde keine Verteilertechnik hinterlegt.`,
+    message: `Für den Raum "${getRoomLabel(room, Number(distributionRoomSelect.value))}" wurde keine Verteilertechnik hinterlegt.${hint ? '\n\n' + hint : ''}`,
     confirmText: 'OK'
   });
 
   renderDistributionFloorSelect();
+  updateAssignmentPointers();
+  scrollToTop();
   updateAssignDistributionButton();
   updateSummary();
 }
@@ -3478,6 +3599,37 @@ function loadImageAsDataUrl(src) {
     .catch(() => '');
 }
 
+function togglePointer(pointerA, pointerB, show) {
+  pointerA?.classList.toggle('hidden', !show);
+  pointerB?.classList.toggle('hidden', !show);
+}
+
+function updateAssignmentPointers() {
+  togglePointer(
+    systemPointerFloor,
+    systemPointerRoom,
+    state.currentStep === 5 && hasOpenSystemAssignments()
+  );
+
+  togglePointer(
+    thermostatPointerFloor,
+    thermostatPointerRoom,
+    state.currentStep === 6 && hasOpenThermostatAssignments()
+  );
+
+  togglePointer(
+    distributionPointerFloor,
+    distributionPointerRoom,
+    state.currentStep === 7 && hasOpenDistributionAssignments()
+  );
+
+  togglePointer(
+    extraInsulationPointerFloor,
+    extraInsulationPointerRoom,
+    state.currentStep === 8 && hasOpenExtraInsulationAssignments()
+  );
+}
+
 function updateFinalCheck() {
   const roomsCount = state.floors.reduce((sum, floor) => sum + floor.rooms.length, 0);
   const servicesText = state.services.length ? state.services.join(', ') : 'Keine zusätzlichen Dienstleistungen gewählt';
@@ -3589,6 +3741,11 @@ document.querySelectorAll('#thermostatToggleChoices .choice-card').forEach((card
     renderThermostatFloorSelect();
     updateAssignThermostatButton();
     updateSummary();
+
+    if (state.thermostatEnabled === 'nein') {
+      state.maxUnlockedStep = Math.max(state.maxUnlockedStep, 7);
+      showStep(7);
+    }
   });
 });
 
@@ -3597,6 +3754,11 @@ document.querySelectorAll('#extraInsulationToggleChoices .choice-card').forEach(
     state.extraInsulationEnabled = card.dataset.extraInsulationToggle;
     renderExtraInsulationToggle();
     updateSummary();
+
+    if (state.extraInsulationEnabled === 'nein') {
+      state.maxUnlockedStep = Math.max(state.maxUnlockedStep, 9);
+      showStep(9);
+    }
   });
 });
 
@@ -3607,6 +3769,11 @@ document.querySelectorAll('#distributionToggleChoices .choice-card').forEach((ca
     renderDistributionToggle();
     renderDistributionMode();
     updateSummary();
+
+    if (state.distributionEnabled === 'nein') {
+      state.maxUnlockedStep = Math.max(state.maxUnlockedStep, 8);
+      showStep(8);
+    }
   });
 });
 
