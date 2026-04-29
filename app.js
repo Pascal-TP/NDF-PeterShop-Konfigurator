@@ -3212,6 +3212,118 @@ async function assignDistributionNoneToRoom() {
   updateSummary();
 }
 
+function exportPdf() {
+  const container = document.getElementById('pdfContent');
+
+  container.innerHTML = generatePdfHtml();
+
+  container.style.display = 'block';
+
+  html2pdf().set({
+    margin: 10,
+    filename: 'Angebot.pdf',
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  }).from(container).save().then(() => {
+    container.style.display = 'none';
+  });
+}
+
+function generatePdfHtml() {
+  const today = new Date().toLocaleDateString('de-DE');
+
+  const projectInfo = `
+    <h2>Konfiguration</h2>
+    <p><strong>Projektart:</strong> ${state.projectType || '-'}</p>
+    <p><strong>Marke:</strong> ${state.brand || '-'}</p>
+    <p><strong>Wärmeerzeuger:</strong> ${state.heatingSystem || '-'}</p>
+    <p><strong>PLZ:</strong> ${state.postalCode || '-'}</p>
+  `;
+
+  const floorsHtml = state.floors.map((floor, fIndex) => {
+    const floorLabel = getFloorLabel(floor, fIndex);
+
+    const roomsHtml = floor.rooms.map((room, rIndex) => {
+      const roomLabel = getRoomLabel(room, rIndex);
+
+      const area = Number(String(room.area).replace(',', '.')) || 0;
+      const pipe = getRoomPipeLength(room);
+      const circuits = getRoomHeatingCircuits(room);
+      const thermo = getRoomThermostatRecommendation(room);
+
+      return `
+        <div style="margin-bottom:10px; padding:8px; border:1px solid #ccc;">
+          <strong>${roomLabel}</strong><br>
+          Funktion: ${room.function || '-'}<br>
+          VA: ${room.spacing || '-'}<br>
+          Fläche: ${formatQuantity(area)} m²<br>
+          Rohrlänge: ${formatQuantity(pipe)} m<br>
+          Heizkreise: ${circuits}<br>
+          Raumthermostat: ${thermo}<br><br>
+
+          System: ${getSystemSummaryText(room)}<br>
+          Thermostat: ${getThermostatSummaryText(room)}<br>
+          Verteiler: ${getDistributionSummaryText(room)}<br>
+          Zusatzdämmung: ${getExtraInsulationSummaryText(room)}
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <h3>${floorLabel}</h3>
+      ${roomsHtml}
+    `;
+  }).join('');
+
+  const products = calculateProducts().filter(p => p.selected !== false);
+
+  const productRows = products.map(p => `
+    <tr>
+      <td>${p.articleNumber}</td>
+      <td>${p.description}</td>
+      <td>${formatQuantity(p.quantity)} ${p.unit}</td>
+      <td>${formatEuro(p.unitPrice)}</td>
+      <td>${formatEuro(p.totalPrice)}</td>
+    </tr>
+  `).join('');
+
+  const total = products.reduce((sum, p) => sum + p.totalPrice, 0);
+
+  return `
+    <div style="font-family:Arial; font-size:12px;">
+      <h1>Angebot</h1>
+      <p>Datum: ${today}</p>
+
+      ${projectInfo}
+
+      <h2>Räume</h2>
+      ${floorsHtml}
+
+      <h2>Artikel</h2>
+      <table border="1" cellspacing="0" cellpadding="5" width="100%">
+        <thead>
+          <tr>
+            <th>Artikel-Nr.</th>
+            <th>Beschreibung</th>
+            <th>Menge</th>
+            <th>EP</th>
+            <th>Gesamt</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${productRows}
+        </tbody>
+      </table>
+
+      <h3>Gesamtsumme: ${formatEuro(total)}</h3>
+
+      <p style="font-size:10px; margin-top:20px;">
+        Alle Preise sind unverbindliche Verrechnungspreise ohne Mehrwertsteuer.
+      </p>
+    </div>
+  `;
+}
+
 function updateFinalCheck() {
   const roomsCount = state.floors.reduce((sum, floor) => sum + floor.rooms.length, 0);
   const servicesText = state.services.length ? state.services.join(', ') : 'Keine zusätzlichen Dienstleistungen gewählt';
@@ -3360,10 +3472,9 @@ document.getElementById('startCalculationBtn').addEventListener('click', async (
   }
 });
 
-savePdfBtn.addEventListener('click', () => {
-  // Browser-Variante: Der Nutzer kann im Druckdialog "Als PDF speichern" wählen.
-  window.print();
-});
+if (savePdfBtn) {
+  savePdfBtn.addEventListener('click', exportPdf);
+}
 
 printResultBtn.addEventListener('click', () => {
   window.print();
