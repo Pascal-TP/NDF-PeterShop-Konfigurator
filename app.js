@@ -3222,7 +3222,7 @@ async function exportPdf() {
   const logoDataUrl = await loadImageAsDataUrl('logo.png');
 
   html2pdf().set({
-    margin: [32, 10, 12, 10],
+    margin: [24, 10, 12, 10],
     filename: `Konfiguration-Fußbodenheizung ${fileDate}.pdf`,
     html2canvas: { scale: 2, useCORS: true },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -3238,7 +3238,7 @@ async function exportPdf() {
         pdf.setPage(i);
 
         if (logoDataUrl) {
-          pdf.addImage(logoDataUrl, 'PNG', 155, 8, 40, 16);
+          pdf.addImage(logoDataUrl, 'PNG', 155, 6, 40, 16);
         }
 
         pdf.setFontSize(8);
@@ -3248,7 +3248,7 @@ async function exportPdf() {
           '20537 Hamburg',
           'Tel.: 040 / 25793 - 0',
           'www.peterjensen.de'
-        ], 155, 28);
+        ], 155, 25);
       }
     })
     .save()
@@ -3339,33 +3339,6 @@ Raumthermostat: ${thermo}<br><br>
         font-family: Arial, sans-serif;
         font-size: 12px;
         color: #1f2937;
-        padding-top: 95px;
-      }
-
-      .pdf-header {
-        position: fixed;
-        top: 0;
-        right: 0;
-        left: 0;
-        height: 82px;
-        background: white;
-      }
-
-      .pdf-logo-box {
-        position: absolute;
-        top: 0;
-        right: 0;
-        text-align: right;
-        font-size: 10px;
-        line-height: 1.35;
-      }
-
-      .pdf-logo {
-        max-width: 135px;
-        max-height: 42px;
-        display: block;
-        margin-left: auto;
-        margin-bottom: 4px;
       }
 
       .pdf-title {
@@ -3415,15 +3388,7 @@ Raumthermostat: ${thermo}<br><br>
     </style>
 
     <div class="pdf-wrapper">
-      <div class="pdf-header">
-        <div class="pdf-logo-box">
-          <img src="logo.png" class="pdf-logo" />
-          <strong>PETER JENSEN GmbH</strong><br>
-          Borgfelder Straße 19, 20537 Hamburg<br>
-          Tel.: 040 / 25793 - 0<br>
-          www.peterjensen.de
-        </div>
-      </div>
+      
 
       <h1 class="pdf-title">Konfiguration Fußbodenheizung</h1>
       <p>Datum: ${today}</p>
