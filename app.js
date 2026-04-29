@@ -1879,10 +1879,11 @@ function renderRoomSummaryCards() {
         <div class="summary-room-line"><span>Fläche</span><strong>${formatQuantity(area)} m²</strong></div>
 
         <div class="summary-room-calc">
-          <div class="summary-room-line"><span>Empfohlen: Rohrlänge</span><strong>${formatQuantity(pipeLength)} m</strong></div>
-<div class="summary-room-line"><span>Empfohlen: Heizkreise</span><strong>${circuits}</strong></div>
-<div class="summary-room-line"><span>Empfohlen: Raumtherm.</span><strong>${thermostatReco}</strong></div>
-        </div>
+  <div class="summary-room-section-title">Empfohlen:</div>
+  <div class="summary-room-line"><span>Rohrlänge</span><strong>${formatQuantity(pipeLength)} m</strong></div>
+  <div class="summary-room-line"><span>Heizkreise</span><strong>${circuits}</strong></div>
+  <div class="summary-room-line"><span>Raumtherm.</span><strong>${thermostatReco}</strong></div>
+</div>
 
         <div class="summary-room-calc">
           <div class="summary-room-line"><span>System</span><strong>${getSystemSummaryText(room)}</strong></div>
@@ -3212,22 +3213,60 @@ async function assignDistributionNoneToRoom() {
   updateSummary();
 }
 
-function exportPdf() {
+async function exportPdf() {
   const container = document.getElementById('pdfContent');
   container.innerHTML = generatePdfHtml();
   container.style.display = 'block';
 
   const fileDate = new Date().toLocaleDateString('de-DE').replaceAll('.', '-');
+  const logoDataUrl = await loadImageAsDataUrl('logo.png');
 
   html2pdf().set({
-    margin: [10, 10, 10, 10],
+    margin: [32, 10, 12, 10],
     filename: `Konfiguration-Fußbodenheizung ${fileDate}.pdf`,
     html2canvas: { scale: 2, useCORS: true },
     jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
     pagebreak: { mode: ['css', 'legacy'], avoid: ['.pdf-room-box', '.pdf-table-row'] }
-  }).from(container).save().then(() => {
-    container.style.display = 'none';
-  });
+  })
+    .from(container)
+    .toPdf()
+    .get('pdf')
+    .then((pdf) => {
+      const pageCount = pdf.internal.getNumberOfPages();
+
+      for (let i = 1; i <= pageCount; i++) {
+        pdf.setPage(i);
+
+        if (logoDataUrl) {
+          pdf.addImage(logoDataUrl, 'PNG', 155, 8, 40, 16);
+        }
+
+        pdf.setFontSize(8);
+        pdf.text([
+          'PETER JENSEN GmbH',
+          'Borgfelder Straße 19',
+          '20537 Hamburg',
+          'Tel.: 040 / 25793 - 0',
+          'www.peterjensen.de'
+        ], 155, 28);
+      }
+    })
+    .save()
+    .then(() => {
+      container.style.display = 'none';
+    });
+}
+
+function loadImageAsDataUrl(src) {
+  return fetch(src)
+    .then(response => response.blob())
+    .then(blob => new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(blob);
+    }))
+    .catch(() => '');
 }
 
 function generatePdfHtml() {
@@ -3261,9 +3300,10 @@ function generatePdfHtml() {
           Funktion: ${room.function || '-'}<br>
           VA: ${room.spacing || '-'}<br>
           Fläche: ${formatQuantity(area)} m²<br>
-          Empfohlen: Rohrlänge: ${formatQuantity(pipe)} m<br>
-          Empfohlen: Heizkreise: ${circuits}<br>
-          Empfohlen: Raumthermostat: ${thermo}<br><br>
+          <strong>Empfohlen:</strong><br>
+Rohrlänge: ${formatQuantity(pipe)} m<br>
+Heizkreise: ${circuits}<br>
+Raumthermostat: ${thermo}<br><br>
 
           System: ${getSystemSummaryText(room)}<br>
           Thermostat: ${getThermostatSummaryText(room)}<br>
