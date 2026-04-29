@@ -1123,10 +1123,13 @@ td {
 }
 
 @keyframes pointerBlink {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
     transform: translateX(0);
   }
+
   50% {
     opacity: 0.25;
     transform: translateX(-5px);
@@ -1144,4 +1147,17 @@ td {
   top: calc(50% - 22px);
   transform: translateY(-50%);
   margin-left: 0;
+}
+
+.disabled-button,
+button.disabled-button {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.disabled-button:hover,
+button.disabled-button:hover {
+  background: var(--primary);
+  transform: none;
 }

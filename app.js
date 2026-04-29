@@ -1739,11 +1739,28 @@ function renderFloors() {
         updateSummary();
       });
 
+      const canRemoveFloor = state.floors.length > 1;
+
+      removeFloorBtn.disabled = !canRemoveFloor;
+      removeFloorBtn.classList.toggle('disabled-button', !canRemoveFloor);
+
+      removeFloorBtn.addEventListener('click', () => {
+        if (state.floors.length <= 1) return;
+
+        state.floors.splice(floorIndex, 1);
+        renderFloors();
+        updateSummary();
+      });
+
+      const canRemoveRoom = state.floors[floorIndex].rooms.length > 1;
+
+      removeRoomBtn.disabled = !canRemoveRoom;
+      removeRoomBtn.classList.toggle('disabled-button', !canRemoveRoom);
+
       removeRoomBtn.addEventListener('click', () => {
+        if (state.floors[floorIndex].rooms.length <= 1) return;
+
         state.floors[floorIndex].rooms.splice(roomIndex, 1);
-        if (state.floors[floorIndex].rooms.length === 0) {
-          state.floors[floorIndex].rooms.push(createRoom());
-        }
         renderFloors();
         updateSummary();
       });
