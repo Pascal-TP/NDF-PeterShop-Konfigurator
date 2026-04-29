@@ -164,19 +164,19 @@ function hasOpenExtraInsulationAssignments() {
 
 function getAssignmentHintText(type) {
   if (type === 'system' && hasOpenSystemAssignments()) {
-    return 'Wählen Sie den nächsten Raum.';
+    return 'Wählen Sie den nächsten Raum. 👉';
   }
 
   if (type === 'thermostat' && hasOpenThermostatAssignments()) {
-    return 'Wählen Sie den nächsten Raum.';
+    return 'Wählen Sie den nächsten Raum. 👉';
   }
 
   if (type === 'distribution' && hasOpenDistributionAssignments()) {
-    return 'Wählen Sie den nächsten Raum.';
+    return 'Wählen Sie den nächsten Raum. 👉';
   }
 
   if (type === 'extraInsulation' && hasOpenExtraInsulationAssignments()) {
-    return 'Wählen Sie den nächsten Raum.';
+    return 'Wählen Sie den nächsten Raum. 👉';
   }
 
   return '';
