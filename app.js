@@ -820,7 +820,7 @@ function canProceedToNextStep() {
       return true;
     }
 
-    if (/^\d{4,5}$/.test(plzRaw)) {
+    if (/^\d{5}$/.test(plzRaw)) {
       const entry = getDistanceEntryForPlz(normalizedPlz);
 
       if (entry) return true;
@@ -2319,14 +2319,13 @@ function updateManualDistanceVisibility() {
   if (!manualDistanceBox) return;
 
   const plzRaw = document.getElementById('plz').value.trim();
-  const normalizedPlz = normalizePlz(plzRaw);
 
-  if (!plzRaw || !/^\d{4,5}$/.test(plzRaw)) {
+  if (!/^\d{5}$/.test(plzRaw)) {
     manualDistanceBox.classList.add('hidden');
     return;
   }
 
-  const entry = getDistanceEntryForPlz(normalizedPlz);
+  const entry = getDistanceEntryForPlz(plzRaw);
 
   manualDistanceBox.classList.toggle('hidden', !!entry);
 }
