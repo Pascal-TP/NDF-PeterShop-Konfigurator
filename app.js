@@ -2073,19 +2073,25 @@ function updateSummary() {
 
   let distanceText = '';
 
-  if (distanceEntry) {
-    distanceText = ` – Entfernung: ${formatQuantity(distanceEntry.km)} km`;
+  if (normalizedPlz) {
+    summaryPlz.innerHTML = `
+    <div>PLZ: ${normalizedPlz}</div>
+    ${distanceEntry
+        ? `<div>Entfernung: ${formatQuantity(distanceEntry.km)} km</div>`
+        : manualKm > 0
+          ? `<div>Entfernung manuell: ${formatQuantity(manualKm)} km</div>`
+          : ''
+      }
+  `;
   } else if (manualKm > 0) {
-    distanceText = ` – Entfernung manuell: ${formatQuantity(manualKm)} km`;
+    summaryPlz.innerHTML = `
+    <div>PLZ: Keine Angabe</div>
+    <div>Manuelle km: ${formatQuantity(manualKm)} km</div>
+  `;
+  } else {
+    summaryPlz.textContent = 'Keine Angabe';
   }
 
-  summaryPlz.textContent = normalizedPlz
-    ? `${normalizedPlz}${distanceText}`
-    : manualKm > 0
-      ? `Keine PLZ – Entfernung manuell: ${formatQuantity(manualKm)} km`
-      : 'Keine Angabe';
-  document.getElementById('summarySystem').textContent =
-    getSystemValue() || 'Keine Auswahl';
   document.getElementById('summaryWlg').textContent = wlgBlock.classList.contains('hidden') ? '-' : (getCheckedValue('wlg') || 'Keine Auswahl');
   document.getElementById('summaryInsulationThickness').textContent = insulationThicknessBlock.classList.contains('hidden') ? '-' : (getCheckedValue('insulationThickness') || 'Keine Auswahl');
   document.getElementById('summaryPipeType').textContent = pipeTypeBlock.classList.contains('hidden') ? '-' : (getCheckedValue('pipeType') || 'Keine Auswahl');
