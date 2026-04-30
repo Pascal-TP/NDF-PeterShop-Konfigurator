@@ -811,25 +811,20 @@ function canProceedToNextStep() {
     return state.heatSource !== '';
   }
 
-  if (state.currentStep === 3) {
-    const plzRaw = document.getElementById('plz').value.trim();
-    const normalizedPlz = normalizePlz(plzRaw);
-    const manualKm = getManualDistanceKm();
+ if (state.currentStep === 3) {
+  const plzRaw = document.getElementById('plz').value.trim();
+  const manualKm = getManualDistanceKm();
 
-    if (!plzRaw && manualKm > 0) {
-      return true;
-    }
+  if (/^\d{5}$/.test(plzRaw)) {
+    const entry = getDistanceEntryForPlz(plzRaw);
 
-    if (/^\d{5}$/.test(plzRaw)) {
-      const entry = getDistanceEntryForPlz(normalizedPlz);
+    if (entry) return true;
 
-      if (entry) return true;
-
-      return manualKm > 0;
-    }
-
-    return false;
+    return manualKm > 0;
   }
+
+  return false;
+}
 
   if (state.currentStep === 4) {
     return state.floors.some((floor) =>
@@ -2320,6 +2315,7 @@ function updateManualDistanceVisibility() {
 
   const plzRaw = document.getElementById('plz').value.trim();
 
+  // Erst bei exakt 5 Ziffern prüfen
   if (!/^\d{5}$/.test(plzRaw)) {
     manualDistanceBox.classList.add('hidden');
     return;
@@ -2327,7 +2323,11 @@ function updateManualDistanceVisibility() {
 
   const entry = getDistanceEntryForPlz(plzRaw);
 
-  manualDistanceBox.classList.toggle('hidden', !!entry);
+  if (entry) {
+    manualDistanceBox.classList.add('hidden');
+  } else {
+    manualDistanceBox.classList.remove('hidden');
+  }
 }
 
 function getDistanceArticleNumber(km, totalAreaHeatedRooms) {
