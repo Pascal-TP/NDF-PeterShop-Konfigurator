@@ -811,20 +811,20 @@ function canProceedToNextStep() {
     return state.heatSource !== '';
   }
 
- if (state.currentStep === 3) {
-  const plzRaw = document.getElementById('plz').value.trim();
-  const manualKm = getManualDistanceKm();
+  if (state.currentStep === 3) {
+    const plzRaw = document.getElementById('plz').value.trim();
+    const manualKm = getManualDistanceKm();
 
-  if (/^\d{5}$/.test(plzRaw)) {
-    const entry = getDistanceEntryForPlz(plzRaw);
+    if (/^\d{5}$/.test(plzRaw)) {
+      const entry = getDistanceEntryForPlz(plzRaw);
 
-    if (entry) return true;
+      if (entry) return true;
 
-    return manualKm > 0;
+      return manualKm > 0;
+    }
+
+    return false;
   }
-
-  return false;
-}
 
   if (state.currentStep === 4) {
     return state.floors.some((floor) =>
@@ -2298,6 +2298,12 @@ async function loadPostcodeDistances() {
       km: parseGermanNumber(row.km)
     };
   }).filter(row => row.plz && row.km > 0);
+}
+
+async function ensurePostcodeDistancesLoaded() {
+  if (!state.postcodeDistances.length) {
+    await loadPostcodeDistances();
+  }
 }
 
 function getDistanceEntryForPlz(plz) {
@@ -4178,7 +4184,17 @@ serviceCheckboxes.forEach((checkbox) => {
   checkbox.addEventListener('change', updateSummary);
 });
 
-document.getElementById('plz').addEventListener('input', () => {
+document.getElementById('plz').addEventListener('input', async (e) => {
+  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
+
+  if (e.target.value.length === 5) {
+    try {
+      await ensurePostcodeDistancesLoaded();
+    } catch (error) {
+      console.error('PLZ-Daten konnten nicht geladen werden:', error);
+    }
+  }
+
   updateManualDistanceVisibility();
   updateSummary();
   nextBtn.disabled = !canProceedToNextStep();
