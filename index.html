@@ -116,12 +116,19 @@
 
         <section class="step-panel" data-step-panel="3">
           <h2 class="section-title">3. Standort</h2>
-          <p class="section-subtitle">Bitte nur die Postleitzahl eintragen.</p>
+          <p class="section-subtitle">Bitte hier die Postleitzahl und/oder die Entfernung eintragen.</p>
           <div class="form-grid single">
             <div class="field">
               <label for="plz">PLZ</label>
               <input id="plz" type="text" inputmode="numeric" maxlength="5" placeholder="z. B. 24568" />
             </div>
+          </div>
+          <div id="manualDistanceBox" class="field hidden">
+            <label for="manualDistanceKm">Entfernung zu PETER JENSEN 20537 Hamburg in km</label>
+            <input id="manualDistanceKm" type="number" min="0" step="1" placeholder="z. B. 180" />
+            <small class="muted">
+              Leider konnte diese Postleitzahl nicht gefunden werden. Bitte geben Sie die Entfernung manuell ein.
+            </small>
           </div>
         </section>
 

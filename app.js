@@ -105,6 +105,8 @@ const distributionPointerFloor = document.getElementById('distributionPointerFlo
 const distributionPointerRoom = document.getElementById('distributionPointerRoom');
 const extraInsulationPointerFloor = document.getElementById('extraInsulationPointerFloor');
 const extraInsulationPointerRoom = document.getElementById('extraInsulationPointerRoom');
+const manualDistanceBox = document.getElementById('manualDistanceBox');
+const manualDistanceKmInput = document.getElementById('manualDistanceKm');
 
 const appModal = document.getElementById('appModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -810,7 +812,23 @@ function canProceedToNextStep() {
   }
 
   if (state.currentStep === 3) {
-    return /^\d{5}$/.test(document.getElementById('plz').value.trim());
+    const plzRaw = document.getElementById('plz').value.trim();
+    const normalizedPlz = normalizePlz(plzRaw);
+    const manualKm = getManualDistanceKm();
+
+    if (!plzRaw && manualKm > 0) {
+      return true;
+    }
+
+    if (/^\d{4,5}$/.test(plzRaw)) {
+      const entry = getDistanceEntryForPlz(normalizedPlz);
+
+      if (entry) return true;
+
+      return manualKm > 0;
+    }
+
+    return false;
   }
 
   if (state.currentStep === 4) {
@@ -2270,6 +2288,23 @@ function getDistanceEntryForPlz(plz) {
   return state.postcodeDistances.find(entry => entry.plz === normalizedPlz) || null;
 }
 
+function getManualDistanceKm() {
+  return Number(String(manualDistanceKmInput?.value || '').replace(',', '.')) || 0;
+}
+
+function updateManualDistanceVisibility() {
+  const plzValue = normalizePlz(document.getElementById('plz').value.trim());
+
+  if (!plzValue || plzValue.length !== 5) {
+    manualDistanceBox?.classList.add('hidden');
+    return;
+  }
+
+  const entry = getDistanceEntryForPlz(plzValue);
+
+  manualDistanceBox?.classList.toggle('hidden', !!entry);
+}
+
 function getDistanceArticleNumber(km, totalAreaHeatedRooms) {
   if (totalAreaHeatedRooms >= 300) return null;
 
@@ -2739,8 +2774,14 @@ function calculateProducts() {
 
   // Entfernungspauschale
   const distanceEntry = getDistanceEntryForPlz(plz);
-  const distanceArticleNumber = distanceEntry
-    ? getDistanceArticleNumber(distanceEntry.km, totalAreaHeatedRooms)
+  const manualDistanceKm = getManualDistanceKm();
+
+  const distanceKm = distanceEntry
+    ? distanceEntry.km
+    : manualDistanceKm;
+
+  const distanceArticleNumber = distanceKm
+    ? getDistanceArticleNumber(distanceKm, totalAreaHeatedRooms)
     : null;
 
   if (distanceArticleNumber) {
@@ -3747,7 +3788,7 @@ function getNextRequirementText() {
   }
 
   if (state.currentStep === 3) {
-    return 'Bitte geben Sie eine gültige fünfstellige Postleitzahl ein.';
+    return 'Bitte geben Sie eine gültige Postleitzahl ein. Falls diese nicht gefunden wird, tragen Sie die Entfernung zu PETER JENSEN 20537 Hamburg manuell ein.';
   }
 
   if (state.currentStep === 4) {
@@ -4103,8 +4144,17 @@ serviceCheckboxes.forEach((checkbox) => {
 
 document.getElementById('plz').addEventListener('input', (e) => {
   e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
+  updateManualDistanceVisibility();
   updateSummary();
+  nextBtn.disabled = !canProceedToNextStep();
 });
+
+if (manualDistanceKmInput) {
+  manualDistanceKmInput.addEventListener('input', () => {
+    updateSummary();
+    nextBtn.disabled = !canProceedToNextStep();
+  });
+}
 
 document.querySelectorAll('.step-item').forEach((item) => {
   item.addEventListener('click', () => {
