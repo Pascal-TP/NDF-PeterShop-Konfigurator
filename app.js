@@ -3645,15 +3645,18 @@ async function exportPdf() {
   pdf.text(`Marke: ${brandText}`, 105, y);
   y += 5;
   pdf.text(`Wärmeerzeuger: ${state.heatSource || '-'}`, marginLeft, y);
-  pdf.text(`PLZ: ${plzValue}`, 105, y);
+  const manualKm = getManualDistanceKm();
+  const distanceEntry = getDistanceEntryForPlz(plzValue);
+
+  let pdfDistanceText = `PLZ: ${plzValue}`;
 
   if (distanceEntry) {
-    y += 5;
-    pdf.text(`Entfernung: ${formatQuantity(distanceEntry.km)} km`, 105, y);
+    pdfDistanceText += ` / Entfernung: ${formatQuantity(distanceEntry.km)} km`;
   } else if (manualKm > 0) {
-    y += 5;
-    pdf.text(`Manuelle km: ${formatQuantity(manualKm)} km`, 105, y);
+    pdfDistanceText += ` / Manuelle km: ${formatQuantity(manualKm)} km`;
   }
+
+  pdf.text(pdfDistanceText, 105, y);
   y += 12;
 
   pdf.setFontSize(13);
