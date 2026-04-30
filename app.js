@@ -2066,7 +2066,24 @@ function renderRoomSummaryCards() {
 }
 
 function updateSummary() {
-  summaryPlz.textContent = document.getElementById('plz').value.trim() || 'PLZ offen';
+  const enteredPlz = document.getElementById('plz').value.trim();
+  const normalizedPlz = enteredPlz ? normalizePlz(enteredPlz) : '';
+  const distanceEntry = normalizedPlz ? getDistanceEntryForPlz(normalizedPlz) : null;
+  const manualKm = getManualDistanceKm();
+
+  let distanceText = '';
+
+  if (distanceEntry) {
+    distanceText = ` – Entfernung: ${formatQuantity(distanceEntry.km)} km`;
+  } else if (manualKm > 0) {
+    distanceText = ` – Entfernung manuell: ${formatQuantity(manualKm)} km`;
+  }
+
+  summaryPlz.textContent = normalizedPlz
+    ? `${normalizedPlz}${distanceText}`
+    : manualKm > 0
+      ? `Keine PLZ – Entfernung manuell: ${formatQuantity(manualKm)} km`
+      : 'Keine Angabe';
   document.getElementById('summarySystem').textContent =
     getSystemValue() || 'Keine Auswahl';
   document.getElementById('summaryWlg').textContent = wlgBlock.classList.contains('hidden') ? '-' : (getCheckedValue('wlg') || 'Keine Auswahl');
@@ -2293,16 +2310,19 @@ function getManualDistanceKm() {
 }
 
 function updateManualDistanceVisibility() {
-  const plzValue = normalizePlz(document.getElementById('plz').value.trim());
+  if (!manualDistanceBox) return;
 
-  if (!plzValue || plzValue.length !== 5) {
-    manualDistanceBox?.classList.add('hidden');
+  const plzRaw = document.getElementById('plz').value.trim();
+  const normalizedPlz = normalizePlz(plzRaw);
+
+  if (!plzRaw || !/^\d{4,5}$/.test(plzRaw)) {
+    manualDistanceBox.classList.add('hidden');
     return;
   }
 
-  const entry = getDistanceEntryForPlz(plzValue);
+  const entry = getDistanceEntryForPlz(normalizedPlz);
 
-  manualDistanceBox?.classList.toggle('hidden', !!entry);
+  manualDistanceBox.classList.toggle('hidden', !!entry);
 }
 
 function getDistanceArticleNumber(km, totalAreaHeatedRooms) {
@@ -4142,17 +4162,28 @@ serviceCheckboxes.forEach((checkbox) => {
   checkbox.addEventListener('change', updateSummary);
 });
 
-document.getElementById('plz').addEventListener('input', (e) => {
-  e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
+document.getElementById('plz').addEventListener('input', () => {
   updateManualDistanceVisibility();
   updateSummary();
   nextBtn.disabled = !canProceedToNextStep();
+
+  if (stepHint) {
+    const requirementText = getNextRequirementText();
+    stepHint.classList.toggle('hidden', !requirementText);
+    stepHint.textContent = requirementText;
+  }
 });
 
 if (manualDistanceKmInput) {
   manualDistanceKmInput.addEventListener('input', () => {
     updateSummary();
     nextBtn.disabled = !canProceedToNextStep();
+
+    if (stepHint) {
+      const requirementText = getNextRequirementText();
+      stepHint.classList.toggle('hidden', !requirementText);
+      stepHint.textContent = requirementText;
+    }
   });
 }
 
