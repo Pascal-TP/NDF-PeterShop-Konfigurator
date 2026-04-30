@@ -3646,6 +3646,14 @@ async function exportPdf() {
   y += 5;
   pdf.text(`Wärmeerzeuger: ${state.heatSource || '-'}`, marginLeft, y);
   pdf.text(`PLZ: ${plzValue}`, 105, y);
+
+  if (distanceEntry) {
+    y += 5;
+    pdf.text(`Entfernung: ${formatQuantity(distanceEntry.km)} km`, 105, y);
+  } else if (manualKm > 0) {
+    y += 5;
+    pdf.text(`Manuelle km: ${formatQuantity(manualKm)} km`, 105, y);
+  }
   y += 12;
 
   pdf.setFontSize(13);
