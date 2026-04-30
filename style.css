@@ -564,7 +564,7 @@ button:disabled {
 
 .check-option {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   font-weight: 500;
   color: #444;
