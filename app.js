@@ -13,6 +13,7 @@ const state = {
   services: [],
   calculatedProducts: [],
   articleCatalog: [],
+  postcodeDistances: [],
   selectedSystemFloorIndex: 0,
   activeSummaryFloorIndex: 0,
   activeSummaryRoomIndex: 0,
@@ -2166,6 +2167,13 @@ function parseGermanNumber(value) {
   ) || 0;
 }
 
+function normalizePlz(value) {
+  return String(value || '')
+    .trim()
+    .replace(/\D/g, '')
+    .padStart(5, '0');
+}
+
 function formatEuro(value) {
   return new Intl.NumberFormat('de-DE', {
     style: 'currency',
@@ -2220,6 +2228,56 @@ async function loadArticleCatalog() {
       brand: row.marke
     };
   });
+}
+
+async function loadPostcodeDistances() {
+  const response = await fetch('german-postgeocodes.csv');
+
+  if (!response.ok) {
+    throw new Error('german-postgeocodes.csv konnte nicht geladen werden.');
+  }
+
+  const buffer = await response.arrayBuffer();
+  const csvText = new TextDecoder('utf-8').decode(buffer);
+
+  const lines = csvText
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean);
+
+  const headers = parseCsvLine(lines[0]).map(header => header.toLowerCase());
+
+  state.postcodeDistances = lines.slice(1).map((line) => {
+    const values = parseCsvLine(line);
+    const row = {};
+
+    headers.forEach((header, index) => {
+      row[header] = values[index] || '';
+    });
+
+    return {
+      ort: row.ort || '',
+      plz: normalizePlz(row.plz),
+      bundesland: row.bundesland || '',
+      km: parseGermanNumber(row.km)
+    };
+  }).filter(row => row.plz && row.km > 0);
+}
+
+function getDistanceEntryForPlz(plz) {
+  const normalizedPlz = normalizePlz(plz);
+
+  return state.postcodeDistances.find(entry => entry.plz === normalizedPlz) || null;
+}
+
+function getDistanceArticleNumber(km, totalAreaHeatedRooms) {
+  if (totalAreaHeatedRooms >= 300) return null;
+
+  if (km <= 125) return null;
+  if (km <= 200) return 'H54NO502001';
+  if (km <= 300) return 'H54NO502501';
+
+  return 'H54NO503001';
 }
 
 function findArticle(articleNumber) {
@@ -2677,6 +2735,16 @@ function calculateProducts() {
 
   if (isIslandPostcode(plz)) {
     addArticle(products, '100BIE016', 1);
+  }
+
+  // Entfernungspauschale
+  const distanceEntry = getDistanceEntryForPlz(plz);
+  const distanceArticleNumber = distanceEntry
+    ? getDistanceArticleNumber(distanceEntry.km, totalAreaHeatedRooms)
+    : null;
+
+  if (distanceArticleNumber) {
+    addArticle(products, distanceArticleNumber, 1);
   }
 
   // Verteilertechnik Berechnung 70–95, jetzt raumbezogen
@@ -3891,11 +3959,17 @@ document.getElementById('startCalculationBtn').addEventListener('click', async (
       await loadArticleCatalog();
     }
 
+    if (!state.postcodeDistances.length) {
+      await loadPostcodeDistances();
+    }
+
     showResultPage();
   } catch (error) {
+    console.error(error);
+
     await showAppModal({
       title: 'Fehler',
-      message: 'Die Artikeldaten konnten nicht geladen werden. Bitte prüfen Sie, ob die Datei master.csv im Projektordner liegt.',
+      message: 'Die Artikel- oder PLZ-Daten konnten nicht geladen werden. Bitte prüfen Sie, ob master.csv und german-postgeocodes.csv im Projektordner liegen.',
       confirmText: 'OK'
     });
   }
