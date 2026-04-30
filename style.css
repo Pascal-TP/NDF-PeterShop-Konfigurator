@@ -574,6 +574,8 @@ button:disabled {
   width: 18px;
   height: 18px;
   min-height: auto;
+  transform: scale(1.2); /* WICHTIG */
+  transform-origin: center;
   margin-top: 2px;
 }
 
