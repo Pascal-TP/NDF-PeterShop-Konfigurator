@@ -1174,3 +1174,21 @@ button.disabled-button:hover {
   font-size: 14px;
   font-weight: 600;
 }
+
+/* Schritt 9 – Checkboxen sauber ausrichten */
+.step-panel[data-step-panel="9"] .check-option {
+  align-items: flex-start; /* Text beginnt oben */
+}
+
+.step-panel[data-step-panel="9"] .check-option input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  flex: 0 0 18px;
+
+  transform: scale(1.2);
+  transform-origin: center;
+
+  margin-top: 3px; /* Feintuning für mehrzeiligen Text */
+}
