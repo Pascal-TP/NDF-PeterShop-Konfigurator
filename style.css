@@ -1210,3 +1210,17 @@ button.disabled-button:hover {
 
   margin-top: 3px;
 }
+
+.hero-logo-wrapper {
+  position: relative;
+  justify-self: end;
+}
+
+.release-label {
+  position: absolute;
+  top: -12px;
+  right: 0;
+  font-size: 12px;
+  color: #000;
+  font-weight: 500;
+}
