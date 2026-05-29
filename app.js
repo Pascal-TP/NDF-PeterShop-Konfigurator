@@ -294,6 +294,33 @@ function hasAnyThermostatAssignment() {
   });
 }
 
+function allHeatedRoomsHaveThermostatAssignment() {
+  return state.floors.every((floor) => {
+    return floor.rooms.every((room) => {
+      if (!roomIsHeated(room)) return true;
+      return !!room.assignments?.thermostat;
+    });
+  });
+}
+
+function allHeatedRoomsHaveDistributionAssignment() {
+  return state.floors.every((floor) => {
+    return floor.rooms.every((room) => {
+      if (!roomIsHeated(room)) return true;
+      return !!room.assignments?.distribution;
+    });
+  });
+}
+
+function allHeatedRoomsHaveExtraInsulationAssignment() {
+  return state.floors.every((floor) => {
+    return floor.rooms.every((room) => {
+      if (!roomIsHeated(room)) return true;
+      return !!room.assignments?.extraInsulation;
+    });
+  });
+}
+
 function hasNonGroundFloorWithHeatedRooms() {
   return state.floors.some((floor) => {
     const isNotGroundFloor = floor.name !== 'Erdgeschoss';
@@ -978,7 +1005,7 @@ function canProceedToNextStep() {
     }
 
     if (state.thermostatEnabled === 'ja') {
-      return hasAnyThermostatAssignment();
+      return allHeatedRoomsHaveThermostatAssignment();
     }
 
     return false;
@@ -990,7 +1017,7 @@ function canProceedToNextStep() {
     }
 
     if (state.distributionEnabled === 'ja') {
-      return hasAnyDistributionAssignment();
+      return allHeatedRoomsHaveDistributionAssignment();
     }
 
     return false;
@@ -1002,7 +1029,7 @@ function canProceedToNextStep() {
     }
 
     if (state.extraInsulationEnabled === 'ja') {
-      return hasAnyExtraInsulationAssignment();
+      return allHeatedRoomsHaveExtraInsulationAssignment();
     }
 
     return false;
