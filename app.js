@@ -823,10 +823,16 @@ function showStep(step) {
   const allowedStep = Math.max(0, Math.min(state.maxUnlockedStep, totalSteps - 1));
   state.currentStep = Math.max(0, Math.min(step, allowedStep));
 
+  if (state.currentStep >= 3) {
+    state.maxUnlockedStep = Math.max(state.maxUnlockedStep, 1);
+  }
+
   document.querySelectorAll('.step-item').forEach((item) => {
     const itemStep = Number(item.dataset.step);
     item.classList.toggle('active', itemStep === state.currentStep);
-    item.classList.toggle('clickable', itemStep <= state.maxUnlockedStep);
+    const startLockedAfterStep3 = itemStep === 0 && state.currentStep >= 3;
+    item.classList.toggle('clickable', itemStep <= state.maxUnlockedStep && !startLockedAfterStep3);
+    item.classList.toggle('locked', itemStep > state.maxUnlockedStep || startLockedAfterStep3);
     item.classList.toggle('locked', itemStep > state.maxUnlockedStep);
   });
 
@@ -4346,6 +4352,10 @@ if (manualDistanceKmInput) {
 document.querySelectorAll('.step-item').forEach((item) => {
   item.addEventListener('click', async () => {
     const targetStep = Number(item.dataset.step);
+
+    if (targetStep === 0 && state.currentStep >= 3) {
+      return;
+    }
 
     if (targetStep > state.maxUnlockedStep) return;
 
