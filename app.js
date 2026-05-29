@@ -1429,6 +1429,7 @@ function renderDistributionToggle() {
           ? 'Manuelle Eingabe'
           : 'Keine Auswahl';
   }
+  syncRegulationVoltageRules();
 }
 
 function renderExtraInsulationToggle() {
@@ -4075,6 +4076,27 @@ function updateFinalCheck() {
   `;
 }
 
+function syncRegulationVoltageRules() {
+  const voltageSelected = !!getCheckedValue('regulationVoltage');
+
+  regulationCheckboxes.forEach((checkbox, index) => {
+    checkbox.disabled = !voltageSelected;
+
+    const row = checkbox.closest('.regulation-row');
+    if (row) {
+      row.classList.toggle('disabled-option', !voltageSelected);
+    }
+
+    const qtyInput = regulationQtyFields[index];
+    if (qtyInput) {
+      qtyInput.disabled = !voltageSelected || !checkbox.checked;
+      if (!voltageSelected || !checkbox.checked) {
+        qtyInput.value = '';
+      }
+    }
+  });
+}
+
 systemFloorSelect.addEventListener('change', () => {
   state.selectedSystemFloorIndex = Number(systemFloorSelect.value);
   renderSystemRoomSelect();
@@ -4090,6 +4112,22 @@ systemRoomSelect.addEventListener('change', () => {
 
 assignFloorSystemBtn.addEventListener('click', () => {
   assignSystemToSelectedFloor();
+});
+
+document.querySelectorAll('input[name="regulationVoltage"]').forEach((checkbox) => {
+  checkbox.addEventListener('change', () => {
+    syncRegulationVoltageRules();
+    updateAssignDistributionButton();
+    updateSummary();
+  });
+});
+
+regulationCheckboxes.forEach((checkbox) => {
+  checkbox.addEventListener('change', () => {
+    syncRegulationVoltageRules();
+    updateAssignDistributionButton();
+    updateSummary();
+  });
 });
 
 document.querySelectorAll('#projectTypeChoices .choice-card').forEach((card) => {
