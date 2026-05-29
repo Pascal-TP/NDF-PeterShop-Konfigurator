@@ -3856,6 +3856,7 @@ async function exportPdf() {
 
   pdf.setFontSize(9);
   pdf.text(`Projekt: ${state.projectReference}`, marginLeft, y);
+  y += 5;
   pdf.text(`Projektart: ${projectTypeText}`, marginLeft, y);
   pdf.text(`Marke: ${brandText}`, 105, y);
   y += 5;
