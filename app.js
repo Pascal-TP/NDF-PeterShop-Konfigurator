@@ -1728,13 +1728,18 @@ function getRegulationEntries() {
 
 function syncRegulationRules() {
   const voltage = getCheckedValue('regulationVoltage');
+  const voltageSelected = !!voltage;
+
+  if (regulationOptionsBlock) {
+    regulationOptionsBlock.classList.toggle('disabled-block', !voltageSelected);
+  }
 
   regulationCheckboxes.forEach((checkbox, index) => {
     const qtyField = regulationQtyFields[index];
-    const label = checkbox.closest('.regulation-row');
+    const row = checkbox.closest('.regulation-row');
     const itemName = checkbox.dataset.label;
 
-    let allowed = true;
+    let allowed = voltageSelected;
 
     if (itemName === 'Regelklemmleiste bis zu 10 Zonen' && voltage !== '230V AC') {
       allowed = false;
@@ -1742,16 +1747,19 @@ function syncRegulationRules() {
 
     checkbox.disabled = !allowed;
 
-    if (qtyField) {
-      qtyField.disabled = !allowed || !checkbox.checked;
-    }
-
     if (!allowed) {
       checkbox.checked = false;
-      if (qtyField) qtyField.value = '';
     }
 
-    label?.classList.toggle('disabled-option', !allowed);
+    if (qtyField) {
+      qtyField.disabled = !allowed || !checkbox.checked;
+
+      if (!allowed || !checkbox.checked) {
+        qtyField.value = '';
+      }
+    }
+
+    row?.classList.toggle('disabled-option', !allowed);
   });
 }
 
@@ -4078,30 +4086,7 @@ function updateFinalCheck() {
 }
 
 function syncRegulationVoltageRules() {
-  const voltageSelected = !!getCheckedValue('regulationVoltage');
-
-  if (regulationOptionsBlock) {
-    regulationOptionsBlock.classList.toggle(
-      'disabled-block',
-      !voltageSelected
-    );
-  }
-  regulationCheckboxes.forEach((checkbox, index) => {
-    checkbox.disabled = !voltageSelected;
-
-    const row = checkbox.closest('.regulation-row');
-    if (row) {
-      row.classList.toggle('disabled-option', !voltageSelected);
-    }
-
-    const qtyInput = regulationQtyFields[index];
-    if (qtyInput) {
-      qtyInput.disabled = !voltageSelected || !checkbox.checked;
-      if (!voltageSelected || !checkbox.checked) {
-        qtyInput.value = '';
-      }
-    }
-  });
+  syncRegulationRules();
 }
 
 systemFloorSelect.addEventListener('change', () => {
