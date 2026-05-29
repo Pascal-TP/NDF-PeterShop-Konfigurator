@@ -828,14 +828,23 @@ function showStep(step) {
   }
 
   document.querySelectorAll('.step-item').forEach((item) => {
-    const itemStep = Number(item.dataset.step);
-    item.classList.toggle('active', itemStep === state.currentStep);
-    const startLockedAfterStep3 = itemStep === 0 && state.currentStep >= 3;
-    item.classList.toggle('clickable', itemStep <= state.maxUnlockedStep && !startLockedAfterStep3);
-    item.classList.toggle('locked', itemStep > state.maxUnlockedStep || startLockedAfterStep3);
-    item.classList.toggle('locked', itemStep > state.maxUnlockedStep);
-  });
+  const itemStep = Number(item.dataset.step);
 
+  const startLocked =
+    itemStep === 0 && state.maxUnlockedStep >= 3;
+
+  item.classList.toggle('active', itemStep === state.currentStep);
+
+  item.classList.toggle(
+    'clickable',
+    itemStep <= state.maxUnlockedStep && !startLocked
+  );
+
+  item.classList.toggle(
+    'locked',
+    itemStep > state.maxUnlockedStep || startLocked
+  );
+});
   document.querySelectorAll('.step-panel').forEach((panel) => {
     panel.classList.toggle('active', Number(panel.dataset.stepPanel) === state.currentStep);
   });
