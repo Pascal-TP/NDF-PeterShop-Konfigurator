@@ -111,6 +111,7 @@ const clearAllBtn = document.getElementById('clearAllBtn');
 const thermostatAssignmentBlock = document.getElementById('thermostatAssignmentBlock');
 const distributionAssignmentBlock = document.getElementById('distributionAssignmentBlock');
 const extraInsulationAssignmentBlock = document.getElementById('extraInsulationAssignmentBlock');
+const regulationOptionsBlock = document.getElementById('regulationOptionsBlock');
 
 const appModal = document.getElementById('appModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -4079,6 +4080,12 @@ function updateFinalCheck() {
 function syncRegulationVoltageRules() {
   const voltageSelected = !!getCheckedValue('regulationVoltage');
 
+  if (regulationOptionsBlock) {
+    regulationOptionsBlock.classList.toggle(
+      'disabled-block',
+      !voltageSelected
+    );
+  }
   regulationCheckboxes.forEach((checkbox, index) => {
     checkbox.disabled = !voltageSelected;
 
