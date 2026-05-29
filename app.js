@@ -896,15 +896,7 @@ function showStep(step) {
 
   prevBtn.style.visibility = state.currentStep === 0 ? 'hidden' : 'visible';
   nextBtn.style.display = state.currentStep === totalSteps - 1 ? 'none' : 'inline-flex';
-  nextBtn.disabled = !canProceedToNextStep();
-
- if (stepHint) {
-  const canContinue = canProceedToNextStep();
-  const requirementText = getNextRequirementText();
-
-  stepHint.classList.toggle('hidden', canContinue || !requirementText);
-  stepHint.textContent = requirementText;
-}
+  updateNextButtonAndStepHint();
 
   const isSystemStep = state.currentStep === 5;
   const isThermostatStep = state.currentStep === 6;
@@ -958,6 +950,19 @@ function showStep(step) {
 
   updateAssignmentPointers();
   scrollToTop();
+}
+
+function updateNextButtonAndStepHint() {
+  const canContinue = canProceedToNextStep();
+
+  nextBtn.disabled = !canContinue;
+
+  if (stepHint) {
+    const requirementText = getNextRequirementText();
+
+    stepHint.classList.toggle('hidden', canContinue || !requirementText);
+    stepHint.textContent = requirementText;
+  }
 }
 
 function canProceedToNextStep() {
@@ -2354,6 +2359,7 @@ function updateSummary() {
 
   updateLayerPreview();
   updateFinalCheck();
+  updateNextButtonAndStepHint();
   nextBtn.disabled = !canProceedToNextStep();
 }
 
@@ -4441,13 +4447,8 @@ document.getElementById('plz').addEventListener('input', async (e) => {
 
   updateManualDistanceVisibility();
   updateSummary();
-  nextBtn.disabled = !canProceedToNextStep();
+  edToNextStep();
 
-  if (stepHint) {
-    const requirementText = getNextRequirementText();
-    stepHint.classList.toggle('hidden', !requirementText);
-    stepHint.textContent = requirementText;
-  }
 });
 
 if (manualDistanceKmInput) {
