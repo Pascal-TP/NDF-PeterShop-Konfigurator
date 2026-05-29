@@ -692,21 +692,95 @@ function resetFromProjectTypeForward() {
   updateSummary();
 }
 
+function resetFromStep5Forward() {
+  state.thermostat = '';
+  state.thermostatEnabled = '';
+  state.extraInsulationEnabled = '';
+  state.distributionMode = '';
+  state.distributionEnabled = '';
+  state.services = [];
+  state.calculatedProducts = [];
+  state.selectedSystemFloorIndex = 0;
+
+  // Alle Raum-Zuweisungen ab Schritt 5 löschen
+  state.floors.forEach((floor) => {
+    floor.rooms.forEach((room) => {
+      room.assignments.system = null;
+      room.assignments.thermostat = null;
+      room.assignments.distribution = null;
+      room.assignments.extraInsulation = null;
+    });
+  });
+
+  // Nur Eingaben ab Schritt 5 zurücksetzen
+  document.querySelectorAll(`
+    input[name="system"],
+    input[name="systemAddon"],
+    input[name="wlg"],
+    input[name="insulationThickness"],
+    input[name="pipeType"],
+    input[name="millingSystem"],
+    input[name="estrichRange"],
+    input[name="estrichAdditive"],
+    input[name="dryConstruction"],
+    input[name="cabinetMounting"],
+    input[name="regulationVoltage"],
+    input[name="extraInsulation"],
+    input[name="extraInsulationWlg"],
+    input[name="extraInsulationThickness"],
+    input[name="service"],
+    .regulation-checkbox"
+  `).forEach((input) => {
+    input.checked = false;
+    input.disabled = false;
+  });
+
+  document.querySelectorAll(`
+    .thermostat-qty,
+    .distribution-qty,
+    .regulation-qty
+  `).forEach((input) => {
+    input.value = '';
+    input.disabled = false;
+  });
+
+  document.querySelectorAll('.distribution-type').forEach((select) => {
+    select.selectedIndex = 0;
+    select.disabled = false;
+  });
+
+  document.querySelectorAll(`
+    #thermostatToggleChoices .choice-card,
+    #thermostatChoices .choice-card,
+    #distributionToggleChoices .choice-card,
+    #extraInsulationToggleChoices .choice-card
+  `).forEach((card) => {
+    card.classList.remove('active');
+  });
+
+  // Schritte ab 5 wieder sperren
+  state.maxUnlockedStep = Math.min(state.maxUnlockedStep, 4);
+
+  renderSystemFloorSelect();
+  renderThermostatToggle();
+  renderDistributionToggle();
+  renderExtraInsulationToggle();
+  renderFloors();
+  updateAssignmentPointers();
+  updateSummary();
+}
+
 async function confirmReturnToProjectType(targetStep) {
   if (targetStep === 1 && state.currentStep > 1) {
     const confirmed = await showAppModal({
       title: 'Hinweis',
-      message: 'Die Rückkehr zu diesem Schritt bewirkt ein Zurücksetzen sämtlicher Eingaben.',
+      message: 'Die Rückkehr zu Schritt 1 setzt alle Eingaben ab Schritt 5 "System" zurück. Projektart, Wärmeerzeuger, Standort sowie Etagen und Räume bleiben erhalten.',
       confirmText: 'Weiter',
       cancelText: 'Abbrechen'
     });
 
     if (confirmed) {
-      state.projectType = '';
-      state.brand = '';
-      resetFromProjectTypeForward();
-      renderProjectType();
-      updateSummary();
+      resetFromStep5Forward();
     }
 
     return confirmed;
@@ -4220,28 +4294,23 @@ if (manualDistanceKmInput) {
 }
 
 document.querySelectorAll('.step-item').forEach((item) => {
-  item.addEventListener('click', () => {
+  item.addEventListener('click', async () => {
     const targetStep = Number(item.dataset.step);
-    if (targetStep <= state.maxUnlockedStep) {
-      if (!confirmReturnToProjectType(targetStep)) return;
 
-      if (targetStep === 1 && state.currentStep > 1) {
-        resetFromProjectTypeForward();
-      }
+    if (targetStep <= state.maxUnlockedStep) {
+      const confirmed = await confirmReturnToProjectType(targetStep);
+      if (!confirmed) return;
 
       showStep(targetStep);
     }
   });
 });
 
-prevBtn.addEventListener('click', () => {
+prevBtn.addEventListener('click', async () => {
   const targetStep = state.currentStep - 1;
 
-  if (!confirmReturnToProjectType(targetStep)) return;
-
-  if (targetStep === 1 && state.currentStep > 1) {
-    resetFromProjectTypeForward();
-  }
+  const confirmed = await confirmReturnToProjectType(targetStep);
+  if (!confirmed) return;
 
   showStep(targetStep);
 });
