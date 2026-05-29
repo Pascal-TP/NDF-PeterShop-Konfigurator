@@ -715,7 +715,7 @@ function resetFromStep5Forward() {
   });
 
   // Nur Eingaben ab Schritt 5 zurücksetzen
- document.querySelectorAll(`
+  document.querySelectorAll(`
   input[name="system"],
   input[name="systemAddon"],
   input[name="wlg"],
@@ -734,9 +734,9 @@ function resetFromStep5Forward() {
   input[name="service"],
   .regulation-checkbox
 `).forEach((input) => {
-  input.checked = false;
-  input.disabled = false;
-});
+    input.checked = false;
+    input.disabled = false;
+  });
 
   document.querySelectorAll(`
     .thermostat-qty,
@@ -762,7 +762,7 @@ function resetFromStep5Forward() {
   });
 
   // Schritte ab 5 wieder sperren
-  
+
   renderSystemFloorSelect();
   renderThermostatToggle();
   renderDistributionToggle();
@@ -4009,9 +4009,29 @@ document.querySelectorAll('#projectTypeChoices .choice-card').forEach((card) => 
   card.addEventListener('click', () => {
     const newProjectType = card.dataset.type;
 
-    if (state.projectType && state.projectType !== newProjectType) {
-      resetFromProjectTypeForward();
-    }
+    document.querySelectorAll('#projectTypeChoices .choice-card').forEach((card) => {
+      card.addEventListener('click', () => {
+        const newProjectType = card.dataset.type;
+
+        if (state.projectType && state.projectType !== newProjectType) {
+          resetFromStep5Forward();
+        }
+
+        state.projectType = newProjectType;
+
+        if (newProjectType === 'neubau') {
+          state.brand = state.brand || 'handelsmarke';
+        }
+
+        if (newProjectType === 'sanierung') {
+          // Marke nicht löschen, nur ausblenden
+        }
+
+        renderProjectType();
+        renderBrand();
+        updateSummary();
+      });
+    });
 
     state.projectType = newProjectType;
 
