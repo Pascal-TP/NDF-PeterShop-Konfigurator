@@ -731,6 +731,9 @@ function resetFromStep5Forward() {
     input[name="extraInsulationWlg"],
     input[name="extraInsulationThickness"],
     input[name="service"],
+    input[name="pipeType"],
+    input[name="pipeSize"],
+    input[name="millingSystem"],
     .regulation-checkbox"
   `).forEach((input) => {
     input.checked = false;
@@ -783,6 +786,22 @@ async function confirmReturnToProjectType(targetStep) {
   }
 
   return true;
+}
+
+async function goToStep(targetStep) {
+  if (targetStep > state.maxUnlockedStep) return;
+
+  const shouldResetFromStep5 =
+    targetStep === 1 && state.currentStep > 1;
+
+  if (shouldResetFromStep5) {
+    const confirmed = await confirmReturnToProjectType(targetStep);
+    if (!confirmed) return;
+
+    resetFromStep5Forward();
+  }
+
+  showStep(targetStep);
 }
 
 function showStep(step) {
@@ -4291,32 +4310,12 @@ if (manualDistanceKmInput) {
 
 document.querySelectorAll('.step-item').forEach((item) => {
   item.addEventListener('click', async () => {
-    const targetStep = Number(item.dataset.step);
-
-    if (targetStep > state.maxUnlockedStep) return;
-
-    const confirmed = await confirmReturnToProjectType(targetStep);
-    if (!confirmed) return;
-
-    if (targetStep === 1 && state.currentStep > 1) {
-      resetFromStep5Forward();
-    }
-
-    showStep(targetStep);
+    await goToStep(Number(item.dataset.step));
   });
 });
 
 prevBtn.addEventListener('click', async () => {
-  const targetStep = state.currentStep - 1;
-
-  const confirmed = await confirmReturnToProjectType(targetStep);
-  if (!confirmed) return;
-
-  if (targetStep === 1 && state.currentStep > 1) {
-    resetFromStep5Forward();
-  }
-
-  showStep(targetStep);
+  await goToStep(state.currentStep - 1);
 });
 
 nextBtn.addEventListener('click', () => {
