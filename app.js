@@ -108,6 +108,9 @@ const extraInsulationPointerRoom = document.getElementById('extraInsulationPoint
 const manualDistanceBox = document.getElementById('manualDistanceBox');
 const manualDistanceKmInput = document.getElementById('manualDistanceKm');
 const clearAllBtn = document.getElementById('clearAllBtn');
+const thermostatAssignmentBlock = document.getElementById('thermostatAssignmentBlock');
+const distributionAssignmentBlock = document.getElementById('distributionAssignmentBlock');
+const extraInsulationAssignmentBlock = document.getElementById('extraInsulationAssignmentBlock');
 
 const appModal = document.getElementById('appModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -521,10 +524,10 @@ function updateAssignThermostatButton() {
     : 'Thermostat dem Raum zuweisen';
 
   if (room.assignments?.thermostat?.none) {
-    assignThermostatNoneBtn.textContent = 'Nicht erforderlich (gesetzt)';
+    assignThermostatNoneBtn.textContent = 'Für diesen Raum nicht gewünscht';
     assignThermostatNoneBtn.classList.add('room-none-active');
   } else {
-    assignThermostatNoneBtn.textContent = 'Nicht für diesen Raum erforderlich';
+    assignThermostatNoneBtn.textContent = 'Für diesen Raum nicht gewünscht';
     assignThermostatNoneBtn.classList.remove('room-none-active');
   }
 }
@@ -639,6 +642,16 @@ function showAppModal({ title = 'Hinweis', message = '', confirmText = 'OK', can
 
     modalOkBtn.onclick = () => cleanup(true);
     modalCancelBtn.onclick = () => cleanup(false);
+  });
+}
+
+function setAssignmentBlockState(block, enabled) {
+  if (!block) return;
+
+  block.classList.toggle('disabled-block', !enabled);
+
+  block.querySelectorAll('input, select, button').forEach((el) => {
+    el.disabled = !enabled;
   });
 }
 
@@ -1347,6 +1360,7 @@ function renderThermostatToggle() {
   });
 
   const disabled = state.thermostatEnabled !== 'ja';
+  setAssignmentBlockState(thermostatAssignmentBlock, !disabled);
   thermostatOptions.classList.toggle('disabled-block', disabled);
 
   if (disabled) {
@@ -1366,6 +1380,7 @@ function renderDistributionToggle() {
   });
 
   const disabled = state.distributionEnabled !== 'ja';
+  setAssignmentBlockState(distributionAssignmentBlock, !disabled);
 
   distributionOptions.classList.toggle('disabled-block', disabled);
 
@@ -1395,6 +1410,7 @@ function renderExtraInsulationToggle() {
   });
 
   const disabled = state.extraInsulationEnabled !== 'ja';
+  setAssignmentBlockState(extraInsulationAssignmentBlock, !disabled);
   extraInsulationOptions.classList.toggle('disabled-block', disabled);
 
   extraInsulationOptions.querySelectorAll('input').forEach((input) => {
@@ -1582,10 +1598,10 @@ function updateAssignExtraInsulationButton() {
     : 'Zusatzdämmung dem Raum zuweisen';
 
   if (room.assignments?.extraInsulation?.none) {
-    assignExtraInsulationNoneBtn.textContent = 'Nicht erforderlich (gesetzt)';
+    assignExtraInsulationNoneBtn.textContent = 'Für diesen Raum nicht gewünscht';
     assignExtraInsulationNoneBtn.classList.add('room-none-active');
   } else {
-    assignExtraInsulationNoneBtn.textContent = 'Nicht für diesen Raum erforderlich';
+    assignExtraInsulationNoneBtn.textContent = 'Für diesen Raum nicht gewünscht';
     assignExtraInsulationNoneBtn.classList.remove('room-none-active');
   }
 }
@@ -3555,10 +3571,10 @@ function updateAssignDistributionButton() {
     : 'Verteilertechnik dem Raum zuweisen';
 
   if (room.assignments?.distribution?.none) {
-    assignDistributionNoneBtn.textContent = 'Nicht erforderlich (gesetzt)';
+    assignDistributionNoneBtn.textContent = 'Für diesen Raum nicht gewünscht';
     assignDistributionNoneBtn.classList.add('room-none-active');
   } else {
-    assignDistributionNoneBtn.textContent = 'Nicht für diesen Raum erforderlich';
+    assignDistributionNoneBtn.textContent = 'Für diesen Raum nicht gewünscht';
     assignDistributionNoneBtn.classList.remove('room-none-active');
   }
 }
@@ -4106,9 +4122,6 @@ document.querySelectorAll('#thermostatToggleChoices .choice-card').forEach((card
       updateAssignmentPointers();
       updateSummary();
 
-      state.maxUnlockedStep = Math.max(state.maxUnlockedStep, 7);
-      showStep(7);
-      return;
     }
 
     renderThermostatToggle();
@@ -4134,9 +4147,6 @@ document.querySelectorAll('#extraInsulationToggleChoices .choice-card').forEach(
       updateAssignmentPointers();
       updateSummary();
 
-      state.maxUnlockedStep = Math.max(state.maxUnlockedStep, 9);
-      showStep(9);
-      return;
     }
 
     renderExtraInsulationToggle();
@@ -4162,9 +4172,6 @@ document.querySelectorAll('#distributionToggleChoices .choice-card').forEach((ca
       updateAssignmentPointers();
       updateSummary();
 
-      state.maxUnlockedStep = Math.max(state.maxUnlockedStep, 8);
-      showStep(8);
-      return;
     }
 
     renderDistributionToggle();

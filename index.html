@@ -416,33 +416,31 @@
           <div class="section-title-row">
             <h2 class="section-title">6. Thermostat</h2>
 
-            <div class="field floor-select-field">
-              <label for="thermostatFloorSelect">
-                <span id="thermostatPointerFloor" class="assignment-pointer hidden">👉</span>
-                Etage
-              </label>
-              <select id="thermostatFloorSelect"></select>
-
-              <label for="thermostatRoomSelect" style="margin-top:10px;">
-                <span id="thermostatPointerRoom" class="assignment-pointer hidden">👉</span>
-                Raum
-              </label>
-              <select id="thermostatRoomSelect"></select>
-            </div>
-          </div>
-
-          <p class="section-subtitle">Bitte wählen, ob und welches Thermostat vorgesehen ist.</p>
-
-          <div class="sub-block">
-            <h3>Thermostat gewünscht?</h3>
-            <div class="choice-row" id="thermostatToggleChoices">
-              <div class="choice-card" data-thermostat-toggle="ja">
-                <strong>Ja</strong>
-              </div>
-              <div class="choice-card" data-thermostat-toggle="nein">
-                <strong>Nein</strong>
+            <div class="sub-block">
+              <h3>Thermostat gewünscht?</h3>
+              <div class="choice-row" id="thermostatToggleChoices">
+                <div class="choice-card" data-thermostat-toggle="ja">
+                  <strong>Ja</strong>
+                </div>
+                <div class="choice-card" data-thermostat-toggle="nein">
+                  <strong>Nein</strong>
+                </div>
               </div>
             </div>
+
+            <div class="field floor-select-field assignment-selection-block" id="thermostatAssignmentBlock"></div>
+            <label for="thermostatFloorSelect">
+              <span id="thermostatPointerFloor" class="assignment-pointer hidden">👉</span>
+              Etage
+            </label>
+            <select id="thermostatFloorSelect"></select>
+
+            <label for="thermostatRoomSelect" style="margin-top:10px;">
+              <span id="thermostatPointerRoom" class="assignment-pointer hidden">👉</span>
+              Raum
+            </label>
+            <select id="thermostatRoomSelect"></select>
+
             <button id="assignThermostatNoneBtn" type="button" class="hidden secondary room-none-btn">Nicht für diesen
               Raum erforderlich</button>
           </div>
@@ -473,7 +471,20 @@
           <div class="section-title-row">
             <h2 class="section-title">7. Verteilertechnik</h2>
 
-            <div class="field floor-select-field">
+            <div class="sub-block">
+              <h3>Verteiler und Regeltechnik gewünscht?</h3>
+
+              <div class="choice-row" id="distributionToggleChoices">
+                <div class="choice-card" data-distribution-toggle="ja">
+                  <strong>Ja</strong>
+                </div>
+                <div class="choice-card" data-distribution-toggle="nein">
+                  <strong>Nein</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="field floor-select-field assignment-selection-block" id="distributionAssignmentBlock">
               <label for="distributionFloorSelect">
                 <span id="distributionPointerFloor" class="assignment-pointer hidden">👉</span>
                 Etage
@@ -485,181 +496,181 @@
                 Raum
               </label>
               <select id="distributionRoomSelect"></select>
+
+              <button id="assignDistributionNoneBtn" type="button" class="hidden secondary room-none-btn">
+                Nicht für diesen Raum erforderlich
+              </button>
             </div>
-          </div>
-          <p class="section-subtitle">Verteilerschrank-Art, Verteiler-Menge & Typ sowie Regeltechnik.</p>
 
-          <div class="sub-block">
-            <h3>Verteiler und Regeltechnik gewünscht?</h3>
-
-            <div class="choice-row" id="distributionToggleChoices">
-              <div class="choice-card" data-distribution-toggle="ja">
-                <strong>Ja</strong>
-              </div>
-              <div class="choice-card" data-distribution-toggle="nein">
-                <strong>Nein</strong>
-              </div>
-            </div>
-            <button id="assignDistributionNoneBtn" type="button" class="hidden secondary room-none-btn">
-              Nicht für diesen Raum erforderlich
-            </button>
-          </div>
-
-          <div id="distributionOptions">
-            <div class="stack-grid">
-              <div class="sub-block">
-                <h3>Verteilerschrank-Art</h3>
-                <div class="radio-list">
-                  <label class="radio-option"><input type="checkbox" name="cabinetMounting"
-                      value="Aufputz" /><span>Aufputz</span></label>
-                  <label class="radio-option"><input type="checkbox" name="cabinetMounting"
-                      value="Unterputz" /><span>Unterputz</span></label>
-                </div>
-              </div>
-
-              <div class="sub-block">
-                <h3>Verteiler Menge & Typ</h3>
-
-                <div id="distributionManualFields" class="distribution-manual-fields">
-                  <div class="distribution-row">
-                    <select class="distribution-type">
-                      <option value="">Typ wählen</option>
-                      <option>HKV-D2</option>
-                      <option>HKV-D3</option>
-                      <option>HKV-D4</option>
-                      <option>HKV-D5</option>
-                      <option>HKV-D6</option>
-                      <option>HKV-D7</option>
-                      <option>HKV-D8</option>
-                      <option>HKV-D9</option>
-                      <option>HKV-D10</option>
-                      <option>HKV-D11</option>
-                      <option>HKV-D12</option>
-                    </select>
-                    <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
-                  </div>
-
-                  <div class="distribution-row">
-                    <select class="distribution-type">
-                      <option value="">Typ wählen</option>
-                      <option>HKV-D2</option>
-                      <option>HKV-D3</option>
-                      <option>HKV-D4</option>
-                      <option>HKV-D5</option>
-                      <option>HKV-D6</option>
-                      <option>HKV-D7</option>
-                      <option>HKV-D8</option>
-                      <option>HKV-D9</option>
-                      <option>HKV-D10</option>
-                      <option>HKV-D11</option>
-                      <option>HKV-D12</option>
-                    </select>
-                    <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
-                  </div>
-
-                  <div class="distribution-row">
-                    <select class="distribution-type">
-                      <option value="">Typ wählen</option>
-                      <option>HKV-D2</option>
-                      <option>HKV-D3</option>
-                      <option>HKV-D4</option>
-                      <option>HKV-D5</option>
-                      <option>HKV-D6</option>
-                      <option>HKV-D7</option>
-                      <option>HKV-D8</option>
-                      <option>HKV-D9</option>
-                      <option>HKV-D10</option>
-                      <option>HKV-D11</option>
-                      <option>HKV-D12</option>
-                    </select>
-                    <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
-                  </div>
-
-                  <div class="distribution-row">
-                    <select class="distribution-type">
-                      <option value="">Typ wählen</option>
-                      <option>HKV-D2</option>
-                      <option>HKV-D3</option>
-                      <option>HKV-D4</option>
-                      <option>HKV-D5</option>
-                      <option>HKV-D6</option>
-                      <option>HKV-D7</option>
-                      <option>HKV-D8</option>
-                      <option>HKV-D9</option>
-                      <option>HKV-D10</option>
-                      <option>HKV-D11</option>
-                      <option>HKV-D12</option>
-                    </select>
-                    <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
-                  </div>
-
-                  <div class="distribution-row">
-                    <select class="distribution-type">
-                      <option value="">Typ wählen</option>
-                      <option>HKV-D2</option>
-                      <option>HKV-D3</option>
-                      <option>HKV-D4</option>
-                      <option>HKV-D5</option>
-                      <option>HKV-D6</option>
-                      <option>HKV-D7</option>
-                      <option>HKV-D8</option>
-                      <option>HKV-D9</option>
-                      <option>HKV-D10</option>
-                      <option>HKV-D11</option>
-                      <option>HKV-D12</option>
-                    </select>
-                    <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
+            <div id="distributionOptions">
+              <div class="stack-grid">
+                <div class="sub-block">
+                  <h3>Verteilerschrank-Art</h3>
+                  <div class="radio-list">
+                    <label class="radio-option"><input type="checkbox" name="cabinetMounting"
+                        value="Aufputz" /><span>Aufputz</span></label>
+                    <label class="radio-option"><input type="checkbox" name="cabinetMounting"
+                        value="Unterputz" /><span>Unterputz</span></label>
                   </div>
                 </div>
-              </div>
 
-              <div class="sub-block">
-                <h3>Regeltechnik</h3>
+                <div class="sub-block">
+                  <h3>Verteiler Menge & Typ</h3>
 
-                <div class="radio-list regulation-voltage-list">
-                  <label class="radio-option"><input type="checkbox" name="regulationVoltage" value="24V DC" /><span>24V
-                      DC</span></label>
-                  <label class="radio-option"><input type="checkbox" name="regulationVoltage"
-                      value="230V AC" /><span>230V
-                      AC</span></label>
+                  <div id="distributionManualFields" class="distribution-manual-fields">
+                    <div class="distribution-row">
+                      <select class="distribution-type">
+                        <option value="">Typ wählen</option>
+                        <option>HKV-D2</option>
+                        <option>HKV-D3</option>
+                        <option>HKV-D4</option>
+                        <option>HKV-D5</option>
+                        <option>HKV-D6</option>
+                        <option>HKV-D7</option>
+                        <option>HKV-D8</option>
+                        <option>HKV-D9</option>
+                        <option>HKV-D10</option>
+                        <option>HKV-D11</option>
+                        <option>HKV-D12</option>
+                      </select>
+                      <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
+                    </div>
+
+                    <div class="distribution-row">
+                      <select class="distribution-type">
+                        <option value="">Typ wählen</option>
+                        <option>HKV-D2</option>
+                        <option>HKV-D3</option>
+                        <option>HKV-D4</option>
+                        <option>HKV-D5</option>
+                        <option>HKV-D6</option>
+                        <option>HKV-D7</option>
+                        <option>HKV-D8</option>
+                        <option>HKV-D9</option>
+                        <option>HKV-D10</option>
+                        <option>HKV-D11</option>
+                        <option>HKV-D12</option>
+                      </select>
+                      <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
+                    </div>
+
+                    <div class="distribution-row">
+                      <select class="distribution-type">
+                        <option value="">Typ wählen</option>
+                        <option>HKV-D2</option>
+                        <option>HKV-D3</option>
+                        <option>HKV-D4</option>
+                        <option>HKV-D5</option>
+                        <option>HKV-D6</option>
+                        <option>HKV-D7</option>
+                        <option>HKV-D8</option>
+                        <option>HKV-D9</option>
+                        <option>HKV-D10</option>
+                        <option>HKV-D11</option>
+                        <option>HKV-D12</option>
+                      </select>
+                      <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
+                    </div>
+
+                    <div class="distribution-row">
+                      <select class="distribution-type">
+                        <option value="">Typ wählen</option>
+                        <option>HKV-D2</option>
+                        <option>HKV-D3</option>
+                        <option>HKV-D4</option>
+                        <option>HKV-D5</option>
+                        <option>HKV-D6</option>
+                        <option>HKV-D7</option>
+                        <option>HKV-D8</option>
+                        <option>HKV-D9</option>
+                        <option>HKV-D10</option>
+                        <option>HKV-D11</option>
+                        <option>HKV-D12</option>
+                      </select>
+                      <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
+                    </div>
+
+                    <div class="distribution-row">
+                      <select class="distribution-type">
+                        <option value="">Typ wählen</option>
+                        <option>HKV-D2</option>
+                        <option>HKV-D3</option>
+                        <option>HKV-D4</option>
+                        <option>HKV-D5</option>
+                        <option>HKV-D6</option>
+                        <option>HKV-D7</option>
+                        <option>HKV-D8</option>
+                        <option>HKV-D9</option>
+                        <option>HKV-D10</option>
+                        <option>HKV-D11</option>
+                        <option>HKV-D12</option>
+                      </select>
+                      <input type="number" min="0" step="1" class="distribution-qty" placeholder="Menge" />
+                    </div>
+                  </div>
                 </div>
 
-                <div class="regulation-list">
-                  <div class="regulation-row">
-                    <label class="check-option regulation-label">
-                      <input type="checkbox" class="regulation-checkbox" data-label="Regelklemmleiste bis zu 6 Zonen" />
-                      <span>Regelklemmleiste bis zu 6 Zonen</span>
-                    </label>
-                    <input type="number" min="0" step="1" class="regulation-qty" placeholder="Menge" />
+                <div class="sub-block">
+                  <h3>Regeltechnik</h3>
+
+                  <div class="radio-list regulation-voltage-list">
+                    <label class="radio-option"><input type="checkbox" name="regulationVoltage"
+                        value="24V DC" /><span>24V
+                        DC</span></label>
+                    <label class="radio-option"><input type="checkbox" name="regulationVoltage"
+                        value="230V AC" /><span>230V
+                        AC</span></label>
                   </div>
 
-                  <div class="regulation-row">
-                    <label class="check-option regulation-label">
-                      <input type="checkbox" class="regulation-checkbox"
-                        data-label="Regelklemmleiste bis zu 10 Zonen" />
-                      <span>Regelklemmleiste bis zu 10 Zonen</span>
-                    </label>
-                    <input type="number" min="0" step="1" class="regulation-qty" placeholder="Menge" />
-                  </div>
+                  <div class="regulation-list">
+                    <div class="regulation-row">
+                      <label class="check-option regulation-label">
+                        <input type="checkbox" class="regulation-checkbox"
+                          data-label="Regelklemmleiste bis zu 6 Zonen" />
+                        <span>Regelklemmleiste bis zu 6 Zonen</span>
+                      </label>
+                      <input type="number" min="0" step="1" class="regulation-qty" placeholder="Menge" />
+                    </div>
 
-                  <div class="regulation-row">
-                    <label class="check-option regulation-label">
-                      <input type="checkbox" class="regulation-checkbox" data-label="Stellantrieb Premium" />
-                      <span>Stellantrieb Premium</span>
-                    </label>
-                    <input type="number" min="0" step="1" class="regulation-qty" placeholder="Menge" />
+                    <div class="regulation-row">
+                      <label class="check-option regulation-label">
+                        <input type="checkbox" class="regulation-checkbox"
+                          data-label="Regelklemmleiste bis zu 10 Zonen" />
+                        <span>Regelklemmleiste bis zu 10 Zonen</span>
+                      </label>
+                      <input type="number" min="0" step="1" class="regulation-qty" placeholder="Menge" />
+                    </div>
+
+                    <div class="regulation-row">
+                      <label class="check-option regulation-label">
+                        <input type="checkbox" class="regulation-checkbox" data-label="Stellantrieb Premium" />
+                        <span>Stellantrieb Premium</span>
+                      </label>
+                      <input type="number" min="0" step="1" class="regulation-qty" placeholder="Menge" />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
         </section>
 
         <section class="step-panel" data-step-panel="8">
           <div class="section-title-row">
             <h2 class="section-title">8. Zusatzdämmung</h2>
 
-            <div class="field floor-select-field">
+            <div class="sub-block">
+              <h3>Zusatzdämmung gewünscht?</h3>
+              <div class="choice-row" id="extraInsulationToggleChoices">
+                <div class="choice-card" data-extra-insulation-toggle="ja">
+                  <strong>Ja</strong>
+                </div>
+                <div class="choice-card" data-extra-insulation-toggle="nein">
+                  <strong>Nein</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="field floor-select-field assignment-selection-block" id="extraInsulationAssignmentBlock">
               <label for="extraInsulationFloorSelect">
                 <span id="extraInsulationPointerFloor" class="assignment-pointer hidden">👉</span>
                 Etage
@@ -671,22 +682,7 @@
                 Raum
               </label>
               <select id="extraInsulationRoomSelect"></select>
-            </div>
-          </div>
-          <p class="section-subtitle">Geliefert und montiert wird die ausgwählte Zusatzdämmung. Eine
-            Vermibit-Trockenausgelichsschüttung ist inbegriffen.</p>
 
-          <div class="stack-grid">
-            <div class="sub-block">
-              <h3>Zusatzdämmung gewünscht?</h3>
-              <div class="choice-row" id="extraInsulationToggleChoices">
-                <div class="choice-card" data-extra-insulation-toggle="ja">
-                  <strong>Ja</strong>
-                </div>
-                <div class="choice-card" data-extra-insulation-toggle="nein">
-                  <strong>Nein</strong>
-                </div>
-              </div>
               <button id="assignExtraInsulationNoneBtn" type="button" class="hidden secondary room-none-btn">
                 Nicht für diesen Raum erforderlich
               </button>
