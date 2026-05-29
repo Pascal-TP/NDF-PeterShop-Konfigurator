@@ -705,6 +705,8 @@ function resetFromStep5Forward() {
   // Alle Raum-Zuweisungen ab Schritt 5 löschen
   state.floors.forEach((floor) => {
     floor.rooms.forEach((room) => {
+      room.assignments = room.assignments || {};
+
       room.assignments.system = null;
       room.assignments.thermostat = null;
       room.assignments.distribution = null;
@@ -780,7 +782,11 @@ async function confirmReturnToProjectType(targetStep) {
     });
 
     if (confirmed) {
-      resetFromStep5Forward();
+      try {
+        resetFromStep5Forward();
+      } catch (error) {
+        console.error('Fehler beim Zurücksetzen ab Schritt 5:', error);
+      }
     }
 
     return confirmed;
