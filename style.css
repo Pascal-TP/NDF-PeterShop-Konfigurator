@@ -1225,3 +1225,8 @@ button.disabled-button:hover {
   font-weight: 400; 
   letter-spacing: 0.3px;
 }
+
+.clear-all-btn {
+  width: 100%;
+  margin: 0 0 16px 0;
+}

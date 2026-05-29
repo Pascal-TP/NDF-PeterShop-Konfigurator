@@ -107,6 +107,7 @@ const extraInsulationPointerFloor = document.getElementById('extraInsulationPoin
 const extraInsulationPointerRoom = document.getElementById('extraInsulationPointerRoom');
 const manualDistanceBox = document.getElementById('manualDistanceBox');
 const manualDistanceKmInput = document.getElementById('manualDistanceKm');
+const clearAllBtn = document.getElementById('clearAllBtn');
 
 const appModal = document.getElementById('appModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -828,23 +829,23 @@ function showStep(step) {
   }
 
   document.querySelectorAll('.step-item').forEach((item) => {
-  const itemStep = Number(item.dataset.step);
+    const itemStep = Number(item.dataset.step);
 
-  const startLocked =
-    itemStep === 0 && state.maxUnlockedStep >= 3;
+    const startLocked =
+      itemStep === 0 && state.maxUnlockedStep >= 3;
 
-  item.classList.toggle('active', itemStep === state.currentStep);
+    item.classList.toggle('active', itemStep === state.currentStep);
 
-  item.classList.toggle(
-    'clickable',
-    itemStep <= state.maxUnlockedStep && !startLocked
-  );
+    item.classList.toggle(
+      'clickable',
+      itemStep <= state.maxUnlockedStep && !startLocked
+    );
 
-  item.classList.toggle(
-    'locked',
-    itemStep > state.maxUnlockedStep || startLocked
-  );
-});
+    item.classList.toggle(
+      'locked',
+      itemStep > state.maxUnlockedStep || startLocked
+    );
+  });
   document.querySelectorAll('.step-panel').forEach((panel) => {
     panel.classList.toggle('active', Number(panel.dataset.stepPanel) === state.currentStep);
   });
@@ -4501,6 +4502,21 @@ if (assignThermostatNoneBtn) {
 
 if (assignDistributionNoneBtn) {
   assignDistributionNoneBtn.addEventListener('click', assignDistributionNoneToRoom);
+}
+
+if (clearAllBtn) {
+  clearAllBtn.addEventListener('click', async () => {
+    const confirmed = await showAppModal({
+      title: 'Alle Eingaben löschen?',
+      message: 'Möchten Sie wirklich alle Eingaben löschen? Diese Aktion kann nicht rückgängig gemacht werden.',
+      confirmText: 'Ja, löschen',
+      cancelText: 'Abbrechen'
+    });
+
+    if (!confirmed) return;
+
+    window.location.reload();
+  });
 }
 
 distributionTypeFields.forEach((field) => {
