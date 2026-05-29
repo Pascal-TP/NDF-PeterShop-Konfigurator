@@ -898,12 +898,13 @@ function showStep(step) {
   nextBtn.style.display = state.currentStep === totalSteps - 1 ? 'none' : 'inline-flex';
   nextBtn.disabled = !canProceedToNextStep();
 
-  if (stepHint) {
-    const requirementText = getNextRequirementText();
+ if (stepHint) {
+  const canContinue = canProceedToNextStep();
+  const requirementText = getNextRequirementText();
 
-    stepHint.classList.toggle('hidden', !requirementText);
-    stepHint.textContent = requirementText;
-  }
+  stepHint.classList.toggle('hidden', canContinue || !requirementText);
+  stepHint.textContent = requirementText;
+}
 
   const isSystemStep = state.currentStep === 5;
   const isThermostatStep = state.currentStep === 6;
