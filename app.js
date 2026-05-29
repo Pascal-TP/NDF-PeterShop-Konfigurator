@@ -761,7 +761,7 @@ function resetFromStep5Forward() {
   });
 
   // Schritte ab 5 wieder sperren
-  state.maxUnlockedStep = Math.min(state.maxUnlockedStep, 4);
+  state.maxUnlockedStep = 4;
 
   renderSystemFloorSelect();
   renderThermostatToggle();
@@ -774,22 +774,12 @@ function resetFromStep5Forward() {
 
 async function confirmReturnToProjectType(targetStep) {
   if (targetStep === 1 && state.currentStep > 1) {
-    const confirmed = await showAppModal({
+    return await showAppModal({
       title: 'Hinweis',
       message: 'Die Rückkehr zu Schritt 1 setzt alle Eingaben ab Schritt 5 "System" zurück. Projektart, Wärmeerzeuger, Standort sowie Etagen und Räume bleiben erhalten.',
       confirmText: 'Weiter',
       cancelText: 'Abbrechen'
     });
-
-    if (confirmed) {
-      try {
-        resetFromStep5Forward();
-      } catch (error) {
-        console.error('Fehler beim Zurücksetzen ab Schritt 5:', error);
-      }
-    }
-
-    return confirmed;
   }
 
   return true;
@@ -4303,12 +4293,16 @@ document.querySelectorAll('.step-item').forEach((item) => {
   item.addEventListener('click', async () => {
     const targetStep = Number(item.dataset.step);
 
-    if (targetStep <= state.maxUnlockedStep) {
-      const confirmed = await confirmReturnToProjectType(targetStep);
-      if (!confirmed) return;
+    if (targetStep > state.maxUnlockedStep) return;
 
-      showStep(targetStep);
+    const confirmed = await confirmReturnToProjectType(targetStep);
+    if (!confirmed) return;
+
+    if (targetStep === 1 && state.currentStep > 1) {
+      resetFromStep5Forward();
     }
+
+    showStep(targetStep);
   });
 });
 
@@ -4317,6 +4311,10 @@ prevBtn.addEventListener('click', async () => {
 
   const confirmed = await confirmReturnToProjectType(targetStep);
   if (!confirmed) return;
+
+  if (targetStep === 1 && state.currentStep > 1) {
+    resetFromStep5Forward();
+  }
 
   showStep(targetStep);
 });
