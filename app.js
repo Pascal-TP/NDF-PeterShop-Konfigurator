@@ -4389,10 +4389,19 @@ prevBtn.addEventListener('click', async () => {
   showStep(targetStep);
 });
 
-nextBtn.addEventListener('click', () => {
+nextBtn.addEventListener('click', async () => {
   if (!canProceedToNextStep()) return;
 
   const nextStep = state.currentStep + 1;
+
+  if (state.currentStep === 4 && nextStep === 5) {
+    await showAppModal({
+      title: 'Hinweis zur Raumzuweisung',
+      message: 'In den nächsten Schritten 5 bis 8 wird die Auswahl raumweise zugewiesen.\n\nBitte wählen Sie oben jeweils Etage und Raum aus. Danach bestätigen Sie die Auswahl mit dem Button „… dem Raum zuweisen“.\n\nJeder beheizte Raum benötigt eine eigene Zuweisung. Erst wenn alle erforderlichen Räume zugewiesen wurden, können Sie zum nächsten Schritt wechseln.\n\nDer Finger-Hinweis 👉 bei Etage und Raum zeigt Ihnen, solange noch Räume offen sind.',
+      confirmText: 'OK'
+    });
+  }
+
   if (nextStep > state.maxUnlockedStep) {
     state.maxUnlockedStep = nextStep;
   }
