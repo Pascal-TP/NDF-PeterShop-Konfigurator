@@ -764,8 +764,7 @@ function resetFromStep5Forward() {
   });
 
   // Schritte ab 5 wieder sperren
-  state.maxUnlockedStep = 4;
-
+  
   renderSystemFloorSelect();
   renderThermostatToggle();
   renderDistributionToggle();
@@ -786,6 +785,24 @@ async function confirmReturnToProjectType(targetStep) {
   }
 
   return true;
+}
+
+async function returnToStep1AndResetFromStep5() {
+  const confirmed = await showAppModal({
+    title: 'Hinweis',
+    message: 'Die Rückkehr zu Schritt 1 setzt alle Eingaben ab Schritt 5 "System" zurück. Projektart, Marke, Wärmeerzeuger, Standort sowie Etagen und Räume bleiben erhalten.',
+    confirmText: 'Weiter',
+    cancelText: 'Abbrechen'
+  });
+
+  if (!confirmed) return;
+
+  resetFromStep5Forward();
+
+  state.currentStep = 1;
+  state.maxUnlockedStep = Math.max(state.maxUnlockedStep, 4);
+
+  showStep(1);
 }
 
 async function goToStep(targetStep) {
@@ -4310,12 +4327,28 @@ if (manualDistanceKmInput) {
 
 document.querySelectorAll('.step-item').forEach((item) => {
   item.addEventListener('click', async () => {
-    await goToStep(Number(item.dataset.step));
+    const targetStep = Number(item.dataset.step);
+
+    if (targetStep > state.maxUnlockedStep) return;
+
+    if (targetStep === 1 && state.currentStep > 1) {
+      await returnToStep1AndResetFromStep5();
+      return;
+    }
+
+    showStep(targetStep);
   });
 });
 
 prevBtn.addEventListener('click', async () => {
-  await goToStep(state.currentStep - 1);
+  const targetStep = state.currentStep - 1;
+
+  if (targetStep === 1 && state.currentStep > 1) {
+    await returnToStep1AndResetFromStep5();
+    return;
+  }
+
+  showStep(targetStep);
 });
 
 nextBtn.addEventListener('click', () => {
