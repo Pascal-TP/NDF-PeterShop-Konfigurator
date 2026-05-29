@@ -715,30 +715,28 @@ function resetFromStep5Forward() {
   });
 
   // Nur Eingaben ab Schritt 5 zurücksetzen
-  document.querySelectorAll(`
-    input[name="system"],
-    input[name="systemAddon"],
-    input[name="wlg"],
-    input[name="insulationThickness"],
-    input[name="pipeType"],
-    input[name="millingSystem"],
-    input[name="estrichRange"],
-    input[name="estrichAdditive"],
-    input[name="dryConstruction"],
-    input[name="cabinetMounting"],
-    input[name="regulationVoltage"],
-    input[name="extraInsulation"],
-    input[name="extraInsulationWlg"],
-    input[name="extraInsulationThickness"],
-    input[name="service"],
-    input[name="pipeType"],
-    input[name="pipeSize"],
-    input[name="millingSystem"],
-    .regulation-checkbox"
-  `).forEach((input) => {
-    input.checked = false;
-    input.disabled = false;
-  });
+ document.querySelectorAll(`
+  input[name="system"],
+  input[name="systemAddon"],
+  input[name="wlg"],
+  input[name="insulationThickness"],
+  input[name="pipeType"],
+  input[name="pipeSize"],
+  input[name="millingSystem"],
+  input[name="estrichRange"],
+  input[name="estrichAdditive"],
+  input[name="dryConstruction"],
+  input[name="cabinetMounting"],
+  input[name="regulationVoltage"],
+  input[name="extraInsulation"],
+  input[name="extraInsulationWlg"],
+  input[name="extraInsulationThickness"],
+  input[name="service"],
+  .regulation-checkbox
+`).forEach((input) => {
+  input.checked = false;
+  input.disabled = false;
+});
 
   document.querySelectorAll(`
     .thermostat-qty,
