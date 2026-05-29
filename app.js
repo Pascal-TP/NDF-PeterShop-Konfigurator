@@ -1,5 +1,6 @@
 const state = {
   currentStep: 0,
+  projectReference: '',
   projectType: '',
   brand: '',
   heatSource: '',
@@ -112,6 +113,8 @@ const thermostatAssignmentBlock = document.getElementById('thermostatAssignmentB
 const distributionAssignmentBlock = document.getElementById('distributionAssignmentBlock');
 const extraInsulationAssignmentBlock = document.getElementById('extraInsulationAssignmentBlock');
 const regulationOptionsBlock = document.getElementById('regulationOptionsBlock');
+const projectReferenceInput = document.getElementById('projectReference');
+const summaryProjectReference = document.getElementById('summaryProjectReference');
 
 const appModal = document.getElementById('appModal');
 const modalTitle = document.getElementById('modalTitle');
@@ -2250,6 +2253,11 @@ function updateSummary() {
 
   let distanceText = '';
 
+  if (summaryProjectReference) {
+    summaryProjectReference.textContent =
+      state.projectReference || 'Keine Angabe';
+  }
+
   if (normalizedPlz) {
     summaryPlz.innerHTML = `
     <div>PLZ: ${normalizedPlz}</div>
@@ -4067,6 +4075,7 @@ function updateFinalCheck() {
   const dryConstructionEntries = getDryConstructionEntries();
 
   finalCheck.innerHTML = `
+    <div><strong>Projekt</strong>${state.projectReference || 'Keine Angabe'}</div>  
     <div><strong>Projekt:</strong> ${summaryProjectType.textContent}${state.projectType === 'neubau' ? ' / ' + summaryBrand.textContent : ''}</div>
     <div><strong>Wärmeerzeuger:</strong> ${summaryHeatSource.textContent}</div>
     <div><strong>PLZ:</strong> ${summaryPlz.textContent}</div>
@@ -4592,6 +4601,13 @@ document.querySelectorAll('input[name="extraInsulation"], input[name="extraInsul
     updateSummary();
   });
 });
+
+if (projectReferenceInput) {
+  projectReferenceInput.addEventListener('input', (e) => {
+    state.projectReference = e.target.value.trim();
+    updateSummary();
+  });
+}
 
 if (assignDistributionBtn) {
   assignDistributionBtn.addEventListener('click', assignDistributionToRoom);
