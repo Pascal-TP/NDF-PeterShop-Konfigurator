@@ -1650,24 +1650,33 @@ async function assignExtraInsulationToRoom() {
 
 async function assignExtraInsulationNoneToRoom() {
   const room = getSelectedExtraInsulationRoom();
-
   if (!room) return;
 
-  room.assignments.extraInsulation = { none: true };
+  const wasAlreadySet = room.assignments?.extraInsulation?.none === true;
 
-  clearExtraInsulationSelection();
+  if (wasAlreadySet) {
+    room.assignments.extraInsulation = null;
 
-  const hint = getAllAssignmentsDoneText('extraInsulation');
+    await showAppModal({
+      title: 'Zurückgenommen',
+      message: `Die Auswahl "Für diesen Raum nicht gewünscht" wurde für den Raum "${getRoomLabel(room, Number(extraInsulationRoomSelect.value))}" zurückgenommen.`,
+      confirmText: 'OK'
+    });
+  } else {
+    room.assignments.extraInsulation = { none: true };
+    clearExtraInsulationSelection();
 
-  await showAppModal({
-    title: 'Gespeichert',
-    message: `Für den Raum "${getRoomLabel(room, Number(extraInsulationRoomSelect.value))}" wurde keine Zusatzdämmung hinterlegt.${hint ? '\n\n' + hint : ''}`,
-    confirmText: 'OK'
-  });
+    const hint = getAllAssignmentsDoneText('extraInsulation');
+
+    await showAppModal({
+      title: 'Gespeichert',
+      message: `Für den Raum "${getRoomLabel(room, Number(extraInsulationRoomSelect.value))}" wurde keine Zusatzdämmung hinterlegt.${hint ? '\n\n' + hint : ''}`,
+      confirmText: 'OK'
+    });
+  }
 
   renderExtraInsulationFloorSelect();
   updateAssignmentPointers();
-  scrollAfterAssignment('extraInsulation');
   updateAssignExtraInsulationButton();
   updateSummary();
 }
@@ -3354,21 +3363,31 @@ async function assignThermostatNoneToRoom() {
   const room = getSelectedThermostatRoom();
   if (!room) return;
 
-  room.assignments.thermostat = { none: true };
+  const wasAlreadySet = room.assignments?.thermostat?.none === true;
 
-  clearThermostatSelection();
+  if (wasAlreadySet) {
+    room.assignments.thermostat = null;
 
-  const hint = getAllAssignmentsDoneText('thermostat');
+    await showAppModal({
+      title: 'Zurückgenommen',
+      message: `Die Auswahl "Für diesen Raum nicht gewünscht" wurde für den Raum "${getRoomLabel(room, Number(thermostatRoomSelect.value))}" zurückgenommen.`,
+      confirmText: 'OK'
+    });
+  } else {
+    room.assignments.thermostat = { none: true };
+    clearThermostatSelection();
 
-  await showAppModal({
-    title: 'Gespeichert',
-    message: `Für den Raum "${getRoomLabel(room, Number(thermostatRoomSelect.value))}" wurde kein Thermostat hinterlegt.${hint ? '\n\n' + hint : ''}`,
-    confirmText: 'OK'
-  });
+    const hint = getAllAssignmentsDoneText('thermostat');
+
+    await showAppModal({
+      title: 'Gespeichert',
+      message: `Für den Raum "${getRoomLabel(room, Number(thermostatRoomSelect.value))}" wurde kein Thermostat hinterlegt.${hint ? '\n\n' + hint : ''}`,
+      confirmText: 'OK'
+    });
+  }
 
   renderThermostatFloorSelect();
   updateAssignmentPointers();
-  scrollAfterAssignment('thermostat');
   updateAssignThermostatButton();
   updateSummary();
 }
@@ -3622,24 +3641,33 @@ async function assignDistributionToRoom() {
 
 async function assignDistributionNoneToRoom() {
   const room = getSelectedDistributionRoom();
-
   if (!room) return;
 
-  room.assignments.distribution = { none: true };
+  const wasAlreadySet = room.assignments?.distribution?.none === true;
 
-  clearDistributionSelection();
+  if (wasAlreadySet) {
+    room.assignments.distribution = null;
 
-  const hint = getAllAssignmentsDoneText('distribution');
+    await showAppModal({
+      title: 'Zurückgenommen',
+      message: `Die Auswahl "Für diesen Raum nicht gewünscht" wurde für den Raum "${getRoomLabel(room, Number(distributionRoomSelect.value))}" zurückgenommen.`,
+      confirmText: 'OK'
+    });
+  } else {
+    room.assignments.distribution = { none: true };
+    clearDistributionSelection();
 
-  await showAppModal({
-    title: 'Gespeichert',
-    message: `Für den Raum "${getRoomLabel(room, Number(distributionRoomSelect.value))}" wurde keine Verteilertechnik hinterlegt.${hint ? '\n\n' + hint : ''}`,
-    confirmText: 'OK'
-  });
+    const hint = getAllAssignmentsDoneText('distribution');
+
+    await showAppModal({
+      title: 'Gespeichert',
+      message: `Für den Raum "${getRoomLabel(room, Number(distributionRoomSelect.value))}" wurde keine Verteilertechnik hinterlegt.${hint ? '\n\n' + hint : ''}`,
+      confirmText: 'OK'
+    });
+  }
 
   renderDistributionFloorSelect();
   updateAssignmentPointers();
-  scrollAfterAssignment('distribution');
   updateAssignDistributionButton();
   updateSummary();
 }
