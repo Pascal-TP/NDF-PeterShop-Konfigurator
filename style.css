@@ -1342,3 +1342,18 @@ button.disabled-button:hover {
   opacity: 0.45;
   pointer-events: none;
 }
+
+.brand-card {
+  min-height: 145px;
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-logo {
+  display: block;
+  max-width: 110px;
+  max-height: 36px;
+  object-fit: contain;
+  margin-top: auto;
+  align-self: flex-start;
+}
