@@ -122,8 +122,74 @@ const modalMessage = document.getElementById('modalMessage');
 const modalOkBtn = document.getElementById('modalOkBtn');
 const modalCancelBtn = document.getElementById('modalCancelBtn');
 
-const shopToken = new URLSearchParams(window.location.search).get('token');
-const tokenStorageKey = shopToken ? `petershop-konfigurator-token-used-${shopToken}` : '';
+const urlParams = new URLSearchParams(window.location.search);
+
+const shopContext = {
+  customerId: urlParams.get('customerId') || '',
+  sessionToken: urlParams.get('sessionToken') || urlParams.get('token') || '',
+  returnUrl: urlParams.get('returnUrl') || '',
+  customerName: urlParams.get('customerName') || '',
+  adminToken: urlParams.get('adminToken') || ''
+};
+
+const ADMIN_TOKEN = 'PJKP_ADMIN_5rX9vLm82QaNf7WpK3YxUdE61HsMzB4JcRwT8nPqFaG2Vk';
+const TOKEN_MAX_AGE_MINUTES = 240;
+
+const isAdminAccess = shopContext.adminToken === ADMIN_TOKEN;
+
+const tokenStorageKey = shopContext.sessionToken
+  ? `petershop-konfigurator-token-used-${shopContext.sessionToken}`
+  : '';
+
+function initShopAccessControl() {
+  if (isAdminAccess) {
+    sessionStorage.setItem('pjKalkProAccess', JSON.stringify({
+      mode: 'admin',
+      startedAt: Date.now()
+    }));
+    return true;
+  }
+
+  const hasRequiredShopData =
+    shopContext.customerId &&
+    shopContext.sessionToken &&
+    shopContext.returnUrl;
+
+  if (hasRequiredShopData) {
+    sessionStorage.setItem('pjKalkProAccess', JSON.stringify({
+      mode: 'shop',
+      customerId: shopContext.customerId,
+      sessionToken: shopContext.sessionToken,
+      returnUrl: shopContext.returnUrl,
+      customerName: shopContext.customerName,
+      startedAt: Date.now()
+    }));
+    return true;
+  }
+
+  const stored = JSON.parse(sessionStorage.getItem('pjKalkProAccess') || 'null');
+  if (!stored) return false;
+
+  const ageMinutes = (Date.now() - stored.startedAt) / 1000 / 60;
+  return ageMinutes <= TOKEN_MAX_AGE_MINUTES;
+}
+
+function blockConfiguratorAccess() {
+  state.isLocked = true;
+  mainLayout.classList.add('result-mode');
+  document.querySelector('.steps')?.classList.add('hidden');
+  document.querySelector('.btn-row')?.classList.add('hidden');
+  document.querySelectorAll('.step-panel').forEach(panel => panel.classList.remove('active'));
+
+  resultPanel.classList.remove('hidden');
+  resultPanel.innerHTML = `
+    <h2 class="section-title">Zugriff nicht möglich</h2>
+    <p class="section-subtitle">
+      Der Konfigurator kann nur direkt aus dem PeterShop gestartet werden.
+      Bitte öffnen Sie den Konfigurator erneut über Ihren PeterShop-Zugang.
+    </p>
+  `;
+}
 
 function scrollToTop() {
   window.scrollTo({
@@ -865,6 +931,7 @@ async function goToStep(targetStep) {
 }
 
 function showStep(step) {
+  if (state.isLocked) return;
   const allowedStep = Math.max(0, Math.min(state.maxUnlockedStep, totalSteps - 1));
   state.currentStep = Math.max(0, Math.min(step, allowedStep));
 
@@ -3314,7 +3381,7 @@ function resetAllInputsAfterHandover() {
 function lockConfigurator() {
   state.isLocked = true;
 
-  if (shopToken) {
+  if (shopContext.sessionToken && !isAdminAccess) {
     localStorage.setItem(tokenStorageKey, 'used');
   }
 
@@ -3332,7 +3399,7 @@ function lockConfigurator() {
 }
 
 function checkTokenUsageOnLoad() {
-  if (shopToken && localStorage.getItem(tokenStorageKey) === 'used') {
+  if (!isAdminAccess && shopContext.sessionToken && localStorage.getItem(tokenStorageKey) === 'used') {
     mainLayout.classList.add('result-mode');
     document.querySelector('.steps').classList.add('hidden');
     document.querySelector('.btn-row').classList.add('hidden');
@@ -4343,8 +4410,34 @@ handoverShopBtn.addEventListener('click', async () => {
     return;
   }
 
-  // Platzhalter: Hier kommt später die echte Shop-Übergabe per API/Formular/URL hin.
-  resetAllInputsAfterHandover();
+  const access = JSON.parse(sessionStorage.getItem('pjKalkProAccess') || 'null');
+
+  const payload = {
+    customerId: access?.customerId || '',
+    sessionToken: access?.sessionToken || '',
+    configId: `KALKPRO-${Date.now()}`,
+    items: productsForShop.map(item => ({
+      sku: item.articleNumber,
+      quantity: item.quantity
+    }))
+  };
+
+  const response = await fetch(access.returnUrl, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify(payload)
+});
+
+if (!response.ok) {
+  await showAppModal({
+    title: 'Übergabe fehlgeschlagen',
+    message: 'Die Artikel konnten nicht an den PeterShop übergeben werden.',
+    confirmText: 'OK'
+  });
+  return;
+}
 
   await showAppModal({
     title: 'Übergabe erfolgreich',
@@ -4669,21 +4762,28 @@ regulationQtyFields.forEach((field) => {
   });
 });
 
-state.floors = [createFloor()];
-renderProjectType();
-renderSystemBlocksByProjectType();
-renderBrand();
-renderPipeOptionsByBrand();
-updateSystemInfoTextsByBrand();
-renderHeatSource();
-renderThermostat();
-renderThermostatToggle();
-renderExtraInsulationToggle();
-renderDistributionMode();
-renderDistributionToggle();
-renderFloors();
-syncEstrichAdditivesRules();
-syncEstrichRangeRules();
-updateSummary();
-showStep(0);
-checkTokenUsageOnLoad();
+const hasAccess = initShopAccessControl();
+
+if (!hasAccess) {
+  blockConfiguratorAccess();
+} else {
+
+  state.floors = [createFloor()];
+  renderProjectType();
+  renderSystemBlocksByProjectType();
+  renderBrand();
+  renderPipeOptionsByBrand();
+  updateSystemInfoTextsByBrand();
+  renderHeatSource();
+  renderThermostat();
+  renderThermostatToggle();
+  renderExtraInsulationToggle();
+  renderDistributionMode();
+  renderDistributionToggle();
+  renderFloors();
+  syncEstrichAdditivesRules();
+  syncEstrichRangeRules();
+  updateSummary();
+  showStep(0);
+  checkTokenUsageOnLoad();
+}
