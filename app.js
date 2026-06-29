@@ -125,10 +125,8 @@ const modalCancelBtn = document.getElementById('modalCancelBtn');
 const urlParams = new URLSearchParams(window.location.search);
 
 const shopContext = {
-  customerId: urlParams.get('customerId') || '',
   sessionToken: urlParams.get('sessionToken') || urlParams.get('token') || '',
   returnUrl: urlParams.get('returnUrl') || '',
-  customerName: urlParams.get('customerName') || '',
   adminToken: urlParams.get('adminToken') || ''
 };
 
@@ -151,17 +149,14 @@ function initShopAccessControl() {
   }
 
   const hasRequiredShopData =
-    shopContext.customerId &&
     shopContext.sessionToken &&
     shopContext.returnUrl;
 
   if (hasRequiredShopData) {
     sessionStorage.setItem('pjKalkProAccess', JSON.stringify({
       mode: 'shop',
-      customerId: shopContext.customerId,
       sessionToken: shopContext.sessionToken,
       returnUrl: shopContext.returnUrl,
-      customerName: shopContext.customerName,
       startedAt: Date.now()
     }));
     return true;
@@ -4413,9 +4408,7 @@ handoverShopBtn.addEventListener('click', async () => {
   const access = JSON.parse(sessionStorage.getItem('pjKalkProAccess') || 'null');
 
   const payload = {
-    customerId: access?.customerId || '',
     sessionToken: access?.sessionToken || '',
-    configId: `KALKPRO-${Date.now()}`,
     items: productsForShop.map(item => ({
       sku: item.articleNumber,
       quantity: item.quantity
@@ -4423,21 +4416,21 @@ handoverShopBtn.addEventListener('click', async () => {
   };
 
   const response = await fetch(access.returnUrl, {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(payload)
-});
-
-if (!response.ok) {
-  await showAppModal({
-    title: 'Übergabe fehlgeschlagen',
-    message: 'Die Artikel konnten nicht an den PeterShop übergeben werden.',
-    confirmText: 'OK'
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
   });
-  return;
-}
+
+  if (!response.ok) {
+    await showAppModal({
+      title: 'Übergabe fehlgeschlagen',
+      message: 'Die Artikel konnten nicht an den PeterShop übergeben werden.',
+      confirmText: 'OK'
+    });
+    return;
+  }
 
   await showAppModal({
     title: 'Übergabe erfolgreich',
