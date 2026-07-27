@@ -127,7 +127,16 @@ const urlParams = new URLSearchParams(window.location.search);
 const shopContext = {
   sessionToken: urlParams.get('sessionToken') || urlParams.get('token') || '',
   returnUrl: urlParams.get('returnUrl') || '',
-  adminToken: urlParams.get('adminToken') || ''
+  adminToken: urlParams.get('adminToken') || '',
+
+  // Standardmäßig klassische Formularübergabe.
+  // Optional kann der Shop mit handoverMode=ajax weiterhin
+  // die bisherige fetch-Übergabe anfordern.
+  handoverMode: (
+    urlParams.get('handoverMode') ||
+    urlParams.get('transferMode') ||
+    'form'
+  ).toLowerCase()
 };
 
 const ADMIN_TOKEN = 'PJKP_ADMIN_5rX9vLm82QaNf7WpK3YxUdE61HsMzB4JcRwT8nPqFaG2Vk';
@@ -4444,38 +4453,67 @@ backToConfigBtn.addEventListener('click', () => {
   returnToConfiguration();
 });
 
-handoverShopBtn.addEventListener('click', async () => {
-  const confirmed = await showAppModal({
-    title: 'Übergabe an PeterShop',
-    message: 'Mit Übergabe an PeterShop werden die Artikel an den PeterShop gesendet und in Ihrem Warenkorb gelegt. Sämtliche Eingaben werden dadurch im Konfigurator entfernt. Sind Sie sicher, jetzt an den PeterShop zu übergeben?',
-    confirmText: 'Ja, übergeben',
-    cancelText: 'Abbrechen'
-  });
-
-  if (!confirmed) return;
-
-  const productsForShop = state.calculatedProducts.filter((item) => item.selected !== false);
-
-  if (productsForShop.length === 0) {
-    await showAppModal({
-      title: 'Keine Artikel ausgewählt',
-      message: 'Es wurde keine Position für die Übergabe an den PeterShop ausgewählt.',
-      confirmText: 'OK'
-    });
-    return;
+function submitShopForm(returnUrl, payload) {
+  if (!returnUrl) {
+    throw new Error('Keine Rückgabe-URL für den PeterShop vorhanden.');
   }
 
-  const access = JSON.parse(sessionStorage.getItem('pjKalkProAccess') || 'null');
+  const form = document.createElement('form');
 
-  const payload = {
-    sessionToken: access?.sessionToken || '',
-    items: productsForShop.map(item => ({
-      sku: item.articleNumber,
-      quantity: item.quantity
-    }))
+  form.method = 'POST';
+  form.action = returnUrl;
+  form.acceptCharset = 'UTF-8';
+  form.style.display = 'none';
+
+  /**
+   * Fügt dem Formular ein verstecktes Eingabefeld hinzu.
+   */
+  const appendHiddenField = (name, value) => {
+    const input = document.createElement('input');
+
+    input.type = 'hidden';
+    input.name = name;
+    input.value = String(value ?? '');
+
+    form.appendChild(input);
   };
 
-  const response = await fetch(access.returnUrl, {
+  // Sitzungs-/Shop-Token
+  appendHiddenField('sessionToken', payload.sessionToken);
+
+  /**
+   * Klassische PHP-/Form-Schreibweise:
+   *
+   * items[0][sku]
+   * items[0][quantity]
+   * items[1][sku]
+   * items[1][quantity]
+   */
+  payload.items.forEach((item, index) => {
+    appendHiddenField(`items[${index}][sku]`, item.sku);
+    appendHiddenField(`items[${index}][quantity]`, item.quantity);
+  });
+
+  /**
+   * Zusätzlich vollständige Materialliste als JSON.
+   *
+   * Dieses Feld ist optional, kann dem Shop-Betreiber aber
+   * die Verarbeitung erleichtern oder als Übergangslösung dienen.
+   */
+  appendHiddenField('itemsJson', JSON.stringify(payload.items));
+
+  document.body.appendChild(form);
+
+  // Der Browser wechselt anschließend auf die Antwortseite des Shops.
+  form.submit();
+}
+
+async function submitShopAjax(returnUrl, payload) {
+  if (!returnUrl) {
+    throw new Error('Keine Rückgabe-URL für den PeterShop vorhanden.');
+  }
+
+  const response = await fetch(returnUrl, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -4484,21 +4522,138 @@ handoverShopBtn.addEventListener('click', async () => {
   });
 
   if (!response.ok) {
+    throw new Error(
+      `PeterShop antwortete mit HTTP-Status ${response.status}.`
+    );
+  }
+
+  return response;
+}
+
+handoverShopBtn.addEventListener('click', async () => {
+  const confirmed = await showAppModal({
+    title: 'Übergabe an PeterShop',
+    message:
+      'Mit Übergabe an PeterShop werden die Artikel an den PeterShop gesendet und in Ihren Warenkorb gelegt. ' +
+      'Sämtliche Eingaben werden dadurch im Konfigurator entfernt. ' +
+      'Sind Sie sicher, jetzt an den PeterShop zu übergeben?',
+    confirmText: 'Ja, übergeben',
+    cancelText: 'Abbrechen'
+  });
+
+  if (!confirmed) return;
+
+  const productsForShop = state.calculatedProducts.filter(
+    item => item.selected !== false
+  );
+
+  if (productsForShop.length === 0) {
     await showAppModal({
-      title: 'Übergabe fehlgeschlagen',
-      message: 'Die Artikel konnten nicht an den PeterShop übergeben werden.',
+      title: 'Keine Artikel ausgewählt',
+      message:
+        'Es wurde keine Position für die Übergabe an den PeterShop ausgewählt.',
       confirmText: 'OK'
     });
+
     return;
   }
 
-  await showAppModal({
-    title: 'Übergabe erfolgreich',
-    message: 'Ihre Artikel sind an Ihren Warenkorb übergeben worden, Sie können nun dieses Fenster schließen und zu PeterShop zurückkehren.',
-    confirmText: 'OK'
-  });
+  const access = JSON.parse(
+    sessionStorage.getItem('pjKalkProAccess') || 'null'
+  );
 
-  lockConfigurator();
+  if (!access?.returnUrl) {
+    await showAppModal({
+      title: 'Übergabe nicht möglich',
+      message:
+        'Die Rückgabeadresse des PeterShops ist nicht vorhanden. ' +
+        'Bitte starten Sie den Konfigurator erneut aus dem PeterShop.',
+      confirmText: 'OK'
+    });
+
+    return;
+  }
+
+  const payload = {
+    sessionToken: access.sessionToken || '',
+    items: productsForShop.map(item => ({
+      sku: String(item.articleNumber || '').trim(),
+      quantity: Number(item.quantity) || 0
+    }))
+  };
+
+  // Ungültige oder leere Positionen vorsichtshalber entfernen.
+  payload.items = payload.items.filter(item =>
+    item.sku !== '' &&
+    Number.isFinite(item.quantity) &&
+    item.quantity > 0
+  );
+
+  if (payload.items.length === 0) {
+    await showAppModal({
+      title: 'Keine gültigen Artikel',
+      message:
+        'Die ausgewählten Positionen enthalten keine gültigen Artikelnummern oder Mengen.',
+      confirmText: 'OK'
+    });
+
+    return;
+  }
+
+  const handoverMode =
+    shopContext.handoverMode === 'ajax'
+      ? 'ajax'
+      : 'form';
+
+  try {
+    if (handoverMode === 'form') {
+      /**
+       * Token vor dem Absenden als verwendet markieren.
+       * Danach verlässt der Browser die Konfiguratorseite.
+       */
+      if (shopContext.sessionToken && !isAdminAccess) {
+        localStorage.setItem(tokenStorageKey, 'used');
+      }
+
+      handoverShopBtn.disabled = true;
+      handoverShopBtn.textContent = 'Übergabe läuft …';
+
+      submitShopForm(access.returnUrl, payload);
+
+      /**
+       * Ab hier normalerweise keine weitere Ausführung,
+       * weil der Browser zur Shop-Antwortseite navigiert.
+       */
+      return;
+    }
+
+    // Bisherige AJAX-Variante
+    await submitShopAjax(access.returnUrl, payload);
+
+    await showAppModal({
+      title: 'Übergabe erfolgreich',
+      message:
+        'Ihre Artikel wurden an den PeterShop übergeben. ' +
+        'Sie können nun dieses Fenster schließen und zum PeterShop zurückkehren.',
+      confirmText: 'OK'
+    });
+
+    lockConfigurator();
+
+  } catch (error) {
+    console.error('Fehler bei der PeterShop-Übergabe:', error);
+
+    handoverShopBtn.disabled = false;
+    handoverShopBtn.textContent = 'Übergabe an PeterShop';
+
+    await showAppModal({
+      title: 'Übergabe fehlgeschlagen',
+      message:
+        'Die Artikel konnten nicht an den PeterShop übergeben werden. ' +
+        'Bitte versuchen Sie es erneut oder wenden Sie sich an den PeterShop-Support.',
+      confirmText: 'OK'
+    });
+  }
 });
 
 [
