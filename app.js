@@ -18,7 +18,8 @@ const state = {
   selectedSystemFloorIndex: 0,
   activeSummaryFloorIndex: 0,
   activeSummaryRoomIndex: 0,
-  isLocked: false
+  isLocked: false,
+  distanceMode: 'plz'
 };
 
 const totalSteps = 11;
@@ -85,6 +86,7 @@ const distributionOptions = document.getElementById('distributionOptions');
 const systemFloorSelect = document.getElementById('systemFloorSelect');
 const systemRoomSelect = document.getElementById('systemRoomSelect');
 const assignFloorSystemBtn = document.getElementById('assignFloorSystemBtn');
+const assignFloorSystemToFloorBtn = document.getElementById('assignFloorSystemToFloorBtn');
 const stepHint = document.getElementById('stepHint');
 const thermostatFloorSelect = document.getElementById('thermostatFloorSelect');
 const thermostatRoomSelect = document.getElementById('thermostatRoomSelect');
@@ -98,6 +100,7 @@ const extraInsulationFloorSelect = document.getElementById('extraInsulationFloor
 const extraInsulationRoomSelect = document.getElementById('extraInsulationRoomSelect');
 const assignExtraInsulationBtn = document.getElementById('assignExtraInsulationBtn');
 const assignExtraInsulationNoneBtn = document.getElementById('assignExtraInsulationNoneBtn');
+const assignExtraInsulationToFloorBtn = document.getElementById('assignExtraInsulationToFloorBtn');
 const systemPointerFloor = document.getElementById('systemPointerFloor');
 const systemPointerRoom = document.getElementById('systemPointerRoom');
 const thermostatPointerFloor = document.getElementById('thermostatPointerFloor');
@@ -108,6 +111,9 @@ const extraInsulationPointerFloor = document.getElementById('extraInsulationPoin
 const extraInsulationPointerRoom = document.getElementById('extraInsulationPointerRoom');
 const manualDistanceBox = document.getElementById('manualDistanceBox');
 const manualDistanceKmInput = document.getElementById('manualDistanceKm');
+const postcodeDistanceBox = document.getElementById('postcodeDistanceBox');
+const distanceModeChoices = document.getElementById('distanceModeChoices');
+const manualDistanceHint = document.getElementById('manualDistanceHint');
 const clearAllBtn = document.getElementById('clearAllBtn');
 const thermostatAssignmentBlock = document.getElementById('thermostatAssignmentBlock');
 const distributionAssignmentBlock = document.getElementById('distributionAssignmentBlock');
@@ -675,9 +681,14 @@ function updateAssignFloorSystemButton() {
   }
 
   assignFloorSystemBtn.disabled = !currentSystemSelectionIsComplete();
-  assignFloorSystemBtn.textContent = room.assignments?.system
-    ? 'System des Raumes aktualisieren'
-    : 'System dem Raum zuweisen';
+  if (assignFloorSystemToFloorBtn) {
+    assignFloorSystemToFloorBtn.disabled = !currentSystemSelectionIsComplete();
+    const floor = state.floors[state.selectedSystemFloorIndex];
+    const heatedRooms = floor?.rooms?.filter(roomIsHeated) || [];
+    const done = heatedRooms.length > 0 && heatedRooms.every(r => r.assignments?.system);
+    assignFloorSystemToFloorBtn.textContent = done ? 'System der Etage aktualisieren' : 'System der Etage zuweisen';
+  }
+  assignFloorSystemBtn.textContent = room.assignments?.system ? 'System des Raumes aktualisieren' : 'System dem Raum zuweisen';
 }
 
 async function assignSystemToSelectedFloor() {
@@ -717,6 +728,16 @@ async function assignSystemToSelectedFloor() {
   updateAssignmentPointers();
   scrollAfterAssignment('system');
   updateSummary();
+}
+
+async function assignSystemToSelectedEtage() {
+  const floorIndex = Number(systemFloorSelect.value || 0); const floor = state.floors[floorIndex]; if (!floor) return;
+  if (!currentSystemSelectionIsComplete()) { await showAppModal({title:'Auswahl unvollständig',message:'Bitte wählen Sie zuerst alle notwendigen Systemangaben aus.',confirmText:'OK'}); return; }
+  const rooms=floor.rooms.filter(roomIsHeated); if(!rooms.length){await showAppModal({title:'Hinweis',message:'Diese Etage enthält keine beheizten Räume.',confirmText:'OK'});return;}
+  const ok=await showAppModal({title:'System der Etage zuweisen?',message:`Möchten Sie das aktuell ausgewählte System wirklich allen beheizten Räumen der Etage "${getFloorLabel(floor,floorIndex)}" zuweisen? Bereits vorhandene Systemzuweisungen werden überschrieben.`,confirmText:'Ja',cancelText:'Abbrechen'}); if(!ok)return;
+  const selection=getCurrentSystemSelection(); rooms.forEach(room=>{room.assignments=room.assignments||{};room.assignments.system=structuredClone(selection);});
+  const hint=getAllAssignmentsDoneText('system'); await showAppModal({title:'Gespeichert',message:`Das System wurde allen beheizten Räumen der Etage "${getFloorLabel(floor,floorIndex)}" zugewiesen.${hint?'\n\n'+hint:''}`,confirmText:'OK'});
+  renderSystemFloorSelect(); updateAssignmentPointers(); scrollAfterAssignment('system'); updateSummary();
 }
 
 function showAppModal({ title = 'Hinweis', message = '', confirmText = 'OK', cancelText = null }) {
@@ -770,7 +791,7 @@ function createRoom() {
     function: 'Wohnraum',
     spacing: 'VA 150',
     area: '',
-    estrich: 'ja',
+    estrich: 'nein',
     assignments: {
       system: null,
       thermostat: null,
@@ -976,6 +997,7 @@ function showStep(step) {
   const isExtraInsulationStep = state.currentStep === 8;
 
   assignFloorSystemBtn.classList.toggle('hidden', !isSystemStep);
+  assignFloorSystemToFloorBtn?.classList.toggle('hidden', !isSystemStep);
 
   if (assignThermostatBtn) {
     assignThermostatBtn.classList.toggle('hidden', !isThermostatStep || state.thermostatEnabled !== 'ja');
@@ -1000,6 +1022,7 @@ function showStep(step) {
   if (assignExtraInsulationNoneBtn) {
     assignExtraInsulationNoneBtn.classList.toggle('hidden', !isExtraInsulationStep || state.extraInsulationEnabled !== 'ja');
   }
+  assignExtraInsulationToFloorBtn?.classList.toggle('hidden', !isExtraInsulationStep || state.extraInsulationEnabled !== 'ja');
 
   if (isSystemStep) {
     renderSystemFloorSelect();
@@ -1054,18 +1077,8 @@ function canProceedToNextStep() {
   }
 
   if (state.currentStep === 3) {
-    const plzRaw = document.getElementById('plz').value.trim();
-    const manualKm = getManualDistanceKm();
-
-    if (/^\d{5}$/.test(plzRaw)) {
-      const entry = getDistanceEntryForPlz(plzRaw);
-
-      if (entry) return true;
-
-      return manualKm > 0;
-    }
-
-    return false;
+    const manualKm=getManualDistanceKm(); if(state.distanceMode==='manual') return manualKm>0;
+    const plzRaw=document.getElementById('plz').value.trim(); if(/^\d{5}$/.test(plzRaw)){const entry=getDistanceEntryForPlz(plzRaw); return entry ? true : manualKm>0;} return false;
   }
 
   if (state.currentStep === 4) {
@@ -1684,13 +1697,9 @@ function updateAssignExtraInsulationButton() {
   const room = getSelectedExtraInsulationRoom();
 
   if (state.extraInsulationEnabled !== 'ja') {
-    assignExtraInsulationBtn.classList.add('hidden');
-    assignExtraInsulationNoneBtn.classList.add('hidden');
-    return;
+    assignExtraInsulationBtn.classList.add('hidden'); assignExtraInsulationNoneBtn.classList.add('hidden'); assignExtraInsulationToFloorBtn?.classList.add('hidden'); return;
   }
-
-  assignExtraInsulationBtn.classList.remove('hidden');
-  assignExtraInsulationNoneBtn.classList.remove('hidden');
+  assignExtraInsulationBtn.classList.remove('hidden'); assignExtraInsulationNoneBtn.classList.remove('hidden'); assignExtraInsulationToFloorBtn?.classList.remove('hidden');
 
   if (!room || !roomIsHeated(room)) {
     assignExtraInsulationBtn.disabled = true;
@@ -1702,6 +1711,12 @@ function updateAssignExtraInsulationButton() {
 
   assignExtraInsulationBtn.disabled = !selection;
   assignExtraInsulationNoneBtn.disabled = false;
+  if (assignExtraInsulationToFloorBtn) {
+    const floor=state.floors[Number(extraInsulationFloorSelect?.value||0)]; const rooms=floor?.rooms?.filter(roomIsHeated)||[];
+    assignExtraInsulationToFloorBtn.disabled=!selection||!rooms.length;
+    const done=rooms.length>0&&rooms.every(r=>r.assignments?.extraInsulation&&!r.assignments.extraInsulation.none);
+    assignExtraInsulationToFloorBtn.textContent=done?'Zusatzdämmung der Etage aktualisieren':'Zusatzdämmung der Etage zuweisen';
+  }
 
   assignExtraInsulationBtn.textContent = room.assignments?.extraInsulation && !room.assignments.extraInsulation.none
     ? 'Zusatzdämmung des Raumes aktualisieren'
@@ -1756,6 +1771,16 @@ async function assignExtraInsulationToRoom() {
   scrollAfterAssignment('extraInsulation');
   updateAssignExtraInsulationButton();
   updateSummary();
+}
+
+async function assignExtraInsulationToFloor() {
+  const floorIndex=Number(extraInsulationFloorSelect.value||0); const floor=state.floors[floorIndex]; if(!floor)return;
+  const selection=getCurrentExtraInsulationSelection(); if(!selection){await showAppModal({title:'Auswahl unvollständig',message:'Bitte wählen Sie Material, Wärmeleitgruppe und Dicke der Zusatzdämmung aus.',confirmText:'OK'});return;}
+  const rooms=floor.rooms.filter(roomIsHeated); if(!rooms.length){await showAppModal({title:'Hinweis',message:'Diese Etage enthält keine beheizten Räume.',confirmText:'OK'});return;}
+  const ok=await showAppModal({title:'Zusatzdämmung der Etage zuweisen?',message:`Möchten Sie die aktuell ausgewählte Zusatzdämmung wirklich allen beheizten Räumen der Etage "${getFloorLabel(floor,floorIndex)}" zuweisen? Bereits vorhandene Zuweisungen werden überschrieben.`,confirmText:'Ja',cancelText:'Abbrechen'});if(!ok)return;
+  rooms.forEach(room=>{room.assignments=room.assignments||{};room.assignments.extraInsulation=structuredClone(selection);});
+  const hint=getAllAssignmentsDoneText('extraInsulation'); await showAppModal({title:'Gespeichert',message:`Die Zusatzdämmung wurde allen beheizten Räumen der Etage "${getFloorLabel(floor,floorIndex)}" zugewiesen.${hint?'\n\n'+hint:''}`,confirmText:'OK'});
+  renderExtraInsulationFloorSelect();updateAssignmentPointers();scrollAfterAssignment('extraInsulation');updateAssignExtraInsulationButton();updateSummary();
 }
 
 async function assignExtraInsulationNoneToRoom() {
@@ -1954,6 +1979,19 @@ function syncEstrichRangeRules() {
   });
 }
 
+function applyRoomSpacingRules(room, spacingSelect) {
+  if (!room || !spacingSelect) return;
+  const va200 = spacingSelect.querySelector('option[value="VA 200"]');
+  if (va200) { va200.disabled = false; va200.removeAttribute('title'); }
+  if (room.function === 'Bad') room.spacing = 'VA 100';
+  if (state.heatSource === 'Wärmepumpe' && va200) {
+    va200.disabled = true;
+    va200.title = 'VA 200 ist bei einer Wärmepumpe nicht verfügbar.';
+    if (room.spacing === 'VA 200') room.spacing = room.function === 'Bad' ? 'VA 100' : 'VA 150';
+  }
+  spacingSelect.value = room.spacing || (room.function === 'Bad' ? 'VA 100' : 'VA 150');
+}
+
 function renderFloors() {
   floorsContainer.innerHTML = '';
 
@@ -2014,15 +2052,20 @@ function renderFloors() {
       roomNameInput.value = room.name;
       roomFunctionSelect.value = room.function;
       roomSpacingSelect.value = room.spacing;
+      applyRoomSpacingRules(room, roomSpacingSelect);
       roomAreaInput.value = room.area;
-      roomEstrichSelect.value = room.estrich || 'ja';
+      roomEstrichSelect.value = room.estrich || 'nein';
 
       roomNameInput.addEventListener('input', (e) => {
         state.floors[floorIndex].rooms[roomIndex].name = e.target.value;
         updateSummary();
       });
       roomFunctionSelect.addEventListener('change', (e) => {
-        state.floors[floorIndex].rooms[roomIndex].function = e.target.value;
+        const currentRoom = state.floors[floorIndex].rooms[roomIndex];
+        currentRoom.function = e.target.value;
+        if (currentRoom.function === 'Bad') currentRoom.spacing = 'VA 100';
+        else if (state.heatSource === 'Wärmepumpe' && currentRoom.spacing === 'VA 200') currentRoom.spacing = 'VA 150';
+        applyRoomSpacingRules(currentRoom, roomSpacingSelect);
         updateSummary();
       });
       roomSpacingSelect.addEventListener('change', (e) => {
@@ -2341,7 +2384,7 @@ function renderRoomSummaryCards() {
 function updateSummary() {
   const enteredPlz = document.getElementById('plz').value.trim();
   const normalizedPlz = enteredPlz ? normalizePlz(enteredPlz) : '';
-  const distanceEntry = normalizedPlz ? getDistanceEntryForPlz(normalizedPlz) : null;
+  const distanceEntry = state.distanceMode === 'plz' && normalizedPlz ? getDistanceEntryForPlz(normalizedPlz) : null;
   const manualKm = getManualDistanceKm();
 
   let distanceText = '';
@@ -2355,7 +2398,7 @@ function updateSummary() {
     summaryPlz.innerHTML = `
     <div>PLZ: ${normalizedPlz}</div>
     ${distanceEntry
-        ? `<div>Entfernung: ${formatQuantity(distanceEntry.km)} km</div>`
+        ? `<div>Luftlinie (Orientierung): ${formatQuantity(distanceEntry.km)} km</div>`
         : manualKm > 0
           ? `<div>Entfernung manuell: ${formatQuantity(manualKm)} km</div>`
           : ''
@@ -2600,25 +2643,19 @@ function getManualDistanceKm() {
   return Number(String(manualDistanceKmInput?.value || '').replace(',', '.')) || 0;
 }
 
+function setDistanceMode(mode) {
+  state.distanceMode = mode === 'manual' ? 'manual' : 'plz';
+  distanceModeChoices?.querySelectorAll('.choice-card').forEach(card => card.classList.toggle('active', card.dataset.distanceMode === state.distanceMode));
+  postcodeDistanceBox?.classList.toggle('hidden', state.distanceMode === 'manual');
+  updateManualDistanceVisibility(); updateSummary(); updateNextButtonAndStepHint();
+}
 function updateManualDistanceVisibility() {
   if (!manualDistanceBox) return;
-
-  const plzRaw = document.getElementById('plz').value.trim();
-
-  // Erst bei exakt 5 Ziffern prüfen
-  if (!/^\d{5}$/.test(plzRaw)) {
-    manualDistanceBox.classList.add('hidden');
-    return;
-  }
-
-  const entry = getDistanceEntryForPlz(plzRaw);
-
-  if (entry) {
-    manualDistanceBox.classList.add('hidden');
-  } else {
-    manualDistanceBox.classList.remove('hidden');
-  }
+  if (state.distanceMode === 'manual') { manualDistanceBox.classList.remove('hidden'); if(manualDistanceHint)manualDistanceHint.textContent='Bitte geben Sie die tatsächliche bzw. Ihnen bekannte Entfernung in Kilometern ein.'; return; }
+  const plzRaw=document.getElementById('plz').value.trim(); if(!/^\d{5}$/.test(plzRaw)){manualDistanceBox.classList.add('hidden');return;}
+  const entry=getDistanceEntryForPlz(plzRaw); if(entry) manualDistanceBox.classList.add('hidden'); else {manualDistanceBox.classList.remove('hidden');if(manualDistanceHint)manualDistanceHint.textContent='Diese PLZ konnte nicht gefunden werden. Bitte geben Sie die Entfernung deshalb manuell ein.';}
 }
+function getEffectiveDistanceKm(){ if(state.distanceMode==='manual')return getManualDistanceKm(); const e=getDistanceEntryForPlz(document.getElementById('plz').value.trim()); return e?.km||getManualDistanceKm(); }
 
 function getDistanceArticleNumber(km, totalAreaHeatedRooms) {
   if (totalAreaHeatedRooms >= 300) return null;
@@ -3118,12 +3155,7 @@ function calculateProducts() {
   }
 
   // Entfernungspauschale
-  const distanceEntry = getDistanceEntryForPlz(plz);
-  const manualDistanceKm = getManualDistanceKm();
-
-  const distanceKm = distanceEntry
-    ? distanceEntry.km
-    : manualDistanceKm;
+  const distanceKm = getEffectiveDistanceKm();
 
   const distanceArticleNumber = distanceKm
     ? getDistanceArticleNumber(distanceKm, totalAreaHeatedRooms)
@@ -4000,12 +4032,12 @@ async function exportPdf() {
   y += 5;
   pdf.text(`Wärmeerzeuger: ${state.heatSource || '-'}`, marginLeft, y);
   const manualKm = getManualDistanceKm();
-  const distanceEntry = getDistanceEntryForPlz(plzValue);
+  const distanceEntry = state.distanceMode === 'plz' ? getDistanceEntryForPlz(plzValue) : null;
 
-  let pdfDistanceText = `PLZ: ${plzValue}`;
+  let pdfDistanceText = state.distanceMode === 'manual' ? 'Entfernung: direkte Eingabe' : `PLZ: ${plzValue}`;
 
   if (distanceEntry) {
-    pdfDistanceText += ` / Entfernung: ${formatQuantity(distanceEntry.km)} km`;
+    pdfDistanceText += ` / Luftlinie (Orientierung): ${formatQuantity(distanceEntry.km)} km`;
   } else if (manualKm > 0) {
     pdfDistanceText += ` / Manuelle km: ${formatQuantity(manualKm)} km`;
   }
@@ -4179,7 +4211,7 @@ function getNextRequirementText() {
   }
 
   if (state.currentStep === 3) {
-    return 'Bitte geben Sie eine gültige Postleitzahl ein. Falls diese nicht gefunden wird, tragen Sie die Entfernung zu PETER JENSEN 20537 Hamburg manuell ein.';
+    return state.distanceMode === 'manual' ? 'Bitte geben Sie die Entfernung zu PETER JENSEN 20537 Hamburg in Kilometern ein.' : 'Bitte geben Sie eine gültige Postleitzahl ein. Die ermittelte Luftlinienentfernung dient zur Orientierung. Falls die PLZ nicht gefunden wird, tragen Sie die Entfernung manuell ein.';
   }
 
   if (state.currentStep === 4) {
@@ -4251,9 +4283,8 @@ systemRoomSelect.addEventListener('change', () => {
   updateSummary();
 });
 
-assignFloorSystemBtn.addEventListener('click', () => {
-  assignSystemToSelectedFloor();
-});
+assignFloorSystemBtn.addEventListener('click', () => { assignSystemToSelectedFloor(); });
+if(assignFloorSystemToFloorBtn) assignFloorSystemToFloorBtn.addEventListener('click', assignSystemToSelectedEtage);
 
 document.querySelectorAll('input[name="regulationVoltage"]').forEach((checkbox) => {
   checkbox.addEventListener('change', () => {
@@ -4326,8 +4357,12 @@ document.querySelectorAll('#brandChoices .choice-card').forEach((card) => {
 document.querySelectorAll('#heatSourceChoices .choice-card').forEach((card) => {
   card.addEventListener('click', () => {
     state.heatSource = card.dataset.heatSource;
-
+    state.floors.forEach(floor => floor.rooms.forEach(room => {
+      if (room.function === 'Bad') room.spacing = 'VA 100';
+      else if (state.heatSource === 'Wärmepumpe' && room.spacing === 'VA 200') room.spacing = 'VA 150';
+    }));
     renderHeatSource();
+    renderFloors();
     updateSummary();
   });
 });
@@ -4600,6 +4635,9 @@ handoverShopBtn.addEventListener('click', async () => {
     return;
   }
 
+  const savePdfWithHandover = await showAppModal({title:'PDF zusätzlich speichern?',message:'Möchten Sie die Konfiguration zusätzlich als PDF speichern? Die Übergabe an den PeterShop erfolgt in beiden Fällen.',confirmText:'PDF speichern & übergeben',cancelText:'Nur an PeterShop übergeben'});
+  if(savePdfWithHandover){try{await exportPdf();}catch(pdfError){console.error('PDF konnte nicht gespeichert werden:',pdfError);const go=await showAppModal({title:'PDF konnte nicht gespeichert werden',message:'Die PDF-Erstellung ist fehlgeschlagen. Möchten Sie die Artikel trotzdem an den PeterShop übergeben?',confirmText:'Trotzdem übergeben',cancelText:'Abbrechen'});if(!go)return;}}
+
   const handoverMode =
     shopContext.handoverMode === 'ajax'
       ? 'ajax'
@@ -4644,7 +4682,7 @@ handoverShopBtn.addEventListener('click', async () => {
     console.error('Fehler bei der PeterShop-Übergabe:', error);
 
     handoverShopBtn.disabled = false;
-    handoverShopBtn.textContent = 'Übergabe an PeterShop';
+    handoverShopBtn.textContent = 'Übergabe an PeterShop & Speichern als PDF';
 
     await showAppModal({
       title: 'Übergabe fehlgeschlagen',
@@ -4734,6 +4772,8 @@ millingSystemCheckboxes.forEach((field) => {
 serviceCheckboxes.forEach((checkbox) => {
   checkbox.addEventListener('change', updateSummary);
 });
+
+distanceModeChoices?.querySelectorAll('.choice-card').forEach(card => card.addEventListener('click', () => setDistanceMode(card.dataset.distanceMode)));
 
 document.getElementById('plz').addEventListener('input', async (e) => {
   e.target.value = e.target.value.replace(/\D/g, '').slice(0, 5);
@@ -4895,6 +4935,7 @@ if (extraInsulationRoomSelect) {
 if (assignExtraInsulationBtn) {
   assignExtraInsulationBtn.addEventListener('click', assignExtraInsulationToRoom);
 }
+if(assignExtraInsulationToFloorBtn) assignExtraInsulationToFloorBtn.addEventListener('click', assignExtraInsulationToFloor);
 
 if (assignExtraInsulationNoneBtn) {
   assignExtraInsulationNoneBtn.addEventListener('click', assignExtraInsulationNoneToRoom);
@@ -4977,6 +5018,7 @@ if (!hasAccess) {
 } else {
 
   state.floors = [createFloor()];
+  setDistanceMode('plz');
   renderProjectType();
   renderSystemBlocksByProjectType();
   renderBrand();

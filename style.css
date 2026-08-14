@@ -1361,3 +1361,5 @@ button.disabled-button:hover {
   margin-top: auto;
   align-self: flex-start;
 }
+/* Release 1.2 */
+#distanceModeChoices .choice-card{min-width:240px}.system-buttons{display:flex;flex-wrap:wrap;gap:10px}
