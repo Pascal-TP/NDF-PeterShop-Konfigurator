@@ -1382,3 +1382,27 @@ button.disabled-button:hover {
   .floor-circuit-row { flex-direction: column; gap: 2px; }
   .floor-circuit-row strong { text-align: left; }
 }
+
+
+/* Visueller Hinweis: Der freigegebene „Weiter“-Button pulsiert dezent. */
+@keyframes nextReadyPulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(11, 42, 74, 0);
+  }
+  50% {
+    transform: scale(1.035);
+    box-shadow: 0 0 0 7px rgba(11, 42, 74, 0.14);
+  }
+}
+
+#nextBtn.next-ready-attention {
+  animation: nextReadyPulse 1.15s ease-in-out infinite;
+}
+
+/* Bewegungsreduktion des Betriebssystems respektieren. */
+@media (prefers-reduced-motion: reduce) {
+  #nextBtn.next-ready-attention {
+    animation: none;
+  }
+}

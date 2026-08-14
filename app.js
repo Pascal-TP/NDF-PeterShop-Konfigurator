@@ -5088,3 +5088,29 @@ if (!hasAccess) {
   showStep(0);
   checkTokenUsageOnLoad();
 }
+
+// ============================================================
+// VISUELLER HINWEIS: FREIGEGEBENER „WEITER“-BUTTON
+// ============================================================
+function updateNextButtonAttention() {
+  if (!nextBtn) return;
+
+  const isVisible = !nextBtn.classList.contains('hidden') && nextBtn.offsetParent !== null;
+  const isEnabled = !nextBtn.disabled;
+
+  nextBtn.classList.toggle('next-ready-attention', isVisible && isEnabled);
+}
+
+if (nextBtn) {
+  const nextButtonObserver = new MutationObserver(updateNextButtonAttention);
+  nextButtonObserver.observe(nextBtn, {
+    attributes: true,
+    attributeFilter: ['disabled', 'class', 'style']
+  });
+
+  // Nach Zustands-/Schrittänderungen aktualisieren, ohne die bestehende Logik anzutasten.
+  document.addEventListener('change', () => requestAnimationFrame(updateNextButtonAttention));
+  document.addEventListener('click', () => requestAnimationFrame(updateNextButtonAttention));
+  requestAnimationFrame(updateNextButtonAttention);
+}
+
