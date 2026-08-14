@@ -44,7 +44,16 @@ const nextBtn = document.getElementById('nextBtn');
 const serviceCheckboxes = document.querySelectorAll('input[name="service"]');
 const extraInsulationOptions = document.getElementById('extraInsulationOptions');
 const distributionManualFields = document.getElementById('distributionManualFields');
-const floorCircuitSummary = document.getElementById('floorCircuitSummary');
+
+// Automatische Verteilerempfehlung je Etage (ergänzt, ohne bestehende HTML-Struktur zu verändern)
+const floorCircuitSummary = (() => {
+  if (!distributionManualFields) return null;
+  const box = document.createElement('div');
+  box.id = 'floorCircuitSummary';
+  box.className = 'floor-circuit-summary';
+  distributionManualFields.parentNode.insertBefore(box, distributionManualFields);
+  return box;
+})();
 const distributionTypeFields = document.querySelectorAll('.distribution-type');
 const distributionQtyFields = document.querySelectorAll('.distribution-qty');
 const regulationCheckboxes = document.querySelectorAll('.regulation-checkbox');
@@ -3611,11 +3620,9 @@ async function assignThermostatNoneToRoom() {
 
 function getRecommendedDistributorType(circuits) {
   const count = Number(circuits) || 0;
-
   if (count <= 0) return 'keine Empfehlung';
   if (count <= 2) return 'HKV-D2';
   if (count <= 12) return `HKV-D${count}`;
-
   return 'auf mehrere Verteiler aufteilen';
 }
 
@@ -3627,7 +3634,6 @@ function renderFloorCircuitSummary() {
       const circuits = floor.rooms
         .filter(roomIsHeated)
         .reduce((sum, room) => sum + getRoomHeatingCircuits(room), 0);
-
       return {
         floor: getFloorLabel(floor, floorIndex),
         circuits,
@@ -3642,9 +3648,7 @@ function renderFloorCircuitSummary() {
   }
 
   floorCircuitSummary.innerHTML = `
-    <div class="floor-circuit-note">
-      Empfehlung auf Grundlage der ermittelten Heizkreise je Etage:
-    </div>
+    <div class="floor-circuit-note">Empfehlung auf Grundlage der ermittelten Heizkreise je Etage:</div>
     ${entries.map(entry => `
       <div class="floor-circuit-row">
         <span>${entry.floor}</span>

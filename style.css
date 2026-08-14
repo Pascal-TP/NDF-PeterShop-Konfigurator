@@ -1375,32 +1375,10 @@ button.disabled-button:hover {
   border: 1px solid #e5e7eb;
   border-radius: 12px;
 }
-
-.floor-circuit-note {
-  font-size: 0.92rem;
-  color: #5f6b76;
-  margin-bottom: 2px;
-}
-
-.floor-circuit-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 12px;
-}
-
-.floor-circuit-row strong {
-  color: #0b2a4a;
-  text-align: right;
-}
-
+.floor-circuit-note { font-size: 0.92rem; color: #5f6b76; margin-bottom: 2px; }
+.floor-circuit-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.floor-circuit-row strong { color: #0b2a4a; text-align: right; }
 @media (max-width: 700px) {
-  .floor-circuit-row {
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .floor-circuit-row strong {
-    text-align: left;
-  }
+  .floor-circuit-row { flex-direction: column; gap: 2px; }
+  .floor-circuit-row strong { text-align: left; }
 }
