@@ -44,6 +44,7 @@ const nextBtn = document.getElementById('nextBtn');
 const serviceCheckboxes = document.querySelectorAll('input[name="service"]');
 const extraInsulationOptions = document.getElementById('extraInsulationOptions');
 const distributionManualFields = document.getElementById('distributionManualFields');
+const floorCircuitSummary = document.getElementById('floorCircuitSummary');
 const distributionTypeFields = document.querySelectorAll('.distribution-type');
 const distributionQtyFields = document.querySelectorAll('.distribution-qty');
 const regulationCheckboxes = document.querySelectorAll('.regulation-checkbox');
@@ -1036,6 +1037,7 @@ function showStep(step) {
   if (isDistributionStep) {
     renderDistributionFloorSelect();
     updateAssignDistributionButton();
+    renderFloorCircuitSummary();
   }
 
   if (isExtraInsulationStep) {
@@ -3607,6 +3609,51 @@ async function assignThermostatNoneToRoom() {
   updateSummary();
 }
 
+function getRecommendedDistributorType(circuits) {
+  const count = Number(circuits) || 0;
+
+  if (count <= 0) return 'keine Empfehlung';
+  if (count <= 2) return 'HKV-D2';
+  if (count <= 12) return `HKV-D${count}`;
+
+  return 'auf mehrere Verteiler aufteilen';
+}
+
+function renderFloorCircuitSummary() {
+  if (!floorCircuitSummary) return;
+
+  const entries = state.floors
+    .map((floor, floorIndex) => {
+      const circuits = floor.rooms
+        .filter(roomIsHeated)
+        .reduce((sum, room) => sum + getRoomHeatingCircuits(room), 0);
+
+      return {
+        floor: getFloorLabel(floor, floorIndex),
+        circuits,
+        distributor: getRecommendedDistributorType(circuits)
+      };
+    })
+    .filter(entry => entry.circuits > 0);
+
+  if (!entries.length) {
+    floorCircuitSummary.innerHTML = 'Noch keine beheizten Räume mit Heizkreisen vorhanden.';
+    return;
+  }
+
+  floorCircuitSummary.innerHTML = `
+    <div class="floor-circuit-note">
+      Empfehlung auf Grundlage der ermittelten Heizkreise je Etage:
+    </div>
+    ${entries.map(entry => `
+      <div class="floor-circuit-row">
+        <span>${entry.floor}</span>
+        <strong>${entry.circuits} Heizkreis${entry.circuits === 1 ? '' : 'e'} → ${entry.distributor}</strong>
+      </div>
+    `).join('')}
+  `;
+}
+
 function getSelectedDistributionRoom() {
   const floorIndex = Number(distributionFloorSelect.value || 0);
   const roomIndex = Number(distributionRoomSelect.value || 0);
@@ -4843,7 +4890,7 @@ nextBtn.addEventListener('click', async () => {
   if (state.currentStep === 4 && nextStep === 5) {
     await showAppModal({
       title: 'Hinweis zur Raumzuweisung',
-      message: 'In den nächsten Schritten 5 bis 8 wird die Auswahl raumweise zugewiesen.\n\nBitte wählen Sie oben jeweils Etage und Raum aus. Danach bestätigen Sie die Auswahl mit dem Button „… dem Raum zuweisen“.\n\nJeder beheizte Raum benötigt eine eigene Zuweisung. Erst wenn alle erforderlichen Räume zugewiesen wurden, können Sie zum nächsten Schritt wechseln.\n\nDer Finger-Hinweis 👉 bei Etage und Raum zeigt Ihnen, solange noch Räume offen sind.',
+      message: 'In den nächsten Schritten 5 bis 8 werden die gewählten Komponenten den beheizten Räumen zugeordnet.\n\nBitte wählen Sie oben die gewünschte Etage und den Raum aus und bestätigen Sie die Auswahl anschließend mit dem Button „… dem Raum zuweisen“. Bei System und Zusatzdämmung können Sie die aktuelle Auswahl alternativ mit „… der Etage zuweisen“ direkt auf alle beheizten Räume der ausgewählten Etage übertragen.\n\nErst wenn alle erforderlichen beheizten Räume im jeweiligen Schritt zugewiesen wurden, können Sie zum nächsten Schritt wechseln. Der Finger-Hinweis 👉 bei Etage und Raum zeigt Ihnen an, solange noch Zuweisungen offen sind.',
       confirmText: 'OK'
     });
   }
