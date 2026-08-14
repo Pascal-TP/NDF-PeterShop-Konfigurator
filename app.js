@@ -97,6 +97,7 @@ const systemFloorSelect = document.getElementById('systemFloorSelect');
 const systemRoomSelect = document.getElementById('systemRoomSelect');
 const assignFloorSystemBtn = document.getElementById('assignFloorSystemBtn');
 const assignFloorSystemToFloorBtn = document.getElementById('assignFloorSystemToFloorBtn');
+const assignFloorSystemToAllBtn = document.getElementById('assignFloorSystemToAllBtn');
 const stepHint = document.getElementById('stepHint');
 const thermostatFloorSelect = document.getElementById('thermostatFloorSelect');
 const thermostatRoomSelect = document.getElementById('thermostatRoomSelect');
@@ -111,6 +112,7 @@ const extraInsulationRoomSelect = document.getElementById('extraInsulationRoomSe
 const assignExtraInsulationBtn = document.getElementById('assignExtraInsulationBtn');
 const assignExtraInsulationNoneBtn = document.getElementById('assignExtraInsulationNoneBtn');
 const assignExtraInsulationToFloorBtn = document.getElementById('assignExtraInsulationToFloorBtn');
+const assignExtraInsulationToAllBtn = document.getElementById('assignExtraInsulationToAllBtn');
 const systemPointerFloor = document.getElementById('systemPointerFloor');
 const systemPointerRoom = document.getElementById('systemPointerRoom');
 const thermostatPointerFloor = document.getElementById('thermostatPointerFloor');
@@ -698,6 +700,12 @@ function updateAssignFloorSystemButton() {
     const done = heatedRooms.length > 0 && heatedRooms.every(r => r.assignments?.system);
     assignFloorSystemToFloorBtn.textContent = done ? 'System der Etage aktualisieren' : 'System der Etage zuweisen';
   }
+  if (assignFloorSystemToAllBtn) {
+    const allHeatedRooms = state.floors.flatMap(floor => floor.rooms.filter(roomIsHeated));
+    assignFloorSystemToAllBtn.disabled = !currentSystemSelectionIsComplete() || !allHeatedRooms.length;
+    const allDone = allHeatedRooms.length > 0 && allHeatedRooms.every(r => r.assignments?.system);
+    assignFloorSystemToAllBtn.textContent = allDone ? 'System aller Räume aktualisieren' : 'System allen Räumen zuweisen';
+  }
   assignFloorSystemBtn.textContent = room.assignments?.system ? 'System des Raumes aktualisieren' : 'System dem Raum zuweisen';
 }
 
@@ -748,6 +756,56 @@ async function assignSystemToSelectedEtage() {
   const selection=getCurrentSystemSelection(); rooms.forEach(room=>{room.assignments=room.assignments||{};room.assignments.system=structuredClone(selection);});
   const hint=getAllAssignmentsDoneText('system'); await showAppModal({title:'Gespeichert',message:`Das System wurde allen beheizten Räumen der Etage "${getFloorLabel(floor,floorIndex)}" zugewiesen.${hint?'\n\n'+hint:''}`,confirmText:'OK'});
   renderSystemFloorSelect(); updateAssignmentPointers(); scrollAfterAssignment('system'); updateSummary();
+}
+
+async function assignSystemToAllRooms() {
+  if (!currentSystemSelectionIsComplete()) {
+    await showAppModal({
+      title: 'Auswahl unvollständig',
+      message: 'Bitte wählen Sie zuerst alle notwendigen Systemangaben aus.',
+      confirmText: 'OK'
+    });
+    return;
+  }
+
+  const allHeatedRooms = state.floors.flatMap(floor => floor.rooms.filter(roomIsHeated));
+
+  if (!allHeatedRooms.length) {
+    await showAppModal({
+      title: 'Hinweis',
+      message: 'Es sind keine beheizten Räume vorhanden.',
+      confirmText: 'OK'
+    });
+    return;
+  }
+
+  const ok = await showAppModal({
+    title: 'System allen Räumen zuweisen?',
+    message: 'Möchten Sie das aktuell ausgewählte System wirklich allen beheizten Räumen aller Etagen zuweisen? Bereits vorhandene Systemzuweisungen werden überschrieben.',
+    confirmText: 'Ja, allen zuweisen',
+    cancelText: 'Abbrechen'
+  });
+
+  if (!ok) return;
+
+  const selection = getCurrentSystemSelection();
+
+  allHeatedRooms.forEach(room => {
+    room.assignments = room.assignments || {};
+    room.assignments.system = structuredClone(selection);
+  });
+
+  await showAppModal({
+    title: 'Gespeichert',
+    message: 'Das System wurde allen beheizten Räumen aller Etagen zugewiesen.',
+    confirmText: 'OK'
+  });
+
+  renderSystemFloorSelect();
+  updateAssignmentPointers();
+  updateAssignFloorSystemButton();
+  scrollAfterAssignment('system');
+  updateSummary();
 }
 
 function showAppModal({ title = 'Hinweis', message = '', confirmText = 'OK', cancelText = null }) {
@@ -1008,6 +1066,7 @@ function showStep(step) {
 
   assignFloorSystemBtn.classList.toggle('hidden', !isSystemStep);
   assignFloorSystemToFloorBtn?.classList.toggle('hidden', !isSystemStep);
+  assignFloorSystemToAllBtn?.classList.toggle('hidden', !isSystemStep);
 
   if (assignThermostatBtn) {
     assignThermostatBtn.classList.toggle('hidden', !isThermostatStep || state.thermostatEnabled !== 'ja');
@@ -1033,6 +1092,7 @@ function showStep(step) {
     assignExtraInsulationNoneBtn.classList.toggle('hidden', !isExtraInsulationStep || state.extraInsulationEnabled !== 'ja');
   }
   assignExtraInsulationToFloorBtn?.classList.toggle('hidden', !isExtraInsulationStep || state.extraInsulationEnabled !== 'ja');
+  assignExtraInsulationToAllBtn?.classList.toggle('hidden', !isExtraInsulationStep || state.extraInsulationEnabled !== 'ja');
 
   if (isSystemStep) {
     renderSystemFloorSelect();
@@ -1712,9 +1772,16 @@ function updateAssignExtraInsulationButton() {
   const room = getSelectedExtraInsulationRoom();
 
   if (state.extraInsulationEnabled !== 'ja') {
-    assignExtraInsulationBtn.classList.add('hidden'); assignExtraInsulationNoneBtn.classList.add('hidden'); assignExtraInsulationToFloorBtn?.classList.add('hidden'); return;
+    assignExtraInsulationBtn.classList.add('hidden');
+    assignExtraInsulationNoneBtn.classList.add('hidden');
+    assignExtraInsulationToFloorBtn?.classList.add('hidden');
+    assignExtraInsulationToAllBtn?.classList.add('hidden');
+    return;
   }
-  assignExtraInsulationBtn.classList.remove('hidden'); assignExtraInsulationNoneBtn.classList.remove('hidden'); assignExtraInsulationToFloorBtn?.classList.remove('hidden');
+  assignExtraInsulationBtn.classList.remove('hidden');
+  assignExtraInsulationNoneBtn.classList.remove('hidden');
+  assignExtraInsulationToFloorBtn?.classList.remove('hidden');
+  assignExtraInsulationToAllBtn?.classList.remove('hidden');
 
   if (!room || !roomIsHeated(room)) {
     assignExtraInsulationBtn.disabled = true;
@@ -1731,6 +1798,15 @@ function updateAssignExtraInsulationButton() {
     assignExtraInsulationToFloorBtn.disabled=!selection||!rooms.length;
     const done=rooms.length>0&&rooms.every(r=>r.assignments?.extraInsulation&&!r.assignments.extraInsulation.none);
     assignExtraInsulationToFloorBtn.textContent=done?'Zusatzdämmung der Etage aktualisieren':'Zusatzdämmung der Etage zuweisen';
+  }
+  if (assignExtraInsulationToAllBtn) {
+    const allHeatedRooms = state.floors.flatMap(floor => floor.rooms.filter(roomIsHeated));
+    assignExtraInsulationToAllBtn.disabled = !selection || !allHeatedRooms.length;
+    const allDone = allHeatedRooms.length > 0 &&
+      allHeatedRooms.every(r => r.assignments?.extraInsulation && !r.assignments.extraInsulation.none);
+    assignExtraInsulationToAllBtn.textContent = allDone
+      ? 'Zusatzdämmung aller Räume aktualisieren'
+      : 'Zusatzdämmung allen Räumen zuweisen';
   }
 
   assignExtraInsulationBtn.textContent = room.assignments?.extraInsulation && !room.assignments.extraInsulation.none
@@ -1796,6 +1872,56 @@ async function assignExtraInsulationToFloor() {
   rooms.forEach(room=>{room.assignments=room.assignments||{};room.assignments.extraInsulation=structuredClone(selection);});
   const hint=getAllAssignmentsDoneText('extraInsulation'); await showAppModal({title:'Gespeichert',message:`Die Zusatzdämmung wurde allen beheizten Räumen der Etage "${getFloorLabel(floor,floorIndex)}" zugewiesen.${hint?'\n\n'+hint:''}`,confirmText:'OK'});
   renderExtraInsulationFloorSelect();updateAssignmentPointers();scrollAfterAssignment('extraInsulation');updateAssignExtraInsulationButton();updateSummary();
+}
+
+async function assignExtraInsulationToAllRooms() {
+  const selection = getCurrentExtraInsulationSelection();
+
+  if (!selection) {
+    await showAppModal({
+      title: 'Auswahl unvollständig',
+      message: 'Bitte wählen Sie Material, Wärmeleitgruppe und Dicke der Zusatzdämmung aus.',
+      confirmText: 'OK'
+    });
+    return;
+  }
+
+  const allHeatedRooms = state.floors.flatMap(floor => floor.rooms.filter(roomIsHeated));
+
+  if (!allHeatedRooms.length) {
+    await showAppModal({
+      title: 'Hinweis',
+      message: 'Es sind keine beheizten Räume vorhanden.',
+      confirmText: 'OK'
+    });
+    return;
+  }
+
+  const ok = await showAppModal({
+    title: 'Zusatzdämmung allen Räumen zuweisen?',
+    message: 'Möchten Sie die aktuell ausgewählte Zusatzdämmung wirklich allen beheizten Räumen aller Etagen zuweisen? Bereits vorhandene Zuweisungen werden überschrieben.',
+    confirmText: 'Ja, allen zuweisen',
+    cancelText: 'Abbrechen'
+  });
+
+  if (!ok) return;
+
+  allHeatedRooms.forEach(room => {
+    room.assignments = room.assignments || {};
+    room.assignments.extraInsulation = structuredClone(selection);
+  });
+
+  await showAppModal({
+    title: 'Gespeichert',
+    message: 'Die Zusatzdämmung wurde allen beheizten Räumen aller Etagen zugewiesen.',
+    confirmText: 'OK'
+  });
+
+  renderExtraInsulationFloorSelect();
+  updateAssignmentPointers();
+  updateAssignExtraInsulationButton();
+  scrollAfterAssignment('extraInsulation');
+  updateSummary();
 }
 
 async function assignExtraInsulationNoneToRoom() {
@@ -4363,6 +4489,7 @@ systemRoomSelect.addEventListener('change', () => {
 
 assignFloorSystemBtn.addEventListener('click', () => { assignSystemToSelectedFloor(); });
 if(assignFloorSystemToFloorBtn) assignFloorSystemToFloorBtn.addEventListener('click', assignSystemToSelectedEtage);
+if (assignFloorSystemToAllBtn) assignFloorSystemToAllBtn.addEventListener('click', assignSystemToAllRooms);
 
 document.querySelectorAll('input[name="regulationVoltage"]').forEach((checkbox) => {
   checkbox.addEventListener('change', () => {
@@ -4921,7 +5048,7 @@ nextBtn.addEventListener('click', async () => {
   if (state.currentStep === 4 && nextStep === 5) {
     await showAppModal({
       title: 'Hinweis zur Raumzuweisung',
-      message: 'In den nächsten Schritten 5 bis 8 werden die gewählten Komponenten den beheizten Räumen zugeordnet.\n\nBitte wählen Sie oben die gewünschte Etage und den Raum aus und bestätigen Sie die Auswahl anschließend mit dem Button „… dem Raum zuweisen“. Bei System und Zusatzdämmung können Sie die aktuelle Auswahl alternativ mit „… der Etage zuweisen“ direkt auf alle beheizten Räume der ausgewählten Etage übertragen.\n\nErst wenn alle erforderlichen beheizten Räume im jeweiligen Schritt zugewiesen wurden, können Sie zum nächsten Schritt wechseln. Der Finger-Hinweis 👉 bei Etage und Raum zeigt Ihnen an, solange noch Zuweisungen offen sind.',
+      message: 'In den nächsten Schritten 5 bis 8 werden die gewählten Komponenten den beheizten Räumen zugeordnet.\n\nBitte wählen Sie oben die gewünschte Etage und den Raum aus und bestätigen Sie die Auswahl anschließend mit dem Button „… dem Raum zuweisen“. Bei System und Zusatzdämmung können Sie die aktuelle Auswahl alternativ mit „… der Etage zuweisen“ auf alle beheizten Räume der ausgewählten Etage oder mit „… allen Räumen zuweisen“ auf alle beheizten Räume aller Etagen übertragen.\n\nErst wenn alle erforderlichen beheizten Räume im jeweiligen Schritt zugewiesen wurden, können Sie zum nächsten Schritt wechseln. Der Finger-Hinweis 👉 bei Etage und Raum zeigt Ihnen an, solange noch Zuweisungen offen sind.',
       confirmText: 'OK'
     });
   }
@@ -5014,6 +5141,7 @@ if (assignExtraInsulationBtn) {
   assignExtraInsulationBtn.addEventListener('click', assignExtraInsulationToRoom);
 }
 if(assignExtraInsulationToFloorBtn) assignExtraInsulationToFloorBtn.addEventListener('click', assignExtraInsulationToFloor);
+if (assignExtraInsulationToAllBtn) assignExtraInsulationToAllBtn.addEventListener('click', assignExtraInsulationToAllRooms);
 
 if (assignExtraInsulationNoneBtn) {
   assignExtraInsulationNoneBtn.addEventListener('click', assignExtraInsulationNoneToRoom);

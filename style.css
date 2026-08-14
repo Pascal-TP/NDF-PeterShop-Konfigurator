@@ -1406,3 +1406,25 @@ button.disabled-button:hover {
     animation: none;
   }
 }
+
+
+/* Drei Zuweisungsarten: Raum, Etage und alle Räume */
+.assignment-triple {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  width: 100%;
+  gap: 10px;
+}
+
+.assignment-triple button {
+  width: 100%;
+  min-width: 0;
+  white-space: normal;
+  line-height: 1.25;
+}
+
+@media (max-width: 980px) {
+  .assignment-triple {
+    grid-template-columns: 1fr;
+  }
+}
