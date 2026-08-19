@@ -140,6 +140,13 @@ const modalMessage = document.getElementById('modalMessage');
 const modalOkBtn = document.getElementById('modalOkBtn');
 const modalCancelBtn = document.getElementById('modalCancelBtn');
 
+const helpBtn = document.getElementById('helpBtn');
+const helpModal = document.getElementById('helpModal');
+const helpCloseBtn = document.getElementById('helpCloseBtn');
+const helpPdfFrame = document.getElementById('helpPdfFrame');
+const helpOpenPdfBtn = document.getElementById('helpOpenPdfBtn');
+const HELP_PDF_URL = 'Bedienungsanleitung_PeterJensen_NDF-Konfigurator_Kunden.pdf';
+
 const urlParams = new URLSearchParams(window.location.search);
 
 const shopContext = {
@@ -807,6 +814,56 @@ async function assignSystemToAllRooms() {
   scrollAfterAssignment('system');
   updateSummary();
 }
+
+
+function openHelpModal() {
+  if (!helpModal) return;
+
+  if (helpPdfFrame && helpPdfFrame.getAttribute('src') !== `${HELP_PDF_URL}#view=FitH`) {
+    helpPdfFrame.setAttribute('src', `${HELP_PDF_URL}#view=FitH`);
+  }
+
+  if (helpOpenPdfBtn) {
+    helpOpenPdfBtn.setAttribute('href', HELP_PDF_URL);
+  }
+
+  helpModal.classList.remove('hidden');
+  document.body.classList.add('help-modal-open');
+
+  window.setTimeout(() => {
+    if (helpCloseBtn) helpCloseBtn.focus();
+  }, 0);
+}
+
+function closeHelpModal() {
+  if (!helpModal) return;
+  helpModal.classList.add('hidden');
+  document.body.classList.remove('help-modal-open');
+
+  if (helpBtn) helpBtn.focus();
+}
+
+if (helpBtn) {
+  helpBtn.addEventListener('click', openHelpModal);
+}
+
+if (helpCloseBtn) {
+  helpCloseBtn.addEventListener('click', closeHelpModal);
+}
+
+if (helpModal) {
+  helpModal.addEventListener('click', (event) => {
+    if (event.target === helpModal) {
+      closeHelpModal();
+    }
+  });
+}
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && helpModal && !helpModal.classList.contains('hidden')) {
+    closeHelpModal();
+  }
+});
 
 function showAppModal({ title = 'Hinweis', message = '', confirmText = 'OK', cancelText = null }) {
   return new Promise((resolve) => {
