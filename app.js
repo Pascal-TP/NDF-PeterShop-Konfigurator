@@ -2845,8 +2845,56 @@ function setDistanceMode(mode) {
   state.distanceMode = mode === 'manual' ? 'manual' : 'plz';
   distanceModeChoices?.querySelectorAll('.choice-card').forEach(card => card.classList.toggle('active', card.dataset.distanceMode === state.distanceMode));
   postcodeDistanceBox?.classList.toggle('hidden', state.distanceMode === 'manual');
-  updateManualDistanceVisibility(); updateSummary(); updateNextButtonAndStepHint();
+  updateManualDistanceVisibility(); updatePostcodeLocationHint(); updateSummary(); updateNextButtonAndStepHint();
 }
+function getPostcodeLocationHintBox() {
+  let box = document.getElementById('postcodeLocationHint');
+
+  if (!box && postcodeDistanceBox) {
+    box = document.createElement('div');
+    box.id = 'postcodeLocationHint';
+    box.className = 'postcode-location-hint hidden';
+    postcodeDistanceBox.appendChild(box);
+  }
+
+  return box;
+}
+
+function updatePostcodeLocationHint() {
+  const box = getPostcodeLocationHintBox();
+  if (!box) return;
+
+  if (state.distanceMode !== 'plz') {
+    box.classList.add('hidden');
+    box.innerHTML = '';
+    return;
+  }
+
+  const plzRaw = document.getElementById('plz')?.value.trim() || '';
+
+  if (!/^\d{5}$/.test(plzRaw)) {
+    box.classList.add('hidden');
+    box.innerHTML = '';
+    return;
+  }
+
+  const entry = getDistanceEntryForPlz(plzRaw);
+
+  if (!entry) {
+    box.classList.add('hidden');
+    box.innerHTML = '';
+    return;
+  }
+
+  const roundedKm = Math.round(Number(entry.km) || 0);
+
+  box.innerHTML = `
+    <strong>${entry.plz} ${entry.ort}</strong>
+    <span>Luftlinie zu PETER JENSEN 20537 Hamburg: ca. ${roundedKm} km</span>
+  `;
+  box.classList.remove('hidden');
+}
+
 function updateManualDistanceVisibility() {
   if (!manualDistanceBox) return;
   if (state.distanceMode === 'manual') { manualDistanceBox.classList.remove('hidden'); if(manualDistanceHint)manualDistanceHint.textContent='Bitte geben Sie die tatsächliche bzw. Ihnen bekannte Entfernung in Kilometern ein.'; return; }
@@ -5049,6 +5097,7 @@ document.getElementById('plz').addEventListener('input', async (e) => {
   }
 
   updateManualDistanceVisibility();
+  updatePostcodeLocationHint();
   updateSummary();
   edToNextStep();
 

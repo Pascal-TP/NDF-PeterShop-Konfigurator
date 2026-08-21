@@ -1612,3 +1612,26 @@ body.help-modal-open {
     display: none !important;
   }
 }
+
+
+/* Standort: gefundene PLZ mit Ort und Luftlinienentfernung */
+.postcode-location-hint {
+  display: grid;
+  gap: 4px;
+  margin-top: 12px;
+  padding: 12px 14px;
+  background: #eef7ec;
+  border: 1px solid #a9cfa3;
+  border-radius: 11px;
+  color: #24352a;
+  line-height: 1.35;
+}
+
+.postcode-location-hint strong {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.postcode-location-hint span {
+  font-size: 13px;
+}
