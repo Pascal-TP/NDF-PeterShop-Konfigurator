@@ -68,9 +68,10 @@
 
           <div class="field" style="margin-top: 16px;">
             <label for="projectReference">
-              Hier können Sie Ihre Projektnummer / Ihren Projektnamen eingeben:
+              Projektnummer / Projektname <span aria-hidden="true">*</span>
             </label>
-            <input id="projectReference" type="text" placeholder="z. B. BV Mustermann / Projekt 2026-001" />
+            <input id="projectReference" type="text" required aria-required="true" placeholder="z. B. BV Mustermann / Projekt 2026-001" />
+            <small class="muted">Pflichtfeld – bitte geben Sie eine Projektnummer oder einen Projektnamen ein.</small>
           </div>
         </section>
 

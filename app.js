@@ -1190,7 +1190,7 @@ function updateNextButtonAndStepHint() {
 
 function canProceedToNextStep() {
   if (state.currentStep === 0) {
-    return true;
+    return state.projectReference.trim() !== '';
   }
 
   if (state.currentStep === 1) {
@@ -4483,6 +4483,10 @@ function updateAssignmentPointers() {
 }
 
 function getNextRequirementText() {
+  if (state.currentStep === 0 && !state.projectReference.trim()) {
+    return 'Bitte geben Sie eine Projektnummer oder einen Projektnamen ein.';
+  }
+
   if (state.currentStep === 4) {
     if (!state.floors.length) {
       return 'Bitte legen Sie mindestens eine Etage mit mindestens einem Raum an.';
@@ -4823,8 +4827,9 @@ function submitShopForm(returnUrl, payload) {
     form.appendChild(input);
   };
 
-  // Sitzungs-/Shop-Token
+  // Sitzungs-/Shop-Token und Projektbezug
   appendHiddenField('sessionToken', payload.sessionToken);
+  appendHiddenField('projectReference', payload.projectReference);
 
   /**
    * Klassische PHP-/Form-Schreibweise:
@@ -4921,6 +4926,7 @@ handoverShopBtn.addEventListener('click', async () => {
 
   const payload = {
     sessionToken: access.sessionToken || '',
+    projectReference: state.projectReference.trim(),
     items: productsForShop.map(item => ({
       sku: String(item.articleNumber || '').trim(),
       quantity: Number(item.quantity) || 0
@@ -5264,6 +5270,7 @@ if (projectReferenceInput) {
   projectReferenceInput.addEventListener('input', (e) => {
     state.projectReference = e.target.value.trim();
     updateSummary();
+    updateNextButtonAndStepHint();
   });
 }
 
