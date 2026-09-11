@@ -4802,6 +4802,63 @@ backToConfigBtn.addEventListener('click', () => {
   returnToConfiguration();
 });
 
+function buildPlanningData() {
+  const postcode = document.getElementById('plz')?.value.trim() || '';
+  const distanceEntry =
+    state.distanceMode === 'plz' && postcode
+      ? getDistanceEntryForPlz(postcode)
+      : null;
+
+  const effectiveDistanceKm = getEffectiveDistanceKm();
+
+  return {
+    schemaVersion: '1.0',
+    projectReference: state.projectReference.trim(),
+    projectType: state.projectType || '',
+    brand: state.brand || '',
+    heatSource: state.heatSource || '',
+
+    location: {
+      mode: state.distanceMode,
+      postcode: state.distanceMode === 'plz' ? postcode : '',
+      city: distanceEntry?.ort || '',
+      federalState: distanceEntry?.bundesland || '',
+      distanceKm: Number(effectiveDistanceKm) || 0,
+      distanceType: state.distanceMode === 'plz' && distanceEntry
+        ? 'airline_orientation'
+        : 'manual'
+    },
+
+    options: {
+      thermostatEnabled: state.thermostatEnabled || '',
+      distributionEnabled: state.distributionEnabled || '',
+      distributionMode: state.distributionMode || '',
+      extraInsulationEnabled: state.extraInsulationEnabled || '',
+      services: Array.isArray(state.services) ? [...state.services] : []
+    },
+
+    floors: state.floors.map((floor, floorIndex) => ({
+      index: floorIndex,
+      name: floor.name || getFloorLabel(floor, floorIndex),
+      rooms: floor.rooms.map((room, roomIndex) => ({
+        index: roomIndex,
+        name: room.name || getRoomLabel(room, roomIndex),
+        function: room.function || '',
+        areaM2: Number(String(room.area).replace(',', '.')) || 0,
+        spacing: room.spacing || '',
+        estrich: room.estrich || '',
+        heated: roomIsHeated(room),
+        assignments: {
+          system: room.assignments?.system || null,
+          thermostat: room.assignments?.thermostat || null,
+          distribution: room.assignments?.distribution || null,
+          extraInsulation: room.assignments?.extraInsulation || null
+        }
+      }))
+    }))
+  };
+}
+
 function submitShopForm(returnUrl, payload) {
   if (!returnUrl) {
     throw new Error('Keine Rückgabe-URL für den PeterShop vorhanden.');
@@ -4851,6 +4908,9 @@ function submitShopForm(returnUrl, payload) {
    * die Verarbeitung erleichtern oder als Übergangslösung dienen.
    */
   appendHiddenField('itemsJson', JSON.stringify(payload.items));
+
+  // Vollständige Planungs-/Konfigurationsdaten als JSON für PeterJensen.
+  appendHiddenField('planningDataJson', JSON.stringify(payload.planningData));
 
   document.body.appendChild(form);
 
@@ -4930,7 +4990,8 @@ handoverShopBtn.addEventListener('click', async () => {
     items: productsForShop.map(item => ({
       sku: String(item.articleNumber || '').trim(),
       quantity: Number(item.quantity) || 0
-    }))
+    })),
+    planningData: buildPlanningData()
   };
 
   // Ungültige oder leere Positionen vorsichtshalber entfernen.
